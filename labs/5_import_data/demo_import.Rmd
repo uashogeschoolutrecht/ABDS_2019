@@ -5,7 +5,6 @@ date: "`r Sys.Date()`"
 output:
   ioslides_presentation: 
     highlight: pygments
-    logo: D:/r_projects/hp_r_course/images/Logo INT_GOOD VERSION_VECTORS.png
     widescreen: yes
 ---
 <style>
@@ -59,10 +58,10 @@ library(tidyverse)
 ## Do not be absolute!
 
  * You could point to a file with an absolute path: 
- The file for the "mondial" dataset in my RStudio Server Home folder is located at:
+ The file for the "dengue_data" dataset in my RStudio Server Home folder is located at:
 ```{r, getting_absolute}
 wd <- getwd()
-file_path <- file.path(wd, "data", "Patients file MONDIAL.csv")
+file_path <- file.path(wd, "data", "dengue_data.csv")
 file_path
 ```
 
@@ -88,9 +87,20 @@ To make the code as reproducible as possible
  2) Use this `file.path` as argumnent for the call in your import function. Construct the `file.path` relative to `root`
 
 ```{r, file_path_example}
-path_to_mondial <- file.path(root, "data", "Patients file MONDIAL.csv")
-mondial <- read_csv2(path_to_mondial)
+path_to_dengue <- file.path(here::here("data", 
+                                       "dengue_data.csv"))
+
+dengue <- read_csv(path_to_dengue, skip = 11)
 ```
+
+## Using the Linux Terminal
+Remember the Linux Terminal:
+Open a new terminal and get the `head` (first 20 lines) of the `"data/dengue_data.csv"` file
+
+```{bash, eval = FALSE}
+head -20 data/dengue_data.csv
+```
+Run this command above in a Lnux Terminal. Why did I set skip = 20 in the R-code above?
 
 ## Getting started with importing files
 Most of readr's functions are concerned with turning flat files into data frames:
