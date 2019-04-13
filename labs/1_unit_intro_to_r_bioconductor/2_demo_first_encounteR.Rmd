@@ -1,0 +1,277 @@
+---
+title: "First EncounteR"
+author: "Marc A.T. Teunis"
+date: '`r Sys.Date()`'
+output: 
+   BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+---
+<style>
+
+.footer {
+    font-size: 16pt;
+    color: Black;
+    font-family: 'Helvetica'
+    content: attr(label);
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align:center;
+    bottom: 10px;
+    line-height: 1.9;
+    display: block;
+}
+
+</style>
+
+<div class="footer" style="margin-top;font-size:120%;"> 
+Using R in Life Sciences - January 2018 </div>
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+```{r, knitr_setup, warning=FALSE, error=FALSE, message=FALSE, include=FALSE}
+## setting knitr options
+if (!require("knitr")) utils::install.packages("knitr")
+library(knitr)
+
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning = FALSE, 
+                      error = FALSE, 
+                      message = FALSE, fig.width = 5, fig.height = 5)
+knitr::opts_knit$set(root.dir = root)
+```
+
+## Packages
+```{r}
+library(tidyverse)
+```
+
+# Intro to R and RStudio "On the fly Demo"
+
+
+## The data 
+
+ - The datafile "demo_populations.csv" contains over two million rows:
+First try to import the file "./data/demo_populations.csv"
+into Excel, what happens?
+ 
+ - Try making a summary box plot for each country, for the two sampled populations
+in Excel
+
+## In MS Excel
+```{r, echo=FALSE, out.width="1000px"}
+knitr::include_graphics(path = file.path(root, 
+                                         "images", 
+                                         "importing_big_file_in_excel.jpg"))
+```
+
+## Importing the same file in R
+```{r}
+populations <- read_delim(file = file.path(root, "data", 
+                                           "demo_populations.csv"), 
+                                            delim = ",")
+head(populations, 4)
+## number of rows:
+formatC(nrow(populations), format = "e", digits = 1)
+```
+
+## Graphs - R code
+```{r, dpi=130}
+## get names of variables
+names(populations)
+
+## summarize data
+bars <- populations %>%
+  group_by(countries, sample) %>%
+  summarise(mean_value = mean(value)) %>% 
+  # the above result is piped (using %>%) to the ggplot() function
+
+## graph data using ggplot2
+ggplot(aes(x = sample, y = mean_value)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ countries)
+```
+
+## Bar Graphs - images
+```{r}
+bars
+```
+
+## R as a calculator
+```{r calculator}
+1 + 1 # add
+sqrt(2) # root square 
+2^2 # raise to the power of
+(900 - 20 + (90*20)/2)^60 # more complex with ()
+```
+
+## R does statistics
+```{r random numbers}
+set.seed(123)
+```
+
+Let's assume we have a numeric measure for two population samples (1.3 million) 
+in five countries each. 
+So each country was sampled twice (the data we used above). 
+Performing a t.test is easy
+```{r generate_samples}
+pop_1 <- rnorm(mean = 4.89, sd = 0.89, n = 1300000)
+pop_2 <- rnorm(mean = 10.34, sd = 2.83, n = 1300000)
+t.test(pop_1, pop_2)
+```
+
+Is the T-test the right test here?
+
+## There are many packages to add-on to R
+```{r packages, eval = FALSE}
+library(tidyverse)
+library(RforProteomics)
+library(readMzXmlData)
+library(pheatmap)
+library(DESeq2)
+library(stringr)
+library(drc)
+
+```
+
+## R likes dataframes
+```{r coerce_to_dataframe}
+populations <- tibble(pop_1, pop_2)
+head(populations, 4)
+```
+
+## You can add variables (the 5 countries)
+```{r add_countries_variable}
+countries <- rep(1:5, times = length(pop_1)/5)
+populations <- tibble(pop_1, pop_2, countries) %>%
+  print()
+
+```
+
+To see the dataframe
+```{r head_dataframe}
+populations
+```
+
+## R can reshape data
+```{r reshape}
+populations <- populations %>% 
+  gather(key = sample, value = value, pop_1:pop_2) %>%
+  print()
+```
+
+## R can plot
+```{r plot_freqpoly}
+ggplot(data = populations, aes(x = value)) +
+  geom_freqpoly(aes(color = sample))
+```
+
+
+## R can summarize data
+```{r data_summary}
+populations$sample <- as.factor((populations$sample))
+levels(populations$sample)
+
+summary_populations <- populations %>% 
+  group_by(sample) %>%
+  summarise(mean = mean(value),
+            sd = sd(value))
+```
+
+
+## A more meaningful bar plot
+```{r plot_bar, fig.width=4, fig.height=4}
+ggplot(data = summary_populations, aes(x = sample, y = mean)) + 
+  geom_bar(aes(fill = sample), stat = "identity", position = "dodge") +
+  geom_errorbar(aes(ymin = mean-sd, ymax = mean+sd),
+                width=.2,                    # Width of the error bars
+                position=position_dodge(.9))
+```
+
+
+## Save graphics
+```{r ggsave, eval=FALSE}
+ggsave(filename = "./images/demo_bar.png")
+```
+
+## Save dataframe
+```{r save_data, eval=FALSE}
+write_csv(populations, path = "./data/demo_populations.csv")
+```
+
+## R can read external data
+```{r read_data}
+gene_expression <- read_csv(file.path(root, "data", "results.csv"))
+gene_expression
+```
+
+## There are many resources
+```{r resources, eval = FALSE}
+# ?dplyr
+# ?filter
+# ?dplyr::filter
+url_blog <- "https://www.r-bloggers.com/"
+url_doc <- "https://www.rdocumentation.org/"
+url_cran <-"https://www.r-project.org/help.html" 
+url_hadley <- "http://hadley.nz/"
+```
+
+## You can create you own functions
+```{r functions}
+?rep
+
+## function:
+  repeating <- function(string, times){
+  rep <- rep(string, times = times)
+  rep <- as_tibble(rep)
+  names(rep) <- c("input_string")
+  return(rep)
+    
+ }
+```
+
+## Apply `repeating()` on string
+```{r}
+r_is_great <- c("R is great for Data Science")
+## apply string to function
+r_is_great_table <- repeating(r_is_great, times = 100)
+r_is_great_table
+```
+
+## Looping over lists with functions
+Let's apply the function above on multiple strings in a list
+```{r}
+
+## First we create a list with strings
+
+strings_list <- as.list(c("These are the first step to greatness with R",
+                          "Functional programming in R is pretty difficult!",
+                          "Once you get to know R, your life will never be the same",
+                          "R is way better than Matlab!!"))
+
+## inspect the list
+strings_list
+
+```
+
+## Apply the function `repeating()` to our `strings_list`
+```{r}
+
+repeating_many <- lapply(strings_list, repeating, times = 10) %>%
+##  convert to tibble
+dplyr::bind_rows() %>%
+  as_tibble() %>%
+  group_by(input_string) %>%
+  summarise(count = n())
+
+repeating_many
+## look at the ordering, does it make sense?
+```

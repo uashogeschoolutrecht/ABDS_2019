@@ -1,0 +1,454 @@
+---
+title: "Several R plot examples"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation: 
+    highlight: pygments
+    widescreen: yes
+---
+<style>
+
+.footer {
+    font-size: 16pt;
+    color: Black;
+    font-family: 'Helvetica'
+    content: attr(label);
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align:center;
+    bottom: 10px;
+    line-height: 1.9;
+    display: block;
+}
+
+</style>
+
+<div class="footer" style="margin-top;font-size:120%;"> 
+Data Analysis Using R - `r Sys.Date()` </div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      error = FALSE,
+                      message = FALSE)
+
+```
+
+## In the intro lecture we saw the CIRCOS plot.
+The code of this plot is depicted in the `code chunk` below.
+```{r}
+# Press the `knit` button in RStudio and look at the result.
+```
+
+## R packages
+```{r, echo=TRUE}
+## CRAN
+require("stats") || utils::install.packages("stats")
+library(stats)
+require("circlize") || utils::install.packages("circlize")
+library(circlize) 
+library(pheatmap)
+library(ggplot2)
+library(drc)
+library(tidyverse)
+
+## Bionconductor
+#source("https://bioconductor.org/biocLite.R")
+# biocLite("DESeq2")
+#biocLite("GEOquery")
+#biocLite("tximport")
+#biocLite("tximportData")
+#biocLite("pasilla")
+library(DESeq2)
+library(GEOquery)
+library("tximport")
+library("readr")
+library("tximportData")
+library(pasilla)
+library(ReactomePA)
+# biocLite("vsn")
+#install.packages("ashr")
+```
+
+## Circos plot
+```{r}
+# dend: as dendrogram object, usually returned by hclust and as.dendrogram
+# maxy: maximum height of the tree
+circos.dendrogram = function(dend, maxy) {
+  labels = as.character(labels(dend))
+  x = seq_along(labels) - 0.5
+  names(x) = labels
+  
+  is.leaf = function(object) (is.logical(L <- attr(object, "leaf"))) && L
+  
+  # recursive function to draw the tree
+  draw.d = function(dend, maxy) {
+    leaf = attr(dend, "leaf")
+    d1 = dend[[1]]
+    d2 = dend[[2]]
+    height = attr(dend, 'height')
+    midpoint = attr(dend, 'midpoint')
+    
+    if(is.leaf(d1)) {
+      x1 = x[as.character(attr(d1, "label"))]
+    } else {
+      x1 = attr(d1, "midpoint") + x[as.character(labels(d1))[1]]
+    }
+    y1 = attr(d1, "height")
+    
+    if(is.leaf(d2)) {
+      x2 = x[as.character(attr(d2, "label"))]
+    } else {
+      x2 = attr(d2, "midpoint") + x[as.character(labels(d2))[1]]
+    }
+    y2 = attr(d2, "height")
+    
+    circos.lines(c(x1, x1), maxy - c(y1, height), straight = TRUE)
+    circos.lines(c(x1, x2), maxy - c(height, height))
+    circos.lines(c(x2, x2), maxy - c(y2, height), straight = TRUE)
+    
+    if(!is.leaf(d1)) {
+      draw.d(d1, maxy)
+    }
+    if(!is.leaf(d2)) {
+      draw.d(d2, maxy)
+    }
+  }
+  
+  draw.d(dend, maxy)
+}
+
+
+mat = matrix(rnorm(100*10), nrow = 10, ncol = 100)
+factors = rep(letters[1:2], 50)
+par(mar = c(1, 1, 1, 1))
+circos.par(cell.padding = c(0, 0, 0, 0), gap.degree = 5)
+circos.initialize(factors, xlim = c(0, 50))
+maxy = 0
+
+f = colorRamp2(breaks = c(-1, 0, 1), colors = c("green", "black", "red"))
+
+circos.trackPlotRegion(ylim = c(0, 10), bg.border = NA, panel.fun = function(x, y) {
+  sector.index = get.cell.meta.data("sector.index")
+  m = mat[, factors == sector.index]
+  
+  dend.col = as.dendrogram(hclust(dist(t(m))))
+  
+  maxy = ifelse(maxy > attr(dend.col, "height"), maxy, attr(dend.col, "height"))
+  assign("maxy", maxy, envir = .GlobalEnv)
+  
+  m2 = m[, labels(dend.col)]
+  nr = nrow(m2)
+  nc = ncol(m2)
+  for(i in 1:nr) {
+    for(j in 1:nc) {
+      circos.rect(j-1, nr-i, j, nr-i+1, border = f(m2[i, j]), col = f(m2[i, j]))
+    }
+  }
+  
+})
+circos.trackPlotRegion(ylim = c(0, maxy), bg.border = NA, track.height = 0.3, panel.fun = function(x, y) {
+  sector.index = get.cell.meta.data("sector.index")
+  m = mat[, factors == sector.index]
+  
+  dend.col = as.dendrogram(hclust(dist(t(m))))
+  
+  circos.dendrogram(dend.col, maxy)
+  
+})
+
+circos.clear()
+
+x = seq(-10, 10, length.out=100)/40
+col =f(seq(-2, 2, length.out = length(x-1)))
+for(i in seq_along(x)) {
+  if(i == 1) next
+  rect(x[i-1], -0.05, x[i], 0.05, col = col[i], border = col[i])
+}
+
+text(x[1], -0.08, "-2", adj = c(0.5, 1), cex = 1.2)
+text(x[ceiling(length(x)/2)], -0.08, "0", adj = c(0.5, 1), cex = 1.2)
+text(x[length(x)], -0.08, "2", adj = c(0.5, 1), cex = 1.2)
+```
+
+## Heatmaps
+```{r}
+library(gplots)
+library(geneplotter)
+
+# Mol Biol Cell. 1998 Dec;9(12):3273-97.
+# Comprehensive identification of cell cycle-regulated genes of the yeast
+# Saccharomyces cerevisiae by microarray hybridization.
+# Spellman PT, Sherlock G, Zhang MQ, Iyer VR, Anders K, Eisen MB, Brown PO, Botstein D, Futcher B.
+# Department of Genetics, Stanford University Medical Center, Stanford, California 94306-5120, USA.
+#
+# We sought to create a comprehensive catalog of yeast genes whose transcript levels vary
+# periodically within the cell cycle. To this end, we used DNA microarrays and samples from
+# yeast cultures synchronized by three independent methods: alpha factor arrest, elutriation,
+# and arrest of a cdc15 temperature-sensitive mutant. Using periodicity and correlation algorithms,
+# we identified 800 genes that meet an objective minimum criterion for cell cycle regulation.
+# In separate experiments, designed to examine the effects of inducing either the G1 cyclin
+# Cln3p or the B-type cyclin Clb2p, we found that the mRNA levels of more than half of these
+# 800 genes respond to one or both of these cyclins. Furthermore, we analyzed our set of cell
+# cycle-regulated genes for known and new promoter elements and show that several known elements
+# (or variations thereof) contain information predictive of cell cycle regulation. A full
+# description and complete data sets are available at http://cellcycle-www.stanford.edu
+
+# read the data in from URL
+bots <- read.table(url("http://genome-www.stanford.edu/cellcycle/data/rawdata/combined.txt"), sep="\t", header=TRUE)
+
+# get just the alpha data
+abot <- bots[,c(8:25)]
+rownames(abot) <- bots[,1]
+abot[1:7,] %>% as_tibble()
+
+# get rid of NAs
+abot[is.na(abot)] <- 0
+
+# we need to find a way of reducing the data. Can't do ANOVA as there are no
+# replicates. Sort on max difference and take first 1000
+min <-apply(abot, 1, min)
+max <- apply(abot, 1, max)
+sabot <- abot[order(max - min, decreasing=TRUE),][1:1000,]
+
+# cluster on correlation
+cdist <- as.dist(1 - cor(t(sabot)))
+hc <- hclust(cdist, "average")
+```
+
+## Draw a heatmap
+```{r}
+# x11()
+heatmap.2(as.matrix(sabot),
+          Rowv=as.dendrogram(hc),
+          Colv=FALSE,
+          cexRow=0.05,
+          cexCol=1,
+          dendrogram="row",
+          scale="row",
+          trace="none",
+          density.info="none",
+          key=FALSE,
+          col=greenred.colors(80))
+```
+
+## Different colours
+```{r}
+# x11()
+heatmap.2(as.matrix(sabot),
+          Rowv=as.dendrogram(hc),
+          Colv=FALSE,
+          cexRow=0.05,
+          cexCol=1,
+          dendrogram="row",
+          scale="row",
+          trace="none",
+          density.info="none",
+          key=FALSE,
+          col=heat.colors(80))
+```
+
+## More control over colours
+```{r}
+# x11()
+
+my_palette <- colorRampPalette(c("blue", "yellow", "darkgreen"))(n = 80)
+
+heatmap.2(as.matrix(sabot),
+          Rowv=as.dendrogram(hc),
+          Colv=FALSE,
+          cexRow=0.05,
+          cexCol=1,
+          dendrogram="row",
+          scale="row",
+          trace="none",
+          density.info="none",
+          key=FALSE,
+          col=my_palette)
+```
+
+## Dose response relations
+```{r, echo=TRUE}
+library(drc)
+ryegrass %>% as_tibble()
+## Fitting models to be plotted below
+ryegrass.m1 <- drm(rootl~conc, data = ryegrass, fct = LL.4())
+ryegrass.m2 <- drm(rootl~conc, data = ryegrass, fct = LL.3())  
+# lower limit fixed at 0
+```
+
+## Plotting observations and fitted curve for the first model
+```{r}
+library(drc)
+plot(ryegrass.m1, broken = TRUE)
+```
+
+## Adding fitted curve for the second model (not much difference)
+```{r}
+plot(ryegrass.m1, broken = TRUE)
+plot(ryegrass.m2, broken = TRUE, add = TRUE, type = "none", col = 2, lty = 2)
+```
+
+## Add confidence region for the first model.
+```{r}
+plot(ryegrass.m1, broken = TRUE)
+plot(ryegrass.m2, broken = TRUE, add = TRUE, type = "none", col = 2, lty = 2)
+plot(ryegrass.m1, broken = TRUE, type="confidence", add=TRUE) 
+```
+
+## Finetuning the axis break
+```{r}
+plot(ryegrass.m1, broken = TRUE, bcontrol = list(style = "gap"))
+```
+
+## Pathway analysis
+```{r}
+library(ReactomePA)
+## try http:// if https:// URLs are not supported
+source("https://bioconductor.org/biocLite.R")
+#biocLite("ReactomePA")
+#biocLite("DOSE")
+#biocLite("org.Hs.eg.db")
+#browseVignettes("ReactomePA")
+
+library(org.Hs.eg.db)
+library(DOSE)
+library(ReactomePA)
+
+## ------------------------------------------------------------------------
+library(ReactomePA)
+data(geneList)
+de <- names(geneList)[abs(geneList) > 1.5]
+head(de)
+x <- enrichPathway(gene=de,pvalueCutoff=0.05, readable=T)
+head(as.data.frame(x))
+```
+
+## Barplot
+```{r, fig.height=6, fig.width=12}
+## ----fig.height=6, fig.width=12------------------------------------------
+
+barplot(x, showCategory=8)
+
+```
+
+## Network with clusters
+```{r}
+## ----fig.height=10, fig.width=10-----------------------------------------
+emapplot(x)
+```
+
+## Cnet network
+```{r}
+## ----fig.height=8, fig.width=8-------------------------------------------
+cnetplot(x, categorySize="pvalue", foldChange=geneList)
+```
+
+## ggplot2
+```{r}
+library(ggplot2)
+library(dplyr)
+library(gapminder)
+library(wesanderson)
+
+gap_07 <- filter(gapminder, year == 2007)
+
+ggplot(gap_07, aes(x = gdpPercap, y = lifeExp,
+                   color = continent)) +
+
+  geom_point(size = 2) +
+  scale_x_log10() +
+  theme_light() +
+  theme(legend.position = c(0.1, 0.85),
+legend.key = element_blank(),
+axis.text = element_text(size = 12),
+axis.title = element_text(size = 14)) +
+  labs(x = "Per capita GDP",
+       y = "Life Expectancy",
+       title = "2007 Life Expectancy and GDP",
+        color = "Continent") +
+  ggsave("life_exp_gdp_2007_cutom.png", 
+width = 7, height = 7)
+```
+
+## Wells plates
+```{r}
+# install.packages("platetools")
+library(platetools)
+library(viridis)
+
+# example dataframe
+df <- data.frame(vals = rnorm(384),
+                 well = num_to_well(1:384, plate = 384))
+
+raw_map(data = df$vals,
+        well = df$well,
+        plate = 384) +
+    ggtitle("Example 384-well plate") +
+    theme_dark() +
+    scale_fill_viridis()
+```
+
+```{r, include=FALSE}
+library(seqinr)
+## Workflow to create senquence logo's in R
+# https://davetang.org/muse/2013/01/30/sequence-logos-with-r/ 
+library(Biostrings)  
+library(seqLogo)
+
+# Create position weight matrix
+
+## Example sequences
+sequences <- c("GCCAAAAAAA",
+               "CGCAAAAAAA",
+               "TCATAAAAAC",
+               "GCATTAAAAA",
+               "TCGTAAAAAC")
+               
+#?consensusMatrix
+
+sequences <- DNAStringSet(sequences)
+cmx <- consensusMatrix(sequences)
+cmx
+
+hasOnlyBaseLetters(sequences)
+
+clean_cmx <- alphabetFrequency(sequences, baseOnly=TRUE)
+               
+#install if necessary
+#source("http://bioconductor.org/biocLite.R")
+#biocLite("seqLogo")
+
+
+
+#create data frame using the four vectors
+
+#define function that divides the frequency by the row sum i.e. proportions
+proportion <- function(x){
+  rs <- sum(x);
+  return(x / rs);
+}
+
+
+
+#create position weight matrix
+clean_cmx <- t(clean_cmx)
+clean_cmx <- as.data.frame(clean_cmx[c(1:4),])
+clean_cmx
+
+pwm <- apply(clean_cmx, 2, proportion)
+pwm
+pwm <- makePWM(pwm)
+```
+
+## Sequence logo plot
+```{r}
+#png("hunchback.png")
+seqLogo(pwm)
+# dev.off()
+
+```

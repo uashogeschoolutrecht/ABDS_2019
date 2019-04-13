@@ -1,0 +1,381 @@
+---
+title: "Data Import; Getting Data into R"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation: 
+    highlight: pygments
+    logo: D:/r_projects/hp_r_course/images/Logo INT_GOOD VERSION_VECTORS.png
+    widescreen: yes
+---
+<style>
+
+.footer {
+    font-size: 16pt;
+    color: Black;
+    font-family: 'Helvetica'
+    content: attr(label);
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align:center;
+    bottom: 10px;
+    line-height: 1.9;
+    display: block;
+}
+
+</style>
+
+<div class="footer" style="margin-top;font-size:120%;"> 
+Data Analysis Using R - July 2017 </div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 5, fig.height = 3)
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+## Lesson Aim
+
+In this chapter, you'll learn how to read plain-text rectangular files into R. 
+
+ * In this lesson, you'll learn how to load flat files in R with the __readr__ package, which is part of the core tidyverse.
+ * We will also see some other functions that you can use to read and write data
+ * But first we look at paths
+
+## Packages
+
+```{r, packages, message = FALSE}
+library(tidyverse)
+```
+
+## Do not be absolute!
+
+ * You could point to a file with an absolute path: 
+ The file for the "mondial" dataset in my RStudio Server Home folder is located at:
+```{r, getting_absolute}
+wd <- getwd()
+file_path <- file.path(wd, "data", "Patients file MONDIAL.csv")
+file_path
+```
+
+*__When working on a local machine, this probably makes the code run only on that machine__*
+
+## But rather be relative!!
+
+ * ALWAYS work in an RStudio project. 
+ * Also when you are playing (call your project "play")!
+ * ONLY use relative paths, they prevent code from breaking in the future
+ * Use {rprojroot} to set the root of your project
+```{r}
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+root
+```
+
+## Construct a path to a data file
+
+To make the code as reproducible as possible
+ 
+ 1) Construct a `file.path` to the data file you want to import
+ 2) Use this `file.path` as argumnent for the call in your import function. Construct the `file.path` relative to `root`
+
+```{r, file_path_example}
+path_to_mondial <- file.path(root, "data", "Patients file MONDIAL.csv")
+mondial <- read_csv2(path_to_mondial)
+```
+
+## Getting started with importing files
+Most of readr's functions are concerned with turning flat files into data frames:
+
+* `read_csv()` reads comma delimited files, 
+* `read_csv2()` reads semicolon
+  separated files (common in countries where "`,`" is used as the decimal place),
+* `read_tsv()` reads tab delimited files, and 
+* `read_delim()` reads in files with any delimiter.
+* `read_fwf()` reads fixed width files. You can specify fields either by their
+  widths with `fwf_widths()` or their position with `fwf_positions()`.
+* `read_table()` reads a common variation of fixed width files where columns are separated by white space.
+
+## CSV as the golden standard
+
+* Convert Excel files to CSV files
+* Use CSV as much as possible
+* The delimiter in CSV can be different: "," or ";"
+* `read_csv` works with ","
+* `read_csv2` works with ";"
+
+## General syntax
+The first argument to `read_csv()` is the most important: it's the path to the file to read.
+
+```{r, message = TRUE}
+?read_csv
+path_to_file <- file.path(root, "data", "heights.csv")
+heights <- read_csv(file = path_to_file)
+```
+
+## Parser message
+When you run `read_csv()` it prints out a column specification that gives the name and type of each column. That's an important part of readr, which we'll come back to in [parsing a file].
+
+## Experiment with readr
+You can also supply an inline csv file. This is useful for experimenting with readr and for creating reproducible examples to share with others:
+
+```{r}
+read_csv("a,b,c
+1,2,3
+4,5,6")
+# each new line results in a new row of observations
+```
+
+## Changing default behaviour
+In both cases `read_csv()` uses the first line of the data for the column names, which is a very common convention. There are two cases where you might want to tweak this behaviour:
+
+## Skipping lines (usually at the top of the file)
+Sometimes there are a few lines of metadata at the top of the file. You can
+use `skip = n` to skip the first `n` lines; or use `comment = "#"` to drop
+all lines that start with (e.g.) `#`.
+    
+```{r}
+read_csv("The first line of metadata
+The second line of metadata
+x,y,z
+1,2,3", skip = 2)
+    
+read_csv("# A comment I want to skip
+x,y,z
+1,2,3", comment = "#")
+```
+
+## No headers / column names    
+The data might not have column names. You can use `col_names = FALSE` to
+tell `read_csv()` not to treat the first row as headings, and instead
+label them sequentially from `X1` to `Xn`:
+    
+```{r}
+read_csv("1,2,3 \n 4,5,6", col_names = FALSE)
+```
+    
+(`"\n"` is a convenient shortcut for adding a new line. You'll learn more
+about it and other types of string escape in [string basics].)
+
+## Setting column names for `readr`    
+Alternatively you can pass `col_names` a character vector which will be
+used as the column names:
+    
+```{r}
+read_csv("1,2,3\n4,5,6", col_names = c("var_1", "var_2", "var_3"))
+```
+
+## Missing values
+Another option that commonly needs tweaking is `na`: this specifies the value (or values) that are used to represent missing values in your file:
+
+```{r}
+read_csv("a,b,c \n 1,2,.", na = ".")
+```
+
+## Examples to learn more
+You can also easily adapt what you've learned to read tab separated files with
+
+ * `read_tsv()` and 
+ * fixed width files with `read_fwf()`. 
+
+To read in more challenging files, you'll need to learn more about how readr parses each column, turning them into R vectors. This is an advanced operation and will be addressed during exercises, when we need it
+
+1.  `parse_logical()` and `parse_integer()` parse logicals and integers
+    respectively. There's basically nothing that can go wrong with these
+    parsers so I won't describe them here further.
+    
+2.  `parse_double()` is a strict numeric parser, and `parse_number()` 
+    is a flexible numeric parser. These are more complicated than you might
+    expect because different parts of the world write numbers in different
+    ways.
+    
+3.  `parse_character()` seems so simple that it shouldn't be necessary. But
+    one complication makes it quite important: character encodings.
+
+4.  `parse_factor()` create factors, the data structure that R uses to represent
+    categorical variables with fixed and known values.
+
+5.  `parse_datetime()`, `parse_date()`, and `parse_time()` allow you to
+    parse various date & time specifications. These are the most complicated
+    because there are so many different ways of writing dates.
+
+We will adress only the most important parsers
+
+## Numbers
+It seems like it should be straightforward to parse a number, but three problems make it tricky:
+
+* People write numbers differently in different parts of the world. For example, some countries use `.` in between the integer and fractional parts of a real number, while others use `,`.
+* Numbers are often surrounded by other characters that provide some context, like "$1000" or "10%".
+* Numbers often contain "grouping" characters to make them easier to read, like "1,000,000", and these grouping characters vary around the world.
+
+## Overiding the default `decimal_mark`
+You can override the default value of `.` (dot) by creating a new locale and setting the `decimal_mark` argument:
+
+```{r}
+parse_double("1.23")
+parse_double("1,23", locale = locale(decimal_mark = ","))
+# in Some countries "," is used as a decimal place holder
+```
+
+## Setting local settings
+readr's default locale is US-centric, because generally R is US-centric (i.e. the documentation of base R is written in American English). An alternative approach would be to try and guess the defaults from your operating system. This is hard to do well, and, more importantly, makes your code fragile: even if it works on your computer, it might fail when you email it to a colleague in another country.
+
+## Numbers parsing
+`parse_number()` addresses the second problem: it ignores non-numeric characters before and after the number. This is particularly useful for currencies and percentages, but also works to extract numbers embedded in text.
+
+```{r}
+parse_number("$100")
+parse_number("20%")
+parse_number("It cost $123.45")
+```
+
+## Grouping marks
+The final problem is addressed by the combination of `parse_number()` and the locale as `parse_number()` will ignore the "grouping mark":
+
+```{r}
+# Used in America
+parse_number("$123,456,789")
+# Used in many parts of Europe
+parse_number("123.456.789")
+# setting grouping_mark solves the parsing issue
+parse_number("123.456.789", locale = locale(grouping_mark = "."))
+# Used in Switzerland
+parse_number("123'456'789", locale = locale(grouping_mark = "'"))
+```
+
+## Factors {#readr-factors}
+R uses factors to represent categorical variables that have a known set of possible values. Give `parse_factor()` a vector of known `levels` to generate a warning whenever an unexpected value is present:
+
+```{r}
+fruit <- c("apple", "banana")
+parse_factor(c("apple", "banana", "cherry"), levels = fruit)
+```
+
+But if you have many problematic entries, it's often easier to leave as character vectors and then use the tools you'll learn about in [strings] and [factors] to clean them up.
+
+## Dates, date-times, and times {#readr-datetimes}
+
+You pick between three parsers depending on whether you want a date (the number of days since 1970-01-01), a date-time (the number of seconds since midnight 1970-01-01), or a time (the number of seconds since midnight). When called without any additional arguments:
+
+## Datetime
+
+* `parse_datetime()` expects an ISO8601 date-time. ISO8601 is an international standard in which the components of a date are organised from biggest to smallest: 
+
+year, month, day, hour, minute, second.
+    
+```{r}
+parse_datetime("2010-10-01T2010")
+# If time is omitted, it will be set to midnight
+parse_datetime("20101010")
+```
+    
+This is the most important date/time standard, and if you work with
+dates and times frequently, I recommend reading
+<https://en.wikipedia.org/wiki/ISO_8601>
+
+## Date
+
+ * `parse_date()` expects a four digit year, a `-` or `/`, the month, a `-` or `/`, then the day:
+    
+```{r}
+parse_date("2010-10-01")
+```
+
+## Time
+
+* `parse_time()` expects the hour, `:`, minutes, optionally `:` and seconds, and an optional am/pm specifier:
+  
+```{r}
+library(hms)
+parse_time("01:10 am")
+parse_time("20:10:01")
+    ```
+    
+## Build your own time format
+
+The best way to figure out the correct format is to create a few examples in a character vector, and test with one of the parsing functions. For example:
+
+```{r}
+parse_date("01/02/15", "%m/%d/%y")
+parse_date("01/02/15", "%d/%m/%y")
+parse_date("01/02/15", "%y/%m/%d")
+```
+
+If you're using `%b` or `%B` with non-English month names, you'll need to set the  `lang` argument to `locale()`. See the list of built-in languages in `date_names_langs()`, or if your language is not already included, create your own with `date_names()`.
+
+## French example
+```{r}
+parse_date("1 janvier 2015", "%d %B %Y", locale = locale("fr"))
+```
+
+## Parsing a file; example
+To parse a file succesfully, you can define the column type in the call to readr
+```{r}
+library(tidyverse)
+path_to_file <- file.path(root, "data", "vl5_dummy.csv")
+read_csv(path_to_file)
+```
+
+## How can we fix the `Data` variable?
+First try to define the `Date`variable as a `col_data()` column
+```{r}
+library(tidyverse)
+path_to_file <- file.path(root, "data", "vl5_dummy.csv")
+read_csv(path_to_file, col_types = cols(Date = col_date()
+                                        )
+         )
+```
+
+## Correcting the `Date` variable with a parser: `parse_date()
+```{r}
+library(tidyverse)
+path_to_file <- file.path(root, "data", "vl5_dummy.csv")
+vl5 <- read_csv(path_to_file, 
+                col_types = cols(Surname = col_character(),
+                                 StudentID = col_integer(),
+                                 Class = col_character(),
+                                 Score = col_number(),
+                                 Date = col_character()
+  )
+)
+head(vl5)
+```
+
+## Parsing dates is hard
+People are (always) inconsistent in data-entry ;-)
+```{r}
+parse_date(vl5$Date, format = "%y'%m'%d")
+# correcting the row 5 faulty date entry
+vl5[5, 5] <- sub(pattern = "14’05’17’", replacement = "14’05’17", x = vl5[5, 5])
+vl5[5, 5]
+```
+## Looking at the concole can save youR life 
+```{r}
+# copy the curly quote from the console and replace the normal quote with it
+vl5$Date <- parse_date(vl5$Date, format = "%y’%m’%d")
+head(vl5)
+```
+
+## Other types of data
+To get other types of data into R, we recommend starting with the tidyverse packages listed below. They're certainly not perfect, but they are a good place to start. For rectangular data:
+
+* {haven} reads SPSS, Stata, and SAS files.
+
+* {readxl} reads excel files (both `.xls` and `.xlsx`).
+
+* {DBI}, along with a database specific backend (e.g. __RMySQL__, __RSQLite__, __RPostgreSQL__ etc) allows you to run SQL queries against a database and return a data frame.
+
+For hierarchical data: use __jsonlite__ (by Jeroen Ooms) for json, and __xml2__ for XML. Jenny Bryan has some excellent worked examples at <https://jennybc.github.io/purrr-tutorial/examples.html>.
+
+For other file types, try the [R data import/export manual](https://cran.r-project.org/doc/manuals/r-release/R-data.html) and the [__rio__](https://github.com/leeper/rio) package.
+
+
+

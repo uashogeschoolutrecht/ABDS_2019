@@ -1,0 +1,677 @@
+---
+title: 'Data wrangling with dplyr'
+subtitle: "SURF Research Bootcamp"
+authors: "Marc A.T. Teunis; Jan-Willem Lankhaar; Jonathan de Bruin"
+date: "`r Sys.Date()`"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      error = FALSE,
+                      message = FALSE,
+                      fig.width = 5, fig.height = 3)
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+## Citations
+```{r}
+citation(package = "tidyverse")
+```
+
+## Packages
+```{r}
+library(tidyverse)
+library(dslabs)
+```
+
+## Case Data
+
+ * Pertussis outbreaks from The World Health Organization
+ * http://data.euro.who.int/cisid/?TabID=463987
+ * http://ecdc.europa.eu/sites/portal/files/documents/Pertussis%20AER.pdf
+ * The data used in this presentation has been constructed from the interactive database tool hosted at: http://data.euro.who.int/cisid/ 
+ * A selection was made for all available countries and all available years, for the number of cases reported to the WHO for Whooping Cough - pertussis infections.
+ * The file is avaialble in `./data/CISID_pertussis_10082018.csv`
+ * The values included here in the dataset are the total reported cases, per country per year.
+ * At the start of the file there are remarks and metadata indicated by `#`
+
+## Inspect the file with a system command from the `Terminal`
+```{r}
+system("head -20 
+       D:/r_projects/surfR/data/CISID_pertussis_10082018.csv", 
+       intern = TRUE) %>% 
+  as_tibble %>%
+  head(20)
+```
+
+The delimeter is `,` and we indeed see the comments at the start of the file. 
+
+## Read data
+```{r, read_data}
+pertussis_data <- read_csv(
+  file = file.path(root, 
+                  "data", 
+                  "CISID_pertussis_10082018.csv"),
+                           comment = "#", 
+                           na = c("", " ")
+  )
+
+```
+
+## Inspect data
+```{r, inspect_data}
+pertussis_data
+names(pertussis_data)
+```
+
+# The pipe or "%>%"
+```{r, fig.align='right', echo=FALSE}
+knitr::include_graphics(path = file.path(root, "images", "pipe.png"), dpi = 50)
+```
+
+## Pipes
+
+ - The pipe, `%>%`, comes from the __magrittr__ package by Stefan Milton Bache
+ - Load it explicitly:
+
+```{r magrittr, message = FALSE}
+library(magrittr)
+```
+
+## Using the pipe (`%>%`)
+
+No pipe:
+
+`variable_new <- do_something(variable_old)`
+
+Pipe:
+
+`variable_new <- variable_old %>% 
+  do_something(.)`
+
+or the same:
+
+`variable_new <- variable_old %>% 
+  do_something()`
+
+The `.` (dot) is a placeholder for the 'old' variable. If you need to explicitely refer to something inside `variable_old` e.g. a column in dataframe you can use `.$colum_name` 
+
+# The `{dplyr}` package in detail
+
+_Subsetting, filtering, selecting, summarizing, sorting data(frames)_
+
+## the {dplyr} package
+The dplyr package makes these steps fast and easy:
+
+* dplyr simplifies how you can think about common data manipulation tasks.
+* Simple "verbs", functions that correspond to the most common data manipulation tasks, to help you translate those thoughts into code.
+* It uses efficient data storage backends, so you spend less time waiting for the computer.
+
+## Data bases can be connected to dplyr
+
+ * Besides in-memory data frames
+ * {dplyr} also connects to out-of-memory, remote databases. 
+ * By translating your R code into the appropriate SQL
+ * Allows you to work with both types of data using the same set of tools.
+
+__dplyr can work with data frames as is, but if you're dealing with large data, it's worthwhile to convert them to a `tbl_df`: this is a wrapper around a data frame that won't accidentally print a lot of data to the screen.__
+
+## Single table verbs
+
+`{dplyr}` aims to provide a function for each basic verb of data manipulation:
+
+* `select()` (and `rename()`)
+* `left_join()` (`full_join()`, `anti_join()`, `right_join()`)
+* `filter()` (and `slice()`)
+* `arrange()`
+* `distinct()`
+* `mutate()` (and `transmute()`)
+* `summarise()`
+* `sample_n()` (and `sample_frac()`)
+
+# Prepare the data with `{tidyr}` and `{dplyr}`
+
+## Characteristics of the pertussis dataset
+
+- The first few lines of the file have comments indicated with `#`
+- There are 53 countries in the dataset
+- There is no data for the years 1980-1989 and 2014-2018
+- The data is not in `tidy` format
+- Missing values are indicated with __empty cells__
+- It is not a good idea to have a column name starting with a digit; why?
+
+** Running the R-code:
+```{r}
+pertussis_data
+```
+
+**Discuss the output with you neighbour**
+
+Try solving the questions:
+
+ - Are the rows observations?
+ - Are the columns variables?
+ - Is there a single value in each cell?
+
+## Tidy data
+To tidy the pertussis data we need to `gather` the `year` columns. We create a long formatted dataframe containing all the years in one column, all the `annual_pertussis_cases` in another, and all the countries in a seperate column. Each combination will be repated over the new columns automatically.
+
+```{r, eval=FALSE, error_variable_reference}
+## try the code below, why does it fail?
+pertussis_data_tidy <- pertussis_data %>% 
+  gather(1980:2018, key = "year", value = "annual_pertussis_cases")
+```
+
+## Using ``` ` ``` 
+To reference names that contain 'digits' or other 'special characters'
+```{r, good_variable_reference}
+pertussis_data_tidy <- pertussis_data %>% 
+  gather(`1980`:`2018`, key = "year", 
+                        value = "annual_pertussis_cases") %>%
+  mutate(annual_pertussis_cases = as.numeric(annual_pertussis_cases
+                                             ))
+pertussis_data_tidy
+```
+
+# `dplyr::rename()` & `dplyr::select()`
+
+## Renaming variables (`rename()`)
+```{r}
+names(pertussis_data_tidy)
+## we can `rename()` a variable and `select()` variables
+pertussis_data_tidy <- pertussis_data_tidy %>%
+  rename(some_strange_index = X1,
+       country = X2)
+
+pertussis_data_tidy %>% head(2)
+```
+
+## Dropping the column "some_strange_index (`select()`)
+```{r} 
+pertussis_data_tidy <- pertussis_data_tidy %>%
+  select(country,
+          year,
+          annual_pertussis_cases)
+
+pertussis_data_tidy %>% head(2)
+```
+
+## Using `-` to drop specific column(s) will also work
+```{r, eval=FALSE} 
+only_cases <- pertussis_data_tidy %>%
+  select(-c(country, year))
+
+pertussis_data_tidy %>% head(2)
+
+## When selecting multiple columns, construct a vector with `c()`
+## like select(-c(columns_1, columns_2, column_3))
+
+```
+
+# -- INTERMEZZO -- Creating a joined table 
+Before we start playing with the other `{dplyr}` verbs I would like for  you to have a more complex dataset to practice with. Here we create one joining the `gapminder` and our `pertussis` data.
+
+## Join pertussis with gapminder data
+Here we join the pertussis data with the `gapminder` data though an `inner_join()`. `{dplyr}` has many join function, which we will not go into detail here. For more information and a tutorial see:
+http://stat545.com/bit001_dplyr-cheatsheet.html
+
+```{r}
+data("gapminder", package = "dslabs")
+gapminder <- gapminder %>% as_tibble()
+```
+
+## Using `inner_join()` from `{dplyr}`
+When joining tables you need at least one shared variable, that has the same name in all tables you want to join. We call this variable (or variables) the (primary) `key`s. Here we use `country` and `year` as key to join only those observations that are fully shared for both `key`s in both datasets (`inner_join`) 
+
+```{r}
+# pertussis_data_tidy
+# gapminder
+gapminder$year <- as.character(gapminder$year)
+
+join <-   dplyr::inner_join (gapminder, pertussis_data_tidy, by = c("country", "year")) %>%
+  na.omit()
+join
+```
+*Now we are ready to start exploring and manipulating this dataset and maybe create some visualizations as we go along!*
+
+# `dplyr::filter()`
+
+## Subsetting data with `filter()`
+
+Filter all data for the country 'The Netherlands'
+```{r}
+# join$year %>% as_factor %>% levels()
+# join$country %>% as_factor() %>% levels()
+netherlands <- join %>%
+  filter(country == "Netherlands")
+netherlands
+```
+
+# Booleans
+
+Boolans such as `AND`, `OR` and `NOT` can be used to call multiple filter argument. You need to be explicit if you use them:
+
+## Using booleans with `filter()`
+```{r}
+#join$year %>% as_factor %>% levels()
+#join$country %>% as_factor() %>% levels()
+
+booleans_demo <- join %>%
+  filter(country == "Netherlands" |
+         country == "Belarus" &
+         year == "1990" |                 ## | is OR in R
+         year == "1995" &                 ## & is AND in R   
+         !annual_pertussis_cases < 100)   ## ! is NOT in R (not smaller                                                             than 100)
+booleans_demo
+```
+
+## Conditional filtering
+Conditions such as:
+
+ - `>` or `>=` (larger than, or larger or eual to), 
+ - `<` or `<=` (smaller than, or smaller or equal to) 
+ - `==` (equal to) 
+ - `!=` (not qual to)
+
+Can be built into a `filter()` or `select()` call as we have seen above.
+Let's apply this to our dataset in more detail
+
+## To match multiple filter statements you can use 
+
+`%in%`
+
+This shorthand is synonym for `match()` and takes a vector of values and a table (variable names in our case). 
+
+Look at `?%in%` for more detail amd help
+
+## Example for using `%in%` (match)
+```{r}
+numbers <- tribble(
+  ~number_1, ~number_2,
+  1,          2,
+  3,          4,
+  5,          6
+)  
+
+match_vector <- c(1,3)
+numbers %>% filter(number_1 %in% match_vector)
+```
+
+## Generalized `%in%` looks like
+```
+values_you_want_to_match_against (variable name) %in% values_to_match (vector)
+```
+
+## **Discuss with you neighbour**
+Write a filter statement using the `join` data that:
+
+ - filters only those countries that have more than 3000 annual cases for pertussis infection. 
+ - Use only data between year 1990 and 2010 
+ - The resulting table must only contain the variables `year`, `country` and `annual_pertussis_cases` in that order
+ - Create a plot that shows that your code has worked
+
+## Answer
+```{r, eval=FALSE} 
+## your answer goes here --->
+
+```
+
+**Please do not scroll ahead** 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## **ANSWER**
+```{r}
+## first define the values to match against
+years <- c(1990:2010) %>% as.character()
+## than do the filtering using %in%
+join_filtered <- join %>%
+  filter(annual_pertussis_cases > 3000 &
+         year %in% years) %>%
+  select(year,
+         country,
+         annual_pertussis_cases)
+```
+
+## Plot
+```{r}
+join_filtered %>%
+  ggplot(aes(x = year,
+             y = annual_pertussis_cases)) +
+  geom_point(aes(colour = country)) +
+  geom_line(aes(group = country, colour = country)) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+# `dplyr::arrange()`
+
+## Sorting data with `arrange()`
+ - Sort(rank) your data ascending or descending  
+ - `{dplyr}` verb to use is `arrange()`, 
+ - In conjunction with the `desc()` function if you want to rank in descending order 
+ - `arrange()` takes one or multiple variable names for which you want to sort
+
+## Example `arrange()`
+```{r}
+## ascending
+join_filtered %>%
+  arrange(annual_pertussis_cases)
+
+## descending
+join_filtered %>%
+  arrange(desc(annual_pertussis_cases))
+
+```
+Apparently the worst `pertussis` year was 1994 in Switzerland?
+
+# `dplyr::mutate()`
+
+## Changing variables on the basis of a computation (`mutate()`)
+Sometimes you want to change a variable by mutation e.g.:
+
+ - Change type of the variable
+ - Compute a new variable using two exisiting ones
+ - Do a mathmatical transformation (e.g. `log10()` of `log2()`)
+ - ... something else that mutates a variable
+ 
+You can do two things:
+ 
+ 1) Overwrite an existing variable with the newly mutated one
+ 2) Add a newly mutated variable to the existing data
+ 
+## Example `mutate()`
+The annual pertussis cases is reported as an absolulte number per year. Using the population size from the `gapminder` dataset, we can calculate the number of pertussis cases per 100.000 people in a country with `mutate()`  
+```{r}
+join_new <- join %>% 
+  dplyr::mutate(incidence = 
+                  (annual_pertussis_cases/population)*100000) %>%
+  select(incidence, 
+         annual_pertussis_cases, 
+         country, year) %>%
+  arrange(desc(incidence))
+join_new 
+```
+
+## Plotting the cases/100.000
+```{r}
+pop_size_corrected <- join_new %>%
+  filter(country == "Netherlands" | country == "Norway") %>%
+  ggplot(aes(x = year, 
+             y = incidence)) +
+  geom_line(aes(group = country, colour = country)) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+
+```
+
+## Let's see the difference between correcting for population size or not
+```{r}
+pop_size_uncorrected <- join %>%
+  filter(country == "Netherlands" | country == "Norway") %>%
+  ggplot(aes(x = year, 
+             y = annual_pertussis_cases)) +
+  geom_line(aes(group = country, colour = country)) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+## Plotting two graphs in a panel
+```{r}
+cowplot::plot_grid(pop_size_uncorrected,
+                   pop_size_corrected)
+```
+
+## **Discuss with you neighbour**
+
+Using `dplyr::mutate()`
+
+ - Calculate the log10 of the population in a new variable called `log10_pop`
+ - Add this new variable to the `join` dataset  
+ - Create a plot using this new `log10_pop` variable
+ 
+
+**please do not scroll ahead**
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+## **ANSWER**
+```{r}
+join %>% 
+  dplyr::mutate(log10_pop = log10(population)) %>%
+  ggplot(aes(x = gdp,
+             y = log10_pop)) +
+  geom_point(aes(colour = continent)) 
+#+
+ # facet_wrap(~year)
+
+```
+ 
+# Summarize data with `dplyr::summarise()`
+
+## Summary data
+Summarizing data is an important step in Exploratory Data Analysis. Especially if you have high deminsional data, summarizing might lead you to interesting findings.
+
+## Example `dplyr::summarise()`
+```{r}
+join %>%
+  group_by(country) %>%
+  summarise(total_pertussis_cases = sum(annual_pertussis_cases)) %>%
+  ggplot(aes(x = reorder(as_factor(country), total_pertussis_cases),
+             y = total_pertussis_cases)) +
+  geom_point() +
+  coord_flip() +
+  ylab("Total pertussis cases from 1990 - 2013") +
+  xlab("Country")
+```
+Reporting bias?
+ 
+## **Discuss with your neighbour**  
+
+Create a code chuk below that:
+ 
+ - Groups the data by `gdp`, `continent` and `year` (use the `gapminder` dataset)
+ - Calculate the total population and the total gdp for each continent and each year
+ - Plot the data in a graph that shows the relationship between year, continent, total gdp per continent and total population per continent.
+ 
+**TIP** You might want to map population-size to the size of the datapoints 
+
+```{r, eval=FALSE}
+## your answer goes here --->
+```
+
+**Please do not scroll ahead** 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+## **ONE POSSIBLE SOLUTION** 
+```{r}
+gapminder %>%
+  group_by(year, continent) %>%
+  summarise(total_population = sum(population),
+            total_gdp = sum(gdp)) %>%
+    ggplot(aes(x = year,
+               y = total_gdp)) +
+  geom_point(aes(colour = continent, size = total_population))
+```
+ 
+## ONE MORE, **Discuss with you neighbour**  
+
+**Write a code chunk below:**
+ 
+ - Using `{ggplot2}`
+ - Plot `annual_pertussis_cases` againt `infant_mortality`
+ - Filter only for "Belarus" and "Netherlands"
+ - Use all available data for these countries
+ - Do not scroll ahead
+ - What do you think is going on with this relationship?
+ - Try using `colour = year` in your code
+ - Try using `facet`s
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+## **ONE POSSIBLE SOLUTION**
+```{r}
+names(join)
+join %>%
+  filter(country == "Netherlands" |
+         country == "Belarus") %>% 
+    ggplot(aes(x = annual_pertussis_cases,
+               y = infant_mortality)) +
+      geom_point(aes(colour = year)) +
+  facet_wrap(~ country, scales = "free")
+```
+
+## Other data sources
+
+As well as data frames, dplyr works with data that is stored in other ways, like data tables, databases and multidimensional arrays.
+
+To see a tutorial: https://db.rstudio.com/dplyr/ 
+
+# THANK YOU!!
+
+
+
+

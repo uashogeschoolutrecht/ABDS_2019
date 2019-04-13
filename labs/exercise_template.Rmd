@@ -1,0 +1,46 @@
+---
+title: "Exercise - List columns & Iterations"
+author: "Marc A.T. Teunis"
+date: '`r Sys.Date()`'
+output: 
+   BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      message = FALSE, 
+                      error = FALSE,
+                      results = 'hide',
+                      fig.show = 'hide')
+``` 
+
+# Use relative paths
+```{r, eval=TRUE, results='markup', echo=TRUE}
+if (!require("rprojroot")) install.packages("rprojroot")
+library("rprojroot")
+root <- find_root_file(criterion = is_rstudio_project)
+root
+```
+
+# End product
+
+**Generate a new RMarkdown file containing the answers to all questions below and render it to HTML. Upload your _Rmd AND HTML_ file to CANVAS under the corresponding (see file name) exercise number** 
+
+## Packages
+```{r, results='markup', echo=TRUE}
+library(tidyverse)
+```
+
+## Setting the project root
+We need to an object for the root of the project for purposes yet to explain.
+```{r, echo=TRUE, eval=TRUE, results='markup'}
+if (!require("rprojroot")) install.packages("rprojroot")
+library("rprojroot")
+root <- find_root_file(criterion = is_rstudio_project)
+root
+```
+
+## Prerequisites

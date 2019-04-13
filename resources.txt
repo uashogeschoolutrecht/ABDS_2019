@@ -1,0 +1,14 @@
+https://www.huber.embl.de/users/msmith/csama2018/materials/labs/lab-03-rnaseq/rnaseqGene_CSAMA2018.Rmd
+
+https://www.huber.embl.de/users/msmith/csama2018/materials/
+
+bioconductor.com
+
+r 4 data science
+
+discovering statistics using R
+
+gatto website on R for proteomics
+
+## dplyr
+https://github.com/suzanbaert/Dplyr_Tutorials/blob/master/Dplyr01_Selecting_columns.Rmd

@@ -1,0 +1,199 @@
+---
+title: 'Installing packages'
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation: 
+    highlight: pygments
+    widescreen: yes
+---
+<style>
+
+.footer {
+    font-size: 16pt;
+    color: Black;
+    font-family: 'Helvetica'
+    content: attr(label);
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align:center;
+    bottom: 10px;
+    line-height: 1.9;
+    display: block;
+}
+
+</style>
+
+<div class="footer" style="margin-top;font-size:120%;"> 
+Data Analysis Using R - `r Sys.Date()` </div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 5, fig.height = 3, 
+                      warning = FALSE, error = FALSE, message = FALSE)
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+## Installing a package from a repository
+ - Install the "ggplot2" package which is the package for creating the best visualizations in R. 
+ - Details of what you can do with `ggplot2` and how to use this package, will be provided later during the course. 
+ - Go to the Packages window and click on the "install" icon. 
+ - Will show a popup window where you can type in the name of the package. 
+ - Type in `ggplot2` and press the "Ok" button. 
+ - This will download and install the package.
+
+## A better way
+The alternative and BETTER WAY is to programmatically install packages:
+
+```{r, eval=FALSE}
+# installs package "ggplot2"
+install.packages("ggplot2")
+```
+
+```{r}
+# loads package "ggplot2") 
+library(ggplot2)
+``` 
+
+## Loading the package
+
+type `library(ggplot2)` in the Console (or even better, in the R script and then press the "Run" button which will execute the code on that particular line in the R script / or choose `Cntrl` and `Enter` simultaneously).
+
+## Calling a plot
+You can now use the functions defined within this package, for instance to plot a scatterplot of (not so useful) random values, and see the linear correlation.
+```{r, fig.width=8}
+library(ggplot2)
+library(tibble)
+set.seed(1234)
+x <- rnorm(1000)
+y <- rnorm(1000)
+
+tbl <- as_tibble(x = x, y = y)
+random_scatter <- ggplot(data = tbl, aes(x = x, y = y)) +
+  geom_point() + geom_smooth(method = "lm")
+```
+
+## The scatter plot
+```{r}
+random_scatter
+```
+
+## The tidyverse
+Let's install a set of packages that (at least a few of them) you will almost certainly use in every analysis:
+```{r, eval = FALSE, fig.width=8}
+install.packages("tidyverse")
+library(tidyverse)
+```
+
+## Bionconductor packages
+ - The Bionconductor website: 
+http://www.bioconductor.com 
+ 
+ - Provides add-ons (packages) for R that can be applied in the biological and chemical research domains. 
+
+ - The bioconductor platform is huge and there are many applications for a very diverse application domain: from plant biology, to evolutionary biology and from toxicology to hight troughput metabolomics. 
+
+## Installing Bioconductor packages
+Installing bioconducor packages is easy, but a bit different from the normal installation process:
+  
+Install the loader for bioconductor: 
+
+`Biocmanager::install(c("GenomicFeatures",                                          "AnnotationDbi"))`
+
+## The {pacman} package
+or use pacman:
+`install.packages("pacman")`
+
+`library(pacman)`
+
+`p_load(GenomicFeatures, AnnotationDbi, flowCore)`
+
+Pacman can install packages from any repository set by `setRepositories()`
+
+## Package Help functions
+Packages have extensive help pages, and include vignettes highlighting common use cases. The help pages and vignettes are available from within R. After loading a package, use syntax like:
+
+`help(package="dplyr")`
+
+`?dplyr::select`
+
+`??dplyr`
+
+Sometimes you need to add an extra `?` (when a package is not loaded, or installed).
+
+## Help on functions
+to obtain an overview of help on the flowCore package
+
+`?flowCore`
+
+`?read.FCS` function
+
+To view vignettes (providing a more comprehensive introduction to package functionality) in the flowCore package, use:
+
+`browseVignettes(package="flowCore")`
+
+to open a web page containing comprehensive help resources.
+
+`help.start()`
+
+## Bioconductor Workflows
+During this course we will look in more detail at the workflows:
+
+ - `RforProteomics()`  for proteomics analysis in R 
+ - `RNAseq123` for RNA sequencing analysis in R
+ - Highthoughput analysis example flow cytometry
+
+
+## Workflows can be installed direcly from Bioconductor
+
+To install a workflow:
+
+`source("https://bioconductor.org/biocLite.R")`
+`biocLite("RforProteomics")`
+
+and 
+
+`source("http://bioconductor.org/workflows.R")`
+`workflowInstall(c("RNAseq123", "highthroughputassays", "proteomics")`
+
+see also documentation e.g.
+https://www.bioconductor.org/help/workflows/highthroughputassays/flowWorkFlow.pdf
+
+## Additional rescources
+Besides basic documentation, you also can get package specific documentation. The overview of the different packages and corresponding documentation can be found by clicking on the "Packages" link (You can also get here by going to the Packages window directly). How many packages are user specific?
+Lookup the documentation for the function `sqrt()`, what does it do?
+
+## Examples and demos
+To get an example for a function do 
+
+`example(function_name)`
+Run the examples for the function sqrt(). What does this function do?
+
+## A good resource to start
+Free material on learning R is very broadly available on the web.The book used for this course:
+http://r4ds.had.co.nz/index.html
+
+Other resources:
+https://www.bioconductor.org/help/course-materials/ 
+https://www.rstudio.com/online-learning/
+https://www.coursera.org/learn/r-programming
+
+## R has many packages
+This graph shows the current number of packages 
+
+```{r, echo = FALSE, fig.widt=10}
+library(png)
+library(grid)
+img_pkgs <- readPNG(source = paste0(root, "/images/cran_pkgs_published.png"))
+ grid.raster(img_pkgs)
+
+```
+

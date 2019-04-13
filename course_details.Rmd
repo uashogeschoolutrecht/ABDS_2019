@@ -1,0 +1,40 @@
+---
+title: "__R & Bioconductor for Robust and Reproducible Data Analysis, Course Details__"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, error = FALSE, message = FALSE)
+```
+
+```{r, eval=TRUE, results='markup'}
+if (!require("rprojroot")) install.packages("rprojroot")
+library("rprojroot")
+root <- find_root_file(criterion = is_rstudio_project)
+root
+```
+
+## Packages
+```{r}
+library(tidyverse)
+pkgs <- installed.packages() %>%
+        as_tibble() %>%
+        print()
+```
+
+## Themes
+```{r}
+list.dirs(path = file.path(root, "UNITS"), recursive = FALSE) %>% 
+  basename() %>% 
+  as_tibble() %>%
+  dplyr::rename(Unit = value) %>%
+  knitr::kable()
+```
+
+## Contents in more detail
+
+

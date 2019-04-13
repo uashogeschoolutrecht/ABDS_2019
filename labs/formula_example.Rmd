@@ -1,0 +1,10 @@
+---
+title: "Formula example"
+author: "Marc A.T. Teunis"
+date: "14-1-2017"
+output: word_document
+---
+
+## FNT_conference = $\sqrt[root](absolute(\frac{FNT\;employees}{many\;contributions}))$
+
+

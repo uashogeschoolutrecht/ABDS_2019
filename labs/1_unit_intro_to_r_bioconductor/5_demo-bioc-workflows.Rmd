@@ -1,0 +1,104 @@
+---
+title: "Bioconductor Workflows"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation: 
+    highlight: pygments
+    widescreen: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 5, fig.height = 3, eval = FALSE)
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+## Demos and Workflows
+BIOCONDUCTOR offers a number of workflows to illustrate packages in relation to analysis of Biological data. There are many different workflows available 
+
+Examples in this course:
+
+ - Biological Sequences
+ - RNA sequencing
+ - Oligonucleotide Arrays  
+ - Gene annotation
+ - Proteomics / LC-MS data
+
+## Getting workflows:
+To view the workflows go to https://www.bioconductor.org/help/workflows/ 
+
+## Sequence data
+An exemplary workflow that introduces a number of BIOCONDUCTOR R packages to anlyze sequence data.
+https://www.bioconductor.org/help/workflows/sequencing/ 
+
+```{r, eval=FALSE}
+BiocManager::install("sequencing")
+workflowInstall("sequencing")
+```
+
+## Vignettes
+Vignettes are manuals and explanations how packages and workflow can be used. They usually demonstrate packages or workflows by example or case from the literature.
+
+Some workflows have vignettes. Try `browseVignettes("Workflow_Name")`
+
+To see vignettes of packages try:
+```{r}
+help(package="GenomicRanges")
+vignette(package="GenomicRanges")
+```
+
+## RNA sequencing
+To install the workflows for RNAsequencing:
+```{r}
+BiocManager::install("RNAseq123")
+```
+
+## Oligonucleotide Arrays  
+the workflow for oligonucleotide array data analysis:
+```{r}
+BiocManager::install("arrays")
+```
+
+## Gene annotation
+For gene annotation several workflow are available:
+```{r}
+BiocManager::install("annotation")
+```
+
+and 
+http://bioconductor.org/help/workflows/annotation/Annotating_Genomic_Ranges/ 
+that uses the above workflow.
+
+and a second workflow on Annotating Genomic Variants 
+```{r}
+BiocManager::install("variants")
+```
+
+## Proteomics / LC-MS data
+For proteomics we also have several workflows available.
+```{r}
+## external dependencies 
+## sudo apt-get install libnetcdf-dev
+
+install.packages("ncdf4")
+BiocManager::install("RforProteomics")
+browseVignettes("RforProteomics")
+library(RforProteomics)
+
+```
+
+and 
+```{r}
+BiocManager::install("proteomics")
+```
+
+## Exercises
+
+1) Install the workflow for "arrays"
+

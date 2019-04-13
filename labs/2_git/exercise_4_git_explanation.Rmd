@@ -1,0 +1,38 @@
+---
+title: "Exercise [Git / Github] and [Getting Started with RStudio]"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output: 
+   BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This exercise is about the version control sytem Git and the use of Github for collaboration and getting the course materials
+
+You will need to upload a txt file as end-product for this exercise
+
+# Exercise steps
+The exercise containes the following steps:
+
+ 1) Review the file "exercise_4-git-basics.html" (get the output from the **Linux Terminal** for `git log -1`)
+
+ 2) and: https://nceas.github.io/oss-lessons/version-control/2-git-remote-collaboration.html
+
+# Exercise products upload
+To complete this exercise you will need to upload a Rmd and corresponding rendered HTML file containing:
+
+ 1. The command line output of the `git log -1` command, after completing "exercise_1A-git-basics.html exercise"
+ 2. The link to your private github repo (from step 2 above "exercise_4_git-remote-collaboration") 
+ 
+Upload both Rmd and HTML file to CANVAS under the corresponding exercise number.
+ 
+To learn more about how to write Rmd files and render them to HTML:
+
+https://rmarkdown.rstudio.com/lesson-1.html 
+
+ 

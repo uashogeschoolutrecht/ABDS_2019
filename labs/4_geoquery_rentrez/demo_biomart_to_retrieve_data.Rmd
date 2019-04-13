@@ -1,0 +1,484 @@
+---
+title: "Demo Using `{biomaRt}` to retrieve data"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+  ioslides_presentation:
+    highlight: pygments
+    widescreen: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      error = FALSE)
+```
+
+## Introduction
+The Bioconductor `{biomaRt}` package is an important framework to access and retrieve database information on genes and proteins. Here we demonstrate how to use this package to obtain DNA and protein sequences from the ENSEMBL or UNIPROT databases. 
+
+## Packages
+```{r}
+library(tidyverse)
+library(biomaRt)
+library(annotate)
+library(Biostrings)
+library(seqinr)
+```
+
+## Vignettes
+```{r, eval=FALSE}
+browseVignettes("biomaRt")
+```
+
+## Marts available from  the `{biomaRt}` package
+```{r}
+listMarts()
+```
+
+## Using the `ensembl` mart
+```{r}
+mart <- useMart(biomart = "ensembl")
+mart
+```
+
+## Which datasets are available
+```{r}
+datasets <- listDatasets(mart = mart) %>% 
+  as_tibble() %>%
+  print()
+```
+
+## Using the Human dataset available from 'Ensembl'
+There are two ways to get the complete dataset for _H. sapiens_.
+Using a previously defined `biomart` (1)
+
+```{r}
+h_sapiens <- useDataset(dataset = "hsapiens_gene_ensembl", 
+                        mart=mart)
+h_sapiens
+```
+
+## `biomart` and `dataset` in one call (2)
+```{r}
+h_sapiens_2 <- useMart(biomart = "ensembl", 
+                       dataset="hsapiens_gene_ensembl") %>% 
+  print()
+```
+
+## Filters; _stuff you put in_
+```{r}
+filters = listFilters(h_sapiens) %>% 
+  as_tibble() %>%
+  print()
+
+## old fashioned way:
+# filters[1:5,]
+```
+
+## Attributes; _stuff you get out_ 
+```{r}
+attributes <- listAttributes(h_sapiens) %>%
+  as_tibble() %>%
+  print()
+```
+
+## A simple query on Affymatrix probe ids from an Affymatrix `affy_hg_u133_plus_2` array platfom
+```{r}
+affyids <- c("202763_at","209310_s_at","207500_at")
+annot <- getBM(attributes = c('affy_hg_u133_plus_2', 'entrezgene'), 
+      filters = 'affy_hg_u133_plus_2', 
+      values = affyids, 
+      mart = h_sapiens) %>% 
+  print()
+
+```
+
+## Let's get the `gene symbols` for the `entrez_gene_id`s 
+```{r}
+human_annot <- getBM(attributes = c('external_gene_name', 
+                                    'ensembl_gene_id'), 
+                     filters = 'entrezgene',
+      values = annot$entrezgene,
+      mart = h_sapiens) %>%
+  as_tibble %>%
+  mutate(species = "H. sapiens") %>%
+  print()
+
+
+
+```
+
+## Add annotaions for these genes
+If we want to add more annotations for these genes we simple add more attributes from the `attributes` list.
+```{r}
+getBM(attributes = c('external_gene_name',
+                     'ensembl_gene_id',
+                     'chromosome_name',
+                     'exon_chrom_start',
+                     'exon_chrom_end',
+                     'description'), 
+      filters = 'entrezgene',
+      values = annot$entrezgene,
+      mart = h_sapiens) %>%
+  dplyr::mutate(species = "H.sapiens") %>%
+  dplyr::select(species, external_gene_name:description) %>%
+  as_tibble()
+```
+
+## Finding homologs
+```{r}
+homologs <- getBM(attributes = c('pabelii_homolog_ensembl_gene', 
+                                 'mmusculus_homolog_ensembl_gene',
+                                 'ensembl_gene_id'), 
+      filters = 'entrezgene',
+      values = annot$entrezgene,
+      mart = h_sapiens) %>%
+  print()
+
+```
+
+## Annotate homologs, using the relevant `datasets` and `biomarts`
+```{r}
+oran_utan <- useMart(biomart = "ensembl", 
+                       dataset="pabelii_gene_ensembl") %>% 
+  print()
+
+homologs_oran <- getBM(attributes = c('external_gene_name', 
+                                      'ensembl_gene_id'), 
+      filters = 'ensembl_gene_id',
+      values = homologs$pabelii_homolog_ensembl_gene,
+      mart = oran_utan) %>% 
+  mutate(species = "P. abelii") %>%
+  print()
+
+```
+
+## And for the mouse
+```{r}
+mus_musculus <- useMart(biomart = "ensembl", 
+                       dataset="mmusculus_gene_ensembl") %>% 
+  print()
+
+homologs_mmusculus <- getBM(attributes = c('external_gene_name', 
+                                           'ensembl_gene_id'), 
+      filters = 'ensembl_gene_id',
+      values = homologs$mmusculus_homolog_ensembl_gene,
+      mart = mus_musculus) %>% 
+  mutate(species = "M. musculus") %>%
+  print() 
+```
+
+## Combine the data
+```{r}
+all_data <- dplyr::bind_rows(human_annot, homologs_oran, homologs_mmusculus)
+```
+
+
+## Get coding sequences for all these Caspase homologs; human first
+```{r}
+human_gene_id <- all_data %>%
+  dplyr::filter(species == "H. sapiens") %>%
+  dplyr::select(ensembl_gene_id) 
+  
+
+human_sequence <- biomaRt::getSequence(id = human_gene_id$ensembl_gene_id, 
+            type="ensembl_gene_id",
+            seqType="coding",
+            mart= h_sapiens) %>%
+  as_tibble() %>%
+  dplyr::filter(coding != "Sequence unavailable") %>%
+  print()
+
+duplicated(human_sequence$coding)
+
+```
+
+## Get coding sequences for all these Caspase homologs; Oran Utan
+```{r}
+oran_gene_id <- all_data %>%
+  dplyr::filter(species == "P. abelii") %>%
+  dplyr::select(ensembl_gene_id)
+  
+
+oran_sequence <- biomaRt::getSequence(id = oran_gene_id$ensembl_gene_id, 
+            type="ensembl_gene_id",
+            seqType="coding",
+            mart= oran_utan) %>%
+  as_tibble() %>%
+  dplyr::filter(coding != "Sequence unavailable")
+
+duplicated(oran_sequence$coding)
+
+```
+
+## Get coding sequences for all these Caspase homologs; Mouse
+
+```{r}
+mouse_gene_id <- all_data %>%
+  dplyr::filter(species == "M. musculus") %>%
+  dplyr::select(ensembl_gene_id)
+  
+
+mouse_sequence <- biomaRt::getSequence(id = mouse_gene_id$ensembl_gene_id, 
+            type="ensembl_gene_id",
+            seqType="coding",
+            mart= mus_musculus) %>% 
+  as_tibble() %>%
+  dplyr::filter(coding != "Sequence unavailable")
+
+duplicated(mouse_sequence$coding)
+
+```
+
+## Combine sequences with `all_data` 
+```{r}
+
+all_sequences <- dplyr::bind_rows(human_sequence,
+                                  oran_sequence,
+                                  mouse_sequence)
+
+# add human sequences
+all_data_sequence <- dplyr::left_join(all_sequences, all_data, by = "ensembl_gene_id")
+
+all_data_sequence <- all_data_sequence %>%
+  as_tibble() %>%
+  arrange(external_gene_name) %>%
+  print()
+```
+
+## Translate to protein
+```{r}
+# a single protein
+safe_dna_string_set <- purrr::safely(Biostrings::DNAStringSet)
+
+dna_string_set <- lapply(all_data_sequence$coding, safe_dna_string_set)
+dna_string_set <- transpose(dna_string_set)
+names(dna_string_set$result) <- all_data_sequence$ensembl_gene_id
+
+dna_string_set$result
+
+ind <- dna_string_set$result != 'NULL'
+
+dna_string_set <- dna_string_set$result[ind]
+
+#protein_translation <- Biostrings::translate(dna_string_set[[1]])
+```
+
+## Using `{purrr}` to create a safe version of `Biostrings::translate`
+```{r}
+safe_translate <- purrr::safely(Biostrings::translate)
+all_proteins <- lapply(dna_string_set, safe_translate)
+
+names(all_proteins) <- names(dna_string_set)
+
+```
+
+## Transpose list of safe loop to extract results
+```{r}
+all_proteins <- purrr::transpose(all_proteins)
+head(all_proteins$result, 3)
+```
+
+## Get valid results
+```{r}
+ind <- all_proteins$result != "NULL"
+all_proteins_valid <- all_proteins$result[ind] 
+all_proteins_valid 
+```
+
+## Collect data in a `tibble`
+```{r}
+gene_ids <- names(all_proteins_valid)
+
+
+all_proteins_valid_df <- all_proteins_valid %>% 
+  as.data.frame() %>%
+  t() %>%
+  as_tibble() %>%
+  dplyr::mutate(ensembl_gene_id = gene_ids) %>% 
+  dplyr::rename(amino_acid_sequence = V1) %>%
+  print()
+
+all_proteins_valid_df
+
+```
+
+## Combine with DNA homolog data
+```{r}
+all_data_protein <- left_join(all_proteins_valid_df,
+                                  all_data,
+                                  by = "ensembl_gene_id") %>% 
+  #dplyr::filter(coding != "Sequence unavailable") %>%
+  print()
+
+# are there duplicates?
+# duplicated(all_data_protein)
+
+```
+
+## Write to disk
+```{r, eval=FALSE}
+ write_rds(all_data_protein, path = file.path("data", "biomaRt_homology_example_aa.rds"))
+ write_rds(all_data_sequence, path = file.path("data", "biomaRt_homology_example_dna.rds"))
+```
+
+## Multiple sequence alignment
+To align sequences we can use the R package `{msa}`. In the presention and exercise "Multiple sequence alignment" we will use the above data to explore how to do this in R. 
+
+```{r, include=FALSE, eval=FALSE}
+affyids=c("202763_at","209310_s_at","207500_at")
+getBM(attributes = c('affy_hg_u133_plus_2', 'hgnc_symbol', 'chromosome_name',
+                   'start_position', 'end_position', 'band'),
+      filters = 'affy_hg_u133_plus_2', 
+      values = affyids, 
+      mart = ensembl)
+
+## ----task2, echo=TRUE,eval=TRUE---------------------------------------------------------------------------------------
+entrez=c("673","837")
+goids = getBM(attributes = c('entrezgene', 'go_id'), 
+              filters = 'entrezgene', 
+              values = entrez, 
+              mart = ensembl)
+head(goids)
+
+## ----task3, echo=TRUE,eval=TRUE---------------------------------------------------------------------------------------
+ go=c("GO:0051330","GO:0000080","GO:0000114","GO:0000082")
+ chrom=c(17,20,"Y")
+ getBM(attributes= "hgnc_symbol",
+        filters=c("go_id","chromosome_name"),
+        values=list(go, chrom), mart=ensembl)
+
+## ----task4, echo=TRUE,eval=TRUE---------------------------------------------------------------------------------------
+refseqids = c("NM_005359","NM_000546")
+ipro = getBM(attributes=c("refseq_mrna","interpro","interpro_description"), 
+             filters="refseq_mrna",
+             values=refseqids, 
+             mart=ensembl)
+ipro
+
+## ----task5, eval = TRUE-----------------------------------------------------------------------------------------------
+getBM(attributes = c('affy_hg_u133_plus_2','ensembl_gene_id'), 
+      filters = c('chromosome_name','start','end'),
+      values = list(16,1100000,1250000), 
+      mart = ensembl)
+
+## ----task6, echo=TRUE, eval = TRUE------------------------------------------------------------------------------------
+getBM(attributes = c('entrezgene','hgnc_symbol'), 
+      filters = 'go', 
+      values = 'GO:0004707', 
+      mart = ensembl)
+
+## ----task7, eval=TRUE-------------------------------------------------------------------------------------------------
+entrez=c("673","7157","837")
+getSequence(id = entrez, 
+            type="entrezgene",
+            seqType="coding_gene_flank",
+            upstream=100, 
+            mart=ensembl) 
+
+## ----task8, echo=TRUE,eval=TRUE---------------------------------------------------------------------------------------
+utr5 = getSequence(chromosome=3, start=185514033, end=185535839,
+                   type="entrezgene",
+                   seqType="5utr", 
+                   mart=ensembl)
+utr5
+
+## ----task9, echo=TRUE, eval=TRUE--------------------------------------------------------------------------------------
+protein = getSequence(id=c(100, 5728),
+                      type="entrezgene",
+                      seqType="peptide", 
+                      mart=ensembl)
+protein
+
+## ----task10, echo=TRUE, eval=TRUE-------------------------------------------------------------------------------------
+snpmart = useMart(biomart = "ENSEMBL_MART_SNP", dataset="hsapiens_snp")
+
+## ----task10b----------------------------------------------------------------------------------------------------------
+getBM(attributes = c('refsnp_id','allele','chrom_start','chrom_strand'), 
+      filters = c('chr_name','start','end'), 
+      values = list(8,148350,148612), 
+      mart = snpmart)
+
+## ----getLDS-----------------------------------------------------------------------------------------------------------
+human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+getLDS(attributes = c("hgnc_symbol","chromosome_name", "start_position"),
+       filters = "hgnc_symbol", values = "TP53",mart = human,
+      attributesL = c("refseq_mrna","chromosome_name","start_position"), martL = mouse)
+
+## ----archiveMarts1----------------------------------------------------------------------------------------------------
+listMarts(archive = TRUE)
+
+## ----archiveMarts2, echo = TRUE, eval = TRUE--------------------------------------------------------------------------
+ensembl = useMart("ensembl_mart_46", dataset="hsapiens_gene_ensembl", archive = TRUE)
+
+## ----archiveMarts, echo = TRUE, eval = TRUE---------------------------------------------------------------------------
+listEnsemblArchives()
+
+## ----archiveMarts3, echo = TRUE, eval = TRUE--------------------------------------------------------------------------
+listMarts(host = 'may2009.archive.ensembl.org')
+ensembl54 <- useMart(host='may2009.archive.ensembl.org', 
+                     biomart='ENSEMBL_MART_ENSEMBL', 
+                     dataset='hsapiens_gene_ensembl')
+
+## ----wormbase, echo=TRUE, eval=TRUE-----------------------------------------------------------------------------------
+listMarts(host = "parasite.wormbase.org")
+wormbase = useMart(biomart = "parasite_mart", host = "parasite.wormbase.org")
+listDatasets(wormbase)
+wormbase <- useDataset(mart = wormbase, dataset = "wbps_gene")
+head(listFilters(wormbase))
+head(listAttributes(wormbase))
+getBM(attributes = c("external_gene_id", "wbps_transcript_id", "transcript_biotype"), 
+      filters="gene_name", 
+      values=c("unc-26","his-33"), 
+      mart=wormbase)
+     
+
+## ----filterType-------------------------------------------------------------------------------------------------------
+filterType("with_affy_hg_u133_plus_2",ensembl)
+
+## ----filterOptions----------------------------------------------------------------------------------------------------
+filterOptions("biotype",ensembl)
+
+## ----attributePages---------------------------------------------------------------------------------------------------
+pages = attributePages(ensembl)
+pages
+
+## ----listAttributes---------------------------------------------------------------------------------------------------
+head(listAttributes(ensembl, page="feature_page"))
+
+## ----localCopy, eval = FALSE------------------------------------------------------------------------------------------
+#  listMarts(host="www.myLocalHost.org", path="/myPathToWebservice/martservice")
+#  mart=useMart("nameOfMyMart",dataset="nameOfMyDataset",host="www.myLocalHost.org", path="/myPathToWebservice/martservice")
+
+## ----columnsAndKeyTypes-----------------------------------------------------------------------------------------------
+mart <- useMart(dataset="hsapiens_gene_ensembl",biomart='ensembl')
+head(keytypes(mart), n=3)
+head(columns(mart), n=3)
+
+## ----keys1------------------------------------------------------------------------------------------------------------
+k = keys(mart, keytype="chromosome_name")
+head(k, n=3)
+
+## ----keys2------------------------------------------------------------------------------------------------------------
+k = keys(mart, keytype="chromosome_name", pattern="LRG")
+head(k, n=3)
+
+## ----select-----------------------------------------------------------------------------------------------------------
+affy=c("202763_at","209310_s_at","207500_at")
+select(mart, keys=affy, columns=c('affy_hg_u133_plus_2','entrezgene'),
+  keytype='affy_hg_u133_plus_2')
+
+## ----sessionInfo------------------------------------------------------------------------------------------------------
+sessionInfo()
+warnings()
+
+
+```
+
+
+

@@ -1,0 +1,247 @@
+---
+title: "Exercise - Import Data"
+author: "Marc A.T. Teunis"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    css: D:/r_projects/bioinfo_intro/exercises/exercises_style.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      message = FALSE, 
+                      error = FALSE,
+                      results = 'hide',
+                      fig.show = 'hide')
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+```{r, packages}
+library(tidyverse)
+
+```
+
+__Write an Rmd file, containing code chunks (if applicable) and answer all the questions below. Store the file in a folder called: "./answers_exercises" in your course project folder. Give this file the same name as the title of the current Rmd file__
+
+## Import the data
+Import the file called "hg38.ncbiRefSeq-filtered.txt" This file is located in the "data" folder.
+
+1A) To mport the data you can use the built-in functionality in RStudio, choose "import dataset" in "File". Choose "from CSV" and set the delimiter to "tab". Copy-paste the resulting code in the following R-code Chunk.
+
+```{r}
+library(tidyverse)
+# library(readr)
+
+hg38 <- read_delim("D:/r_projects/bioinfo_intro/data/hg38.ncbiRefSeq-filtered.txt", 
+    "\t", escape_double = FALSE, trim_ws = TRUE)
+# View(hg38)
+
+```
+
+1B How many rows does this dataset have?
+
+1C How many variables does this dataset have?
+```{r}
+## number of rows:
+nrow(hg38)
+## number of variables
+ncol(hg38)
+
+## or in one call
+dim(hg38)
+str(hg38)
+
+## or use tibble printing
+hg38
+
+```
+
+1D What are the names of the variables in this dataset?
+```{r}
+names(hg38)
+```
+
+2A) Does the dataset contain any missing values?
+```{r}
+sum(is.na(hg38))
+```
+
+2B) How many different gene names are represented in the dataset
+```{r}
+hg38$gene <- as.factor(hg38$gene)
+unique <- unique(hg38$gene)
+length(unique)
+```
+
+3A) What is the name of the gene with shortest exon?
+
+**TIPS**
+ - create new variable 'size'
+ - sort data by increasing length
+```{r}
+## create new variable 'size' and sort data by increasing length
+hg38 <- hg38 %>% 
+  mutate(size = (end - start)) %>%
+  arrange(size)
+## get gene name from first row
+hg38[1,"gene"]
+```
+
+3B) Which exon from which gene is the longest?
+```{r}
+## arrange from large to small
+hg38 <- hg38 %>%
+  arrange(desc(size))
+head(hg38)
+## get biggest
+hg38[1, "gene"]
+```
+
+
+4A) Generate a frequency polynom of all exons-lengths
+```{r}
+hg38 %>% ggplot(aes(x = size)) +
+  geom_freqpoly() +
+  theme_bw()
+```
+
+4B) Generate frequency polynoms of all exons-lenghts for each chomosome
+```{r, fig.width=20, fig.height=12, fig.retina=TRUE, dpi=150}
+names(hg38)
+class(hg38$chr)
+hg38$chr <- as.factor(hg38$chr)
+hg38 %>% ggplot(aes(x = size)) +
+  geom_freqpoly() +
+  facet_wrap( ~ chr) +
+  theme_bw()
+
+levels(hg38$chr)
+
+
+
+```
+
+4C) Which of the chomosomes has (on average) the relatively shortest exons?
+```{r}
+
+library(forcats)
+names(hg38)
+class(hg38$chr)
+
+hg38 %>%
+  group_by(chr) %>%
+  summarise(mean_size = mean(size)) %>% 
+  ggplot(aes(x = mean_size, 
+             y = fct_reorder(chr, mean_size))) +
+  geom_point() +
+  ylab("Chromosome") +
+  xlab("Mean length exon/gene") +
+  theme_bw()
+
+levels(hg38$chr)
+
+```
+
+
+## Getting Gene sequences from remote databases
+
+5A) Download the data from Biomart (see lesson Getting Data: Biomart)
+for each unique gene.
+Get attributes with the `getBM()` function.
+The attributes that need to be downloaded are:
+
+Create a mart object for "hsapiens"
+
+ - "external_gene_name"
+ - "ensembl_gene_id",
+ - "ensembl_transcript_id",
+ - "ensembl_peptide_id"),
+  
+Set filters to:
+
+ - "external_gene_name", 
+
+Use `values = c(unique(as.character(hg38$gene))),
+                 mart = mart)
+
+```{r}
+library(tidyverse)
+library(purrr)
+library(stringr)
+library(biomaRt)
+## help
+#??biomaRt
+#?listMarts
+#?listDatasets
+
+## list all mrts
+list_marts <- listMarts()
+
+## use "ENSEMBL" mart
+mart <- useMart(list_marts$biomart[1])
+
+## list all datasets
+list_datasets <- listDatasets(mart = mart) %>%
+  as_tibble() %>%
+  arrange(dataset)
+  
+head(list_datasets)  
+
+## select H.sapiens
+ind <- str_detect(string = list_datasets$dataset, 
+                  pattern = "hsapiens")
+  
+dataset_hsapiens <- list_datasets[ind, "dataset"]
+
+## Define mart object with ENSEMBL as mart and H.sapiens as dataset
+mart <- useMart(biomart = list_marts$biomart[1], 
+                  dataset = dataset_hsapiens)
+
+mart
+
+listFilters(mart = mart) %>%
+  head()
+
+results <- getBM(attributes = c("external_gene_name",
+                                "ensembl_gene_id",
+                                "ensembl_transcript_id",
+                                "ensembl_peptide_id"),
+                 filters = "external_gene_name", 
+                 values = c(unique(as.character(hg38$gene))),
+                 mart = mart)
+
+head(as_tibble(results))
+
+## get ensemble gene ids from gene names
+
+
+```
+
+## Visualize a gene or multiple genes
+```{r}
+
+source(file = file.path(root, "R", "plotgeneinfo.R"))
+
+biomart = list_marts$biomart[1]
+id = results$ensembl_gene_id[100]
+type = "ensembl_gene_id"
+plot_title = id
+
+make_gene_graph(biomart = biomart, 
+                dataset = dataset_hsapiens,
+                type = type,
+                id = id)
+
+
+```
+
+
+
