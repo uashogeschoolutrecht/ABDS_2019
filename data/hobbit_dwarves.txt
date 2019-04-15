@@ -1,0 +1,14 @@
+number,names
+1,Dwalin
+2,Balin
+3,Kili
+4,Fili
+5,Dori
+6,Nori
+7,Ori
+8,Oin
+9,Gloin
+10,Bifur
+11,Bofur
+12,Bombur
+13,Thorin

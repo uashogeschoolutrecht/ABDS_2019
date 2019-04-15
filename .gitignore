@@ -1,7 +1,6 @@
 *_cache
 *_files
 .Rproj.user
-data
 .RData
 .Rhistory
 admin

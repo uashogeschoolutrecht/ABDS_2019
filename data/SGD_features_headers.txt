@@ -1,0 +1,16 @@
+sgdid
+type
+qualifier
+systematicName
+geneSymbol
+alias
+parent.feature.name
+secondary.sgdid
+chromosome
+start
+stop
+strand
+genetic.position
+coordinate.version
+sequence.version
+description

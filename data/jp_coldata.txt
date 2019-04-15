@@ -1,0 +1,9 @@
+treatment;sample_name;cell_type;exposure;read_direction;condition
+JAWSIIuntreatedF;HU_1-NS-012-053_S53_L001_R1_001.fastq.count;JAWSII;untreated;forward;A
+JAWSIIuntreatedR;HU_1-NS-012-053_S53_L001_R2_001.fastq.count;JAWSII;untreated;reverse;A
+JAWSIILPSF;HU_2-NS-012-054_S54_L001_R1_001.fastq.count;JAWSII;LPS;forward;B
+JAWSIILPSR;HU_2-NS-012-054_S54_L001_R2_001.fastq.count;JAWSII;LPS;reverse;B
+EL4untreatedF;HU_3-NS-012-055_S55_L001_R1_001.fastq.count;EL4;untreated;forward;C
+EL4untreatedR;HU_3-NS-012-055_S55_L001_R2_001.fastq.count;EL4;untreated;reverse;C
+EL4JAWSIILPSSUPF;HU_4-NS-012-056_S56_L001_R1_001.fastq.count;EL4-JAWSII;SUP;forward;D
+EL4JAWSIILPSSUPR;HU_4-NS-012-056_S56_L001_R2_001.fastq.count;EL4-JAWSII;SUP;reverse;D
