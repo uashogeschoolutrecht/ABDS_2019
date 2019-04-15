@@ -1,0 +1,61 @@
+experiment cell_line affinitymatrix free_compound_profiled application_of_free_compound
+122 HeLa Purvalanol B none (pulldown only) NA
+123 HeLa Purvalanol B none (pulldown only) NA
+124 HeLa Purvalanol B none (pulldown only) NA
+125 HeLa Purvalanol B none (pulldown only) NA
+126 HeLa Purvalanol B none (pulldown only) NA
+127 HeLa Purvalanol B none (pulldown only) NA
+128 HeLa Purvalanol B none (pulldown only) NA
+129 HeLa Purvalanol B none (pulldown only) NA
+130 HeLa Purvalanol B none (pulldown only) NA
+131 HeLa Purvalanol B none (pulldown only) NA
+132 K562 Purvalanol B none (pulldown only) NA
+133 HeLa Ro3201195 analogue none (pulldown only) NA
+134 HeLa Ro3201195 analogue none (pulldown only) NA
+135 K562 Ro3201195 analogue none (pulldown only) NA
+136 HeLa Staurosporine analogue none (pulldown only) NA
+137 HeLa Staurosporine analogue none (pulldown only) NA
+138 HeLa Staurosporine analogue none (pulldown only) NA
+139 HeLa Staurosporine analogue none (pulldown only) NA
+140 HeLa Vandetanib analogue none (pulldown only) NA
+141 HeLa Vandetanib analogue none (pulldown only) NA
+142 Ramos Kinobeads none (pulldown only) NA
+143 Ramos Kinobeads none (pulldown only) NA
+144 Ramos Kinobeads none (pulldown only) NA
+145 Ramos Kinobeads none (pulldown only) NA
+146 HeLa Kinobeads none (pulldown only) NA
+147 Jurkat Kinobeads none (pulldown only) NA
+148 K562 Kinobeads none (pulldown only) NA
+149 Placenta Kinobeads none (pulldown only) NA
+150 K562 Kinobeads Imatinib living cells
+151 K562 Kinobeads Imatinib living cells
+152 K562 Kinobeads Imatinib living cells
+153 K562 Kinobeads Imatinib living cells
+154 K562 Kinobeads Dasatinib living cells
+155 K562 Kinobeads Dasatinib living cells
+156 K562 Kinobeads Dasatinib living cells
+157 K562 Kinobeads Dasatinib living cells
+158 K562 Kinobeads Dasatinib living cells
+159 K562 Kinobeads Dasatinib living cells
+160 K562 Kinobeads Bosutinib living cells
+161 K562 Kinobeads Bosutinib living cells
+162 K562 Kinobeads Bosutinib living cells
+163 K562 Kinobeads Bosutinib living cells
+164 K562 Kinobeads Bosutinib living cells
+165 K562 Kinobeads Bosutinib living cells
+166 K562 Kinobeads Imatinib lysate
+167 K562 Kinobeads Imatinib lysate
+168 K562 Kinobeads Imatinib lysate
+169 K562 Kinobeads Imatinib lysate
+170 K562 Kinobeads Dasatinib lysate
+171 K562 Kinobeads Dasatinib lysate
+172 K562 Kinobeads Dasatinib lysate
+173 K562 Kinobeads Dasatinib lysate
+174 K562 Kinobeads Dasatinib lysate
+175 K562 Kinobeads Dasatinib lysate
+176 K562 Kinobeads Bosutinib lysate
+177 K562 Kinobeads Bosutinib lysate
+178 K562 Kinobeads Bosutinib lysate
+179 K562 Kinobeads Bosutinib lysate
+180 K562 Kinobeads Bosutinib lysate
+181 K562 Kinobeads Bosutinib lysate

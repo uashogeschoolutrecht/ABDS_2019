@@ -1,0 +1,953 @@
+Study;Laboratory;Class;Name;Nr;p53.Ifmax;p53.cyto.MEC;S9 mix
+NonCoded;BDS;1;(2-chloroethyl)trimethyl-ammonium chloride;1;1.1;1.2;0
+NonCoded;BDS;1;(2-chloroethyl)trimethyl-ammonium chloride;1;1;0.99;0
+NonCoded;BDS;1;Amitrole;2;0.96;1;0
+NonCoded;BDS;1;Amitrole;2;1.1;0.93;0
+NonCoded;BDS;1;Ampicillin trihydrate;3;1.1;0.97;0
+NonCoded;BDS;1;Ampicillin trihydrate;3;1;0.9;0
+NonCoded;BDS;1;Cyclohexanone;4;1.1;1;0
+NonCoded;BDS;1;Cyclohexanone;4;1.1;1;0
+NonCoded;BDS;1;Di-(2-ethylhexyl)phthalate;5;0.95;1.1;0
+NonCoded;BDS;1;Di-(2-ethylhexyl)phthalate;5;0.97;1.1;0
+NonCoded;BDS;1;Diethanolamine;6;0.98;1;0
+NonCoded;BDS;1;Diethanolamine;6;1.2;1.2;0
+NonCoded;BDS;1;D-limonene;7;1;1;0
+NonCoded;BDS;1;D-limonene;7;1.1;1;0
+NonCoded;BDS;1;D-mannitol;8;1.4;0.65;0
+NonCoded;BDS;1;D-mannitol;8;0.91;0.94;0
+NonCoded;BDS;1;Erythromycin stearate;9;1.2;1.4;0
+NonCoded;BDS;1;Erythromycin stearate;9;1;1;0
+NonCoded;BDS;1;Fluometron;10;1.1;1.1;0
+NonCoded;BDS;1;Fluometron;10;1.3;0.78;0
+NonCoded;BDS;1;Hexachloroethane;11;1.1;1;0
+NonCoded;BDS;1;Hexachloroethane;11;0.97;0.91;0
+NonCoded;BDS;1;Melamine;12;1.1;0.94;0
+NonCoded;BDS;1;Melamine;12;1.4;1;0
+NonCoded;BDS;1;Methyl carbamate;13;1;1;0
+NonCoded;BDS;1;Methyl carbamate;13;1.1;1;0
+NonCoded;BDS;1;N,N-dicyclohexyl thiourea;14;1.1;1.2;0
+NonCoded;BDS;1;N,N-dicyclohexyl thiourea;14;1.4;1.2;0
+NonCoded;BDS;1;n-butyl chloride;15;1.2;1.1;0
+NonCoded;BDS;1;n-butyl chloride;15;0.99;0.91;0
+NonCoded;BDS;1;Phenanthrene;16;1.7;1.1;0
+NonCoded;BDS;1;Phenanthrene;16;1.8;0.87;0
+NonCoded;BDS;1;Phenformin HCl;17;0.97;1;0
+NonCoded;BDS;1;Phenformin HCl;17;1;1;0
+NonCoded;BDS;1;Progesterone;18;1.1;1;0
+NonCoded;BDS;1;Progesterone;18;1.1;1;0
+NonCoded;BDS;1;Pyridine;19;1;1.1;0
+NonCoded;BDS;1;Pyridine;19;1.1;1.1;0
+NonCoded;BDS;1;Tert-butyl alcohol;20;0.92;1;0
+NonCoded;BDS;1;Tert-butyl alcohol;20;NA;1;0
+NonCoded;BDS;1;Tris(2-ethylhexyl)phosphate;21;0.96;0.91;0
+NonCoded;BDS;1;Tris(2-ethylhexyl)phosphate;21;1;1;0
+NonCoded;BDS;1;Trisodium EDTA trihydrate;22;1;1;0
+NonCoded;BDS;1;Trisodium EDTA trihydrate;22;1.1;0.93;0
+Coded;BDS;1;1H-Benzotriazol;23;1.1;0.96;0
+Coded;BDS;1;1H-Benzotriazol;23;1;0.95;0
+Coded;BDS;1;1H-Benzotriazol;23;NA;NA;0
+Coded;BDS;1;4-nitroaniline;24;1.6;0.87;0
+Coded;BDS;1;4-nitroaniline;24;NA;1.1;0
+Coded;BDS;1;6-methylquinoline;25;NA;0.47;0
+Coded;BDS;1;6-methylquinoline;25;NA;NA;0
+Coded;BDS;1;8-methylquinoline;26;NA;0.94;0
+Coded;BDS;1;8-methylquinoline;26;NA;0.84;0
+Coded;BDS;1;Azinphosmethyl;27;1.3;1.1;0
+Coded;BDS;1;Azinphosmethyl;27;1.1;1.1;0
+Coded;BDS;1;Bisphenol A;28;NA;0.75;0
+Coded;BDS;1;Bisphenol A;28;1.5;0.97;0
+Coded;BDS;1;Phenylhydrazine;29;NA;0.95;0
+Coded;BDS;1;Phenylhydrazine;29;2.8;1.3;0
+Coded;BDS;1;Phenylhydrazine;29;1.4;1.3;0
+Coded;BDS;1;Sodium azide;30;1.1;1.3;0
+Coded;BDS;1;Sodium azide;30;1.4;1.2;0
+NonCoded;BDS;2;1,3-Dihydroxybenzene (resorcinol);31;1.1;1.2;0
+NonCoded;BDS;2;1,3-Dihydroxybenzene (resorcinol);31;1;1;0
+NonCoded;BDS;2;2,4-Dichlorophenol;32;NA;0.22;0
+NonCoded;BDS;2;2,4-Dichlorophenol;32;NA;0.082;0
+NonCoded;BDS;2;2-Ethyl-1,3-hexanediol;33;1;1;0
+NonCoded;BDS;2;2-Ethyl-1,3-hexanediol;33;1.3;0.9;0
+NonCoded;BDS;2;Benzyl alcohol;35;1.3;1.2;0
+NonCoded;BDS;2;Benzyl alcohol;35;1.2;1.1;0
+NonCoded;BDS;2;Bromobenzene;36;1.3;1.2;0
+NonCoded;BDS;2;Bromobenzene;36;1;0.95;0
+NonCoded;BDS;2;Canrenoate K+;37;1.4;0.9;0
+NonCoded;BDS;2;Canrenoate K+;37;0.87;1;0
+NonCoded;BDS;2;Curcumin;38;NA;0.04;0
+NonCoded;BDS;2;Curcumin;38;NA;0.11;0
+NonCoded;BDS;2;d,l-menthol;39;1.1;1;0
+NonCoded;BDS;2;d,l-menthol;39;1.1;1;0
+NonCoded;BDS;2;Ethionamide;40;1;0.94;0
+NonCoded;BDS;2;Ethionamide;40;1;1;0
+NonCoded;BDS;2;Ethyl acrylate;41;1;1.1;0
+NonCoded;BDS;2;Ethyl acrylate;41;1;0.77;0
+NonCoded;BDS;2;Eugenol;42;1.1;1.4;0
+NonCoded;BDS;2;Eugenol;42;1.2;1.1;0
+NonCoded;BDS;2;Eugenol;42;NA;NA;0
+NonCoded;BDS;2;Eugenol;42;NA;NA;0
+NonCoded;BDS;2;Isobutyraldehyde;43;1.1;1;0
+NonCoded;BDS;2;Isobutyraldehyde;43;1;0.94;0
+NonCoded;BDS;2;Medroxyprogesterone acetate;44;1.4;1;0
+NonCoded;BDS;2;Medroxyprogesterone acetate;44;1.3;0.93;0
+NonCoded;BDS;2;Norethynodrel;45;NA;0.16;0
+NonCoded;BDS;2;Norethynodrel;45;NA;0.0048;0
+NonCoded;BDS;2;o-Anthranilic acid;46;1.1;1.1;0
+NonCoded;BDS;2;o-Anthranilic acid;46;1.1;1;0
+NonCoded;BDS;2;Phthalic anhydride;47;1.1;1;0
+NonCoded;BDS;2;Phthalic anhydride;47;1;0.92;0
+NonCoded;BDS;2;p-Nitrophenol;48;1.2;1.1;0
+NonCoded;BDS;2;p-Nitrophenol;48;1.1;1.1;0
+NonCoded;BDS;2;Propyl gallate;49;NA;0.17;0
+NonCoded;BDS;2;Propyl gallate;49;NA;NA;0
+NonCoded;BDS;2;Sodium saccharin;51;1;1;0
+NonCoded;BDS;2;Sodium saccharin;51;0.97;1;0
+NonCoded;BDS;2;Sodium xylene sulfonate;52;0.95;1.1;0
+NonCoded;BDS;2;Sodium xylene sulfonate;52;0.94;1.1;0
+NonCoded;BDS;2;Sulfisoxazole;53;1.1;1;0
+NonCoded;BDS;2;Sulfisoxazole;53;1.4;1.1;0
+NonCoded;BDS;2;Tertiary-butylhydroquinone;54;NA;0.032;0
+NonCoded;BDS;2;Tertiary-butylhydroquinone;54;0.99;0;0
+NonCoded;BDS;2;Testosterone;55;0.99;0.7;0
+NonCoded;BDS;2;Testosterone;55;NA;NA;0
+NonCoded;BDS;2;Testosterone;55;NA;NA;0
+NonCoded;BDS;2;Urea;56;1.1;1.2;0
+NonCoded;BDS;2;Urea;56;NA;1;0
+Coded;BDS;2;Atrazine;57;1.05;1;0
+Coded;BDS;2;Atrazine;57;1.3;0.91;0
+Coded;BDS;2;Diethyltoluamide;58;1;0.93;0
+Coded;BDS;2;Diethyltoluamide;58;1.2;0.99;0
+Coded;BDS;2;Diphenylamine;59;1.3;0.96;0
+Coded;BDS;2;Diphenylamine;59;1.2;0.91;0
+Coded;BDS;2;Endosulphan;60;1.4;0.93;0
+Coded;BDS;2;Endosulphan;60;1;0.87;0
+Coded;BDS;2;EPTC;61;1.2;0.87;0
+Coded;BDS;2;EPTC;61;1.2;0.8;0
+Coded;BDS;2;L-glutamic acid monosodium salt hydrate;62;1.3;0.96;0
+Coded;BDS;2;L-glutamic acid monosodium salt hydrate;62;1.4;0.95;0
+Coded;BDS;2;Nickel 2 sulphate hexahydrate;63;1.8;0.64;0
+Coded;BDS;2;Nickel 2 sulphate hexahydrate;63;1.6;0.79;0
+Coded;BDS;2;Nicotine;64;1.4;NA;0
+Coded;BDS;2;Nicotine;64;1.2;1.1;0
+NonCoded;BDS;3;1-Nitropyrene;65;2;1.1;0
+NonCoded;BDS;3;1-Nitropyrene;65;1.6;0.77;0
+NonCoded;BDS;3;2,4-diaminotoluene;66;1.1;1.1;0
+NonCoded;BDS;3;2,4-diaminotoluene;66;0.98;1;0
+NonCoded;BDS;3;2,7-Dinitrofluorene;67;1.2;1.2;0
+NonCoded;BDS;3;2,7-Dinitrofluorene;67;1.4;1.5;0
+NonCoded;BDS;3;2-Acetylaminofluorene;68;NA;0.2;0
+NonCoded;BDS;3;2-Acetylaminofluorene;68;1.8;1.3;0
+NonCoded;BDS;3;4NQO;70;5.8;0.55;0
+NonCoded;BDS;3;4NQO;70;NA;0.49;0
+NonCoded;BDS;3;5-Fluorouracil;71;9.4;1.2;0
+NonCoded;BDS;3;5-Fluorouracil;71;7.3;NA;0
+NonCoded;BDS;3;7,12-Dimethylbenzanthracene;72;1.5;1.6;0
+NonCoded;BDS;3;7,12-Dimethylbenzanthracene;72;1.7;1.5;0
+NonCoded;BDS;3;Aflatoxin B1;73;8.2;0.7;0
+NonCoded;BDS;3;Aflatoxin B1;73;5.7;0.65;0
+NonCoded;BDS;3;Azidothymidine;74;1.1;1.1;0
+NonCoded;BDS;3;Azidothymidine;74;1;1;0
+NonCoded;BDS;3;Benzo[a]pyrene;75;1.7;1.3;0
+NonCoded;BDS;3;Benzo[a]pyrene;75;1.6;1.7;0
+NonCoded;BDS;3;Cadmium chloride;76;1.45;1.2;0
+NonCoded;BDS;3;Cadmium chloride;76;1.2;1.2;0
+NonCoded;BDS;3;Carbon tetrachloride (CCl4);77;1.45;0.93;0
+NonCoded;BDS;3;Carbon tetrachloride (CCl4);77;0.97;1;0
+NonCoded;BDS;3;Chloramphenicol;78;1.7;0.69;0
+NonCoded;BDS;3;Chloramphenicol;78;0.92;0.86;0
+NonCoded;BDS;3;Chloramphenicol;78;NA;NA;0
+NonCoded;BDS;3;Cisplatin;79;5.8;1.2;0
+NonCoded;BDS;3;Cisplatin;79;7.9;0.8;0
+NonCoded;BDS;3;Clomiphene;80;1.4;1.2;0
+NonCoded;BDS;3;Clomiphene;80;1.2;1;0
+NonCoded;BDS;3;Colchicine;81;1.1;1.2;0
+NonCoded;BDS;3;Colchicine;81;1.4;1;0
+NonCoded;BDS;3;Colchicine;81;NA;NA;0
+NonCoded;BDS;3;Cyclophosphamide;82;1.2;1;0
+NonCoded;BDS;3;Cyclophosphamide;82;1.2;1.1;0
+NonCoded;BDS;3;Cytarabine;83;0.99;0.98;0
+NonCoded;BDS;3;Cytarabine;83;1;0.72;0
+NonCoded;BDS;3;Dexamethasone;84;1.4;0.69;0
+NonCoded;BDS;3;Dexamethasone;84;1.2;0.86;0
+NonCoded;BDS;3;Diethylstilbestrol;85;NA;0.14;0
+NonCoded;BDS;3;Diethylstilbestrol;85;NA;0.028;0
+NonCoded;BDS;3;Dimethylnitrosamine;86;1.1;1.1;0
+NonCoded;BDS;3;Dimethylnitrosamine;86;1.1;1;0
+NonCoded;BDS;3;ENU;88;2.1;1.1;0
+NonCoded;BDS;3;ENU;88;2;0.88;0
+NonCoded;BDS;3;Etoposide;89;NA;0.24;0
+NonCoded;BDS;3;Etoposide;89;2.6;0.63;0
+NonCoded;BDS;3;Hydroquinone;90;2.5;1.9;0
+NonCoded;BDS;3;Hydroquinone;90;NA;0;0
+NonCoded;BDS;3;IQ (2-amino-3methylimidazo[4,5-f]quinoline);91;2.1;1.2;0
+NonCoded;BDS;3;IQ (2-amino-3methylimidazo[4,5-f]quinoline);91;2.1;0.84;0
+NonCoded;BDS;3;Methyl methanosulfonate;92;2;0.79;0
+NonCoded;BDS;3;Methyl methanosulfonate;92;2.4;0.78;0
+NonCoded;BDS;3;Nitrofurantoin;93;NA;0.28;0
+NonCoded;BDS;3;Nitrofurantoin;93;1.3;1.1;0
+NonCoded;BDS;3;Noscapine HCl;94;2.3;1.2;0
+NonCoded;BDS;3;Noscapine HCl;94;1.64;0.9;0
+NonCoded;BDS;3;p-chloroaniline;95;0.87;1.1;0
+NonCoded;BDS;3;p-chloroaniline;95;1;1;0
+NonCoded;BDS;3;PhIP.HCl (2-amino-1-methyl-6-phenylimidazo[4,5-b]pyridine;96;2;0.94;0
+NonCoded;BDS;3;PhIP.HCl (2-amino-1-methyl-6-phenylimidazo[4,5-b]pyridine;96;1.8;1.3;0
+NonCoded;BDS;3;Sodium arsenite;97;NA;0;0
+NonCoded;BDS;3;Sodium arsenite;97;NA;0.07;0
+NonCoded;BDS;3;Sodium arsenite;97;1;NA;0
+NonCoded;BDS;3;Tamoxifen;98;1.2;1.1;0
+NonCoded;BDS;3;Tamoxifen;98;5.6;0.8;0
+NonCoded;BDS;3;Taxol;99;1.8;0.86;0
+NonCoded;BDS;3;Taxol;99;1.1;0.83;0
+Coded;BDS;3;Alachlor;100;NA;0.27;0
+Coded;BDS;3;Alachlor;100;1.2;0.56;0
+Coded;BDS;3;Alachlor;100;NA;NA;0
+Coded;BDS;3;Benomyl;101;11;0.97;0
+Coded;BDS;3;Benomyl;101;61;0.89;0
+Coded;BDS;3;Benzo[a]pyrene;102;1.6;1.35;0
+Coded;BDS;3;Benzo[a]pyrene;102;2;1.4;0
+Coded;BDS;3;Benzo[a]pyrene;102;1.1;NA;0
+Coded;BDS;3;Busulfan;103;NA;0.67;0
+Coded;BDS;3;Busulfan;103;NA;0.77;0
+Coded;BDS;3;Cyclophosphamide;104;1.2;1.1;0
+Coded;BDS;3;Cyclophosphamide;104;0.98;1;0
+Coded;BDS;3;Dazomet;105;NA;0.79;0
+Coded;BDS;3;Dazomet;105;1.73;0.62;0
+Coded;BDS;3;Dichlorvos;106;1.4;0.55;0
+Coded;BDS;3;Dichlorvos;106;1.4;0.75;0
+Coded;BDS;3;Dichlorvos;106;1.53;NA;0
+Coded;BDS;3;Diclofenac;107;1.48;0.79;0
+Coded;BDS;3;Diclofenac;107;NA;0.49;0
+Coded;BDS;3;Dieldrin;108;1.2;1.2;0
+Coded;BDS;3;Dieldrin;108;1.1;0.6;0
+Coded;BDS;3;Dieldrin;108;1.3;0.92;0
+Coded;BDS;3;Griseofulvin;109;1;0.95;0
+Coded;BDS;3;Griseofulvin;109;1;0.95;0
+Coded;BDS;3;Hexachlorobutadieen;110;1.3;1;0
+Coded;BDS;3;Hexachlorobutadieen;110;1.2;0.98;0
+Coded;BDS;3;Hydralazine;111;NA;0.93;0
+Coded;BDS;3;Hydralazine;111;NA;0.9;0
+Coded;BDS;3;Imipramine HCl;112;1.3;0.9;0
+Coded;BDS;3;Imipramine HCl;112;1.2;0.87;0
+Coded;BDS;3;Methylnitrosurea;113;1;1;0
+Coded;BDS;3;Methylnitrosurea;113;1.2;1;0
+Coded;BDS;3;Oestradiol;114;1.2;0.94;0
+Coded;BDS;3;Oestradiol;114;1.4;0.94;0
+Coded;BDS;3;Ofloxacin;115;1.1;0.93;0
+Coded;BDS;3;Ofloxacin;115;1.3;1.1;0
+NonCoded;HU;1;(2-chloroethyl)trimethyl-ammonium chloride;1;1.05;1;0
+NonCoded;HU;1;(2-chloroethyl)trimethyl-ammonium chloride;1;1;1;0
+NonCoded;HU;1;Amitrole;2;1;1;0
+NonCoded;HU;1;Amitrole;2;1.02;0.79;0
+NonCoded;HU;1;Ampicillin trihydrate;3;1.06;0.97;0
+NonCoded;HU;1;Ampicillin trihydrate;3;1;0.97;0
+NonCoded;HU;1;Cyclohexanone;4;1.34;0.77;0
+NonCoded;HU;1;Cyclohexanone;4;1.02;0.77;0
+NonCoded;HU;1;Di-(2-ethylhexyl)phthalate;5;1;1;0
+NonCoded;HU;1;Di-(2-ethylhexyl)phthalate;5;1.04;0.9;0
+NonCoded;HU;1;Diethanolamine;6;1.18;1.24;0
+NonCoded;HU;1;Diethanolamine;6;1.31;1.09;0
+NonCoded;HU;1;D-limonene;7;1.25;1.15;0
+NonCoded;HU;1;D-limonene;7;1.03;1.14;0
+NonCoded;HU;1;D-mannitol;8;1.03;1.18;0
+NonCoded;HU;1;D-mannitol;8;NA;NA;0
+NonCoded;HU;1;Erythromycin stearate;9;1.08;1.2;0
+NonCoded;HU;1;Erythromycin stearate;9;NA;NA;0
+NonCoded;HU;1;Fluometron;10;1.66;0.91;0
+NonCoded;HU;1;Fluometron;10;1.73;0.95;0
+NonCoded;HU;1;Hexachloroethane;11;1.1;1.14;0
+NonCoded;HU;1;Hexachloroethane;11;1.43;1.09;0
+NonCoded;HU;1;Melamine;12;1.34;1.18;0
+NonCoded;HU;1;Melamine;12;1.41;1.09;0
+NonCoded;HU;1;Methyl carbamate;13;1.06;1.03;0
+NonCoded;HU;1;Methyl carbamate;13;1.02;1.16;0
+NonCoded;HU;1;N,N-dicyclohexyl thiourea;14;1.22;1.3;0
+NonCoded;HU;1;N,N-dicyclohexyl thiourea;14;1.17;1.18;0
+NonCoded;HU;1;n-butyl chloride;15;1.02;0.98;0
+NonCoded;HU;1;n-butyl chloride;15;1;0.98;0
+NonCoded;HU;1;Phenanthrene;16;1.82;0.51;0
+NonCoded;HU;1;Phenanthrene;16;2.03;0.73;0
+NonCoded;HU;1;Phenformin HCl;17;1;0.78;0
+NonCoded;HU;1;Phenformin HCl;17;1;0.78;0
+NonCoded;HU;1;Progesterone;18;1;0.7;0
+NonCoded;HU;1;Progesterone;18;1.49;0.92;0
+NonCoded;HU;1;Pyridine;19;1.2;0.96;0
+NonCoded;HU;1;Pyridine;19;1;1;0
+NonCoded;HU;1;Tert-butyl alcohol;20;1.47;1.03;0
+NonCoded;HU;1;Tert-butyl alcohol;20;1.17;1.07;0
+NonCoded;HU;1;Tris(2-ethylhexyl)phosphate;21;1;0.64;0
+NonCoded;HU;1;Tris(2-ethylhexyl)phosphate;21;1.04;0.76;0
+NonCoded;HU;1;Trisodium EDTA trihydrate;22;1.11;0.97;0
+NonCoded;HU;1;Trisodium EDTA trihydrate;22;1.38;0.97;0
+Coded;HU;1;1H-Benzotriazol;23;NA;NA;0
+Coded;HU;1;1H-Benzotriazol;23;NA;NA;0
+Coded;HU;1;4-nitroaniline;24;NA;0.63;0
+Coded;HU;1;4-nitroaniline;24;NA;0.47;0
+Coded;HU;1;6-methylquinoline;25;NA;0.08;0
+Coded;HU;1;6-methylquinoline;25;NA;0.02;0
+Coded;HU;1;8-methylquinoline;26;NA;NA;0
+Coded;HU;1;8-methylquinoline;26;NA;0.83;0
+Coded;HU;1;8-methylquinoline;26;NA;0.64;0
+Coded;HU;1;Azinphosmethyl;27;NA;NA;0
+Coded;HU;1;Azinphosmethyl;27;NA;NA;0
+Coded;HU;1;Bisphenol A;28;2.5;0.58;0
+Coded;HU;1;Bisphenol A;28;NA;0.8;0
+Coded;HU;1;Bisphenol A;28;NA;NA;0
+Coded;HU;1;Phenylhydrazine;29;1.77;0.62;0
+Coded;HU;1;Phenylhydrazine;29;1.77;1.42;0
+Coded;HU;1;Phenylhydrazine;29;NA;NA;0
+Coded;HU;1;Sodium azide;30;NA;NA;0
+Coded;HU;1;Sodium azide;30;NA;NA;0
+NonCoded;HU;2;1,3-Dihydroxybenzene (resorcinol);31;1.04;0.95;0
+NonCoded;HU;2;1,3-Dihydroxybenzene (resorcinol);31;1.02;0.99;0
+NonCoded;HU;2;2,4-Dichlorophenol;32;1.45;1;0
+NonCoded;HU;2;2,4-Dichlorophenol;32;1.09;1;0
+NonCoded;HU;2;2-Ethyl-1,3-hexanediol;33;1.05;0.99;0
+NonCoded;HU;2;2-Ethyl-1,3-hexanediol;33;1.47;0.99;0
+NonCoded;HU;2;Allylestrenol;34;1.2;1.17;0
+NonCoded;HU;2;Allylestrenol;34;1.14;1.17;0
+NonCoded;HU;2;Benzyl alcohol;35;1.31;1.09;0
+NonCoded;HU;2;Benzyl alcohol;35;1.23;0.97;0
+NonCoded;HU;2;Bromobenzene;36;1.25;1.25;0
+NonCoded;HU;2;Bromobenzene;36;1.34;1;0
+NonCoded;HU;2;Canrenoate K+;37;NA;0.42;0
+NonCoded;HU;2;Canrenoate K+;37;NA;0.42;0
+NonCoded;HU;2;Curcumin;38;1.3;0.85;0
+NonCoded;HU;2;Curcumin;38;1.48;0.98;0
+NonCoded;HU;2;d,l-menthol;39;1.13;NA;0
+NonCoded;HU;2;d,l-menthol;39;1.02;1.01;0
+NonCoded;HU;2;Ethionamide;40;1;0.83;0
+NonCoded;HU;2;Ethionamide;40;1.31;0.81;0
+NonCoded;HU;2;Ethyl acrylate;41;1.07;1;0
+NonCoded;HU;2;Ethyl acrylate;41;1.49;1.19;0
+NonCoded;HU;2;Eugenol;42;1.08;1.13;0
+NonCoded;HU;2;Eugenol;42;1.28;1.13;0
+NonCoded;HU;2;Isobutyraldehyde;43;1.08;0.87;0
+NonCoded;HU;2;Isobutyraldehyde;43;NA;NA;0
+NonCoded;HU;2;Medroxyprogesterone acetate;44;1.17;1.13;0
+NonCoded;HU;2;Medroxyprogesterone acetate;44;1.04;0.94;0
+NonCoded;HU;2;Norethynodrel;45;1.22;1.09;0
+NonCoded;HU;2;Norethynodrel;45;1;1.09;0
+NonCoded;HU;2;o-Anthranilic acid;46;1.03;0.9;0
+NonCoded;HU;2;o-Anthranilic acid;46;1;0.9;0
+NonCoded;HU;2;Phthalic anhydride;47;1;1;0
+NonCoded;HU;2;Phthalic anhydride;47;NA;NA;0
+NonCoded;HU;2;p-Nitrophenol;48;NA;0.34;0
+NonCoded;HU;2;p-Nitrophenol;48;NA;0.34;0
+NonCoded;HU;2;Propyl gallate;49;NA;0.14;0
+NonCoded;HU;2;Propyl gallate;49;NA;0.14;0
+NonCoded;HU;2;Salicylamide;50;1.08;NA;0
+NonCoded;HU;2;Salicylamide;50;1.37;NA;0
+NonCoded;HU;2;Sodium saccharin;51;1.02;0.88;0
+NonCoded;HU;2;Sodium saccharin;51;1.04;0.78;0
+NonCoded;HU;2;Sodium xylene sulfonate;52;1;1;0
+NonCoded;HU;2;Sodium xylene sulfonate;52;1.01;1.02;0
+NonCoded;HU;2;Sulfisoxazole;53;1;1;0
+NonCoded;HU;2;Sulfisoxazole;53;NA;NA;0
+NonCoded;HU;2;Tertiary-butylhydroquinone;54;1.09;0.99;0
+NonCoded;HU;2;Tertiary-butylhydroquinone;54;1.54;1.07;0
+NonCoded;HU;2;Testosterone;55;1.34;1.02;0
+NonCoded;HU;2;Testosterone;55;1.2;0.77;0
+NonCoded;HU;2;Urea;56;1.09;0.79;0
+NonCoded;HU;2;Urea;56;1.45;1.05;0
+Coded;HU;2;Atrazine;57;NA;NA;0
+Coded;HU;2;Atrazine;57;NA;NA;0
+Coded;HU;2;Atrazine;57;NA;NA;0
+Coded;HU;2;Diethyltoluamide;58;NA;NA;0
+Coded;HU;2;Diethyltoluamide;58;NA;NA;0
+Coded;HU;2;Diethyltoluamide;58;NA;NA;0
+Coded;HU;2;Diphenylamine;59;NA;NA;0
+Coded;HU;2;Diphenylamine;59;1.77;1.03;0
+Coded;HU;2;Endosulphan;60;NA;NA;0
+Coded;HU;2;Endosulphan;60;NA;NA;0
+Coded;HU;2;Endosulphan;60;NA;NA;0
+Coded;HU;2;EPTC;61;NA;NA;0
+Coded;HU;2;EPTC;61;NA;NA;0
+Coded;HU;2;L-glutamic acid monosodium salt hydrate;62;NA;NA;0
+Coded;HU;2;L-glutamic acid monosodium salt hydrate;62;NA;NA;0
+Coded;HU;2;Nickel 2 sulphate hexahydrate;63;NA;0.54;0
+Coded;HU;2;Nickel 2 sulphate hexahydrate;63;1.52;0.81;0
+Coded;HU;2;Nicotine;64;NA;NA;0
+Coded;HU;2;Nicotine;64;NA;NA;0
+NonCoded;HU;3;1-Nitropyrene;65;1.8;1.11;0
+NonCoded;HU;3;1-Nitropyrene;65;1.64;1.02;0
+NonCoded;HU;3;2,4-diaminotoluene;66;1.67;1.04;0
+NonCoded;HU;3;2,4-diaminotoluene;66;1.04;0.67;0
+NonCoded;HU;3;2,7-Dinitrofluorene;67;1.3;1.15;0
+NonCoded;HU;3;2,7-Dinitrofluorene;67;1.16;1.15;0
+NonCoded;HU;3;2-Acetylaminofluorene;68;2.25;1.5;0
+NonCoded;HU;3;2-Methoxy-Estradiol;69;2.46;1.08;0
+NonCoded;HU;3;2-Methoxy-Estradiol;69;2.19;0.85;0
+NonCoded;HU;3;4NQO;70;NA;0.21;0
+NonCoded;HU;3;4NQO;70;5.02;0.61;0
+NonCoded;HU;3;5-Fluorouracil;71;3.63;1.38;0
+NonCoded;HU;3;5-Fluorouracil;71;NA;NA;0
+NonCoded;HU;3;7,12-Dimethylbenzanthracene;72;1.88;1.17;0
+NonCoded;HU;3;7,12-Dimethylbenzanthracene;72;1.5;1.17;0
+NonCoded;HU;3;Aflatoxin B1;73;11.17;0.58;0
+NonCoded;HU;3;Azidothymidine;74;1.29;1.13;0
+NonCoded;HU;3;Benzo[a]pyrene;75;1.41;1.48;0
+NonCoded;HU;3;Benzo[a]pyrene;75;1.68;1.33;0
+NonCoded;HU;3;Cadmium chloride;76;NA;0.45;0
+NonCoded;HU;3;Cadmium chloride;76;NA;NA;0
+NonCoded;HU;3;Carbon tetrachloride (CCl4);77;1.29;1.07;0
+NonCoded;HU;3;Carbon tetrachloride (CCl4);77;1.45;1.1;0
+NonCoded;HU;3;Chloramphenicol;78;1.18;0.98;0
+NonCoded;HU;3;Chloramphenicol;78;1.25;0.87;0
+NonCoded;HU;3;Cisplatin;79;2.18;0.69;0
+NonCoded;HU;3;Cisplatin;79;NA;NA;0
+NonCoded;HU;3;Clomiphene;80;1.2;1.11;0
+NonCoded;HU;3;Clomiphene;80;1.28;1.17;0
+NonCoded;HU;3;Colchicine;81;1;0.62;0
+NonCoded;HU;3;Colchicine;81;1;0.62;0
+NonCoded;HU;3;Cyclophosphamide;82;1.12;0.87;0
+NonCoded;HU;3;Cyclophosphamide;82;1.11;0.98;0
+NonCoded;HU;3;Cytarabine;83;1;0.79;0
+NonCoded;HU;3;Cytarabine;83;1;0.79;0
+NonCoded;HU;3;Dexamethasone;84;1.27;0.91;0
+NonCoded;HU;3;Dexamethasone;84;1.41;0.91;0
+NonCoded;HU;3;Diethylstilbestrol;85;NA;0;0
+NonCoded;HU;3;Diethylstilbestrol;85;2.94;0.82;0
+NonCoded;HU;3;Dimethylnitrosamine;86;1.17;1.03;0
+NonCoded;HU;3;Dimethylnitrosamine;86;1.32;1;0
+NonCoded;HU;3;Doxorubicin;87;60.01;1.05;0
+NonCoded;HU;3;Doxorubicin;87;23.47;1.05;0
+NonCoded;HU;3;ENU;88;2.7;0.81;0
+NonCoded;HU;3;ENU;88;NA;NA;0
+NonCoded;HU;3;Etoposide;89;NA;0.21;0
+NonCoded;HU;3;Etoposide;89;1.97;0.86;0
+NonCoded;HU;3;Hydroquinone;90;2.85;0.93;0
+NonCoded;HU;3;Hydroquinone;90;NA;0.01;0
+NonCoded;HU;3;IQ (2-amino-3methylimidazo[4,5-f]quinoline);91;1.2;1.03;0
+NonCoded;HU;3;IQ (2-amino-3methylimidazo[4,5-f]quinoline);91;1.44;1.33;0
+NonCoded;HU;3;Methyl methanosulfonate;92;3.19;0.84;0
+NonCoded;HU;3;Methyl methanosulfonate;92;NA;NA;0
+NonCoded;HU;3;Nitrofurantoin;93;1;1.08;0
+NonCoded;HU;3;Nitrofurantoin;93;1;1.05;0
+NonCoded;HU;3;Noscapine HCl;94;2.38;0.96;0
+NonCoded;HU;3;Noscapine HCl;94;2.77;0.96;0
+NonCoded;HU;3;p-chloroaniline;95;NA;0.31;0
+NonCoded;HU;3;p-chloroaniline;95;1.54;0.86;0
+NonCoded;HU;3;PhIP.HCl (2-amino-1-methyl-6-phenylimidazo[4,5-b]pyridine;96;1.73;1.2;0
+NonCoded;HU;3;PhIP.HCl (2-amino-1-methyl-6-phenylimidazo[4,5-b]pyridine;96;NA;NA;0
+NonCoded;HU;3;Sodium arsenite;97;1.61;NA;0
+NonCoded;HU;3;Tamoxifen;98;1.28;0.82;0
+NonCoded;HU;3;Tamoxifen;98;1.19;0.82;0
+NonCoded;HU;3;Taxol;99;5.56;0.58;0
+NonCoded;HU;3;Taxol;99;2.28;0.58;0
+Coded;HU;3;Alachlor;100;NA;0.22;0
+Coded;HU;3;Alachlor;100;NA;NA;0
+Coded;HU;3;Alachlor;100;NA;NA;0
+Coded;HU;3;Benomyl;101;15.26;0.99;0
+Coded;HU;3;Benomyl;101;NA;0;0
+Coded;HU;3;Benomyl;101;NA;NA;0
+Coded;HU;3;Benzo[a]pyrene;102;NA;NA;0
+Coded;HU;3;Benzo[a]pyrene;102;NA;NA;0
+Coded;HU;3;Busulfan;103;NA;0.96;0
+Coded;HU;3;Busulfan;103;NA;1.17;0
+Coded;HU;3;Cyclophosphamide;104;NA;NA;0
+Coded;HU;3;Cyclophosphamide;104;NA;NA;0
+Coded;HU;3;Cyclophosphamide;104;NA;NA;0
+Coded;HU;3;Dazomet;105;1.32;0.87;0
+Coded;HU;3;Dazomet;105;NA;NA;0
+Coded;HU;3;Dazomet;105;2.67;0.92;0
+Coded;HU;3;Dichlorvos;106;NA;NA;0
+Coded;HU;3;Dichlorvos;106;2.34;1;0
+Coded;HU;3;Dichlorvos;106;NA;NA;0
+Coded;HU;3;Diclofenac;107;1.84;0.6;0
+Coded;HU;3;Diclofenac;107;1.8;0.98;0
+Coded;HU;3;Diclofenac;107;NA;NA;0
+Coded;HU;3;Dieldrin;108;NA;NA;0
+Coded;HU;3;Dieldrin;108;NA;NA;0
+Coded;HU;3;Dieldrin;108;NA;NA;0
+Coded;HU;3;Griseofulvin;109;NA;NA;0
+Coded;HU;3;Griseofulvin;109;1.74;0.51;0
+Coded;HU;3;Griseofulvin;109;NA;NA;0
+Coded;HU;3;Hexachlorobutadieen;110;NA;NA;0
+Coded;HU;3;Hexachlorobutadieen;110;1.7;0.83;0
+Coded;HU;3;Hexachlorobutadieen;110;NA;NA;0
+Coded;HU;3;Hydralazine;111;NA;0.43;0
+Coded;HU;3;Hydralazine;111;2.57;1.37;0
+Coded;HU;3;Imipramine HCl;112;NA;NA;0
+Coded;HU;3;Imipramine HCl;112;NA;NA;0
+Coded;HU;3;Methylnitrosurea;113;NA;NA;0
+Coded;HU;3;Methylnitrosurea;113;NA;NA;0
+Coded;HU;3;Oestradiol;114;2.04;1.09;0
+Coded;HU;3;Oestradiol;114;2.07;0.73;0
+Coded;HU;3;Ofloxacin;115;NA;NA;0
+Coded;HU;3;Ofloxacin;115;NA;NA;0
+Coded;HU;3;Ofloxacin;115;NA;NA;0
+NonCoded;BDS;1;(2-chloroethyl)trimethyl-ammonium chloride;1;1.1;0.93;1
+NonCoded;BDS;1;(2-chloroethyl)trimethyl-ammonium chloride;1;2.3;1;1
+NonCoded;BDS;1;Amitrole;2;1.3;1;1
+NonCoded;BDS;1;Amitrole;2;1;0.93;1
+NonCoded;BDS;1;Ampicillin trihydrate;3;0.98;1;1
+NonCoded;BDS;1;Ampicillin trihydrate;3;1.4;0.9;1
+NonCoded;BDS;1;Cyclohexanone;4;0.81;1;1
+NonCoded;BDS;1;Cyclohexanone;4;NA;NA;1
+NonCoded;BDS;1;Di-(2-ethylhexyl)phthalate;5;0.88;1.1;1
+NonCoded;BDS;1;Di-(2-ethylhexyl)phthalate;5;1;1;1
+NonCoded;BDS;1;Diethanolamine;6;1.4;1.2;1
+NonCoded;BDS;1;Diethanolamine;6;NA;NA;1
+NonCoded;BDS;1;D-limonene;7;1.8;1;1
+NonCoded;BDS;1;D-limonene;7;1.5;1;1
+NonCoded;BDS;1;D-mannitol;8;1.2;0.91;1
+NonCoded;BDS;1;D-mannitol;8;NA;NA;1
+NonCoded;BDS;1;Erythromycin stearate;9;1;1;1
+NonCoded;BDS;1;Erythromycin stearate;9;NA;NA;1
+NonCoded;BDS;1;Fluometron;10;1.6;1.1;1
+NonCoded;BDS;1;Fluometron;10;1.3;0.78;1
+NonCoded;BDS;1;Hexachloroethane;11;NA;0.17;1
+NonCoded;BDS;1;Hexachloroethane;11;1.2;0.91;1
+NonCoded;BDS;1;Melamine;12;1.1;1;1
+NonCoded;BDS;1;Melamine;12;1.5;1.2;1
+NonCoded;BDS;1;Methyl carbamate;13;1.9;1;1
+NonCoded;BDS;1;Methyl carbamate;13;1.5;1;1
+NonCoded;BDS;1;N,N-dicyclohexyl thiourea;14;1.8;1;1
+NonCoded;BDS;1;N,N-dicyclohexyl thiourea;14;1.4;1.5;1
+NonCoded;BDS;1;n-butyl chloride;15;1.1;1;1
+NonCoded;BDS;1;n-butyl chloride;15;1;0.92;1
+NonCoded;BDS;1;Phenanthrene;16;NA;0.41;1
+NonCoded;BDS;1;Phenanthrene;16;NA;NA;1
+NonCoded;BDS;1;Phenformin HCl;17;NA;NA;1
+NonCoded;BDS;1;Phenformin HCl;17;NA;NA;1
+NonCoded;BDS;1;Progesterone;18;1.2;1.1;1
+NonCoded;BDS;1;Progesterone;18;1.4;0.6;1
+NonCoded;BDS;1;Pyridine;19;1.2;1.1;1
+NonCoded;BDS;1;Pyridine;19;1;1;1
+NonCoded;BDS;1;Tert-butyl alcohol;20;1.1;1;1
+NonCoded;BDS;1;Tert-butyl alcohol;20;NA;1;1
+NonCoded;BDS;1;Tris(2-ethylhexyl)phosphate;21;1.4;0.14;1
+NonCoded;BDS;1;Tris(2-ethylhexyl)phosphate;21;1.6;0.93;1
+NonCoded;BDS;1;Trisodium EDTA trihydrate;22;1.4;0.94;1
+NonCoded;BDS;1;Trisodium EDTA trihydrate;22;1.1;1;1
+Coded;BDS;1;1H-Benzotriazol;23;NA;1;1
+Coded;BDS;1;1H-Benzotriazol;23;NA;NA;1
+Coded;BDS;1;1H-Benzotriazol;23;NA;NA;1
+Coded;BDS;1;4-nitroaniline;24;NA;0.92;1
+Coded;BDS;1;4-nitroaniline;24;NA;0.91;1
+Coded;BDS;1;6-methylquinoline;25;NA;NA;1
+Coded;BDS;1;6-methylquinoline;25;NA;NA;1
+Coded;BDS;1;8-methylquinoline;26;NA;NA;1
+Coded;BDS;1;8-methylquinoline;26;NA;NA;1
+Coded;BDS;1;Azinphosmethyl;27;NA;NA;1
+Coded;BDS;1;Azinphosmethyl;27;NA;0.85;1
+Coded;BDS;1;Bisphenol A;28;NA;NA;1
+Coded;BDS;1;Bisphenol A;28;NA;NA;1
+Coded;BDS;1;Phenylhydrazine;29;NA;0.95;1
+Coded;BDS;1;Phenylhydrazine;29;NA;NA;1
+Coded;BDS;1;Phenylhydrazine;29;NA;NA;1
+Coded;BDS;1;Sodium azide;30;NA;NA;1
+Coded;BDS;1;Sodium azide;30;NA;NA;1
+NonCoded;BDS;2;1,3-Dihydroxybenzene (resorcinol);31;1.4;1.1;1
+NonCoded;BDS;2;1,3-Dihydroxybenzene (resorcinol);31;0.91;1;1
+NonCoded;BDS;2;2,4-Dichlorophenol;32;NA;0.22;1
+NonCoded;BDS;2;2,4-Dichlorophenol;32;NA;0.082;1
+NonCoded;BDS;2;2-Ethyl-1,3-hexanediol;33;1;1;1
+NonCoded;BDS;2;2-Ethyl-1,3-hexanediol;33;1.1;0.9;1
+NonCoded;BDS;2;Benzyl alcohol;35;1;1.2;1
+NonCoded;BDS;2;Benzyl alcohol;35;1.8;1;1
+NonCoded;BDS;2;Bromobenzene;36;1.1;1.1;1
+NonCoded;BDS;2;Bromobenzene;36;1.9;0.95;1
+NonCoded;BDS;2;Canrenoate K+;37;2.6;0.81;1
+NonCoded;BDS;2;Canrenoate K+;37;2.2;0.73;1
+NonCoded;BDS;2;Curcumin;38;NA;3.00E-04;1
+NonCoded;BDS;2;Curcumin;38;NA;NA;1
+NonCoded;BDS;2;d,l-menthol;39;1.1;1;1
+NonCoded;BDS;2;d,l-menthol;39;1.5;1;1
+NonCoded;BDS;2;Ethionamide;40;1.6;0.97;1
+NonCoded;BDS;2;Ethionamide;40;NA;NA;1
+NonCoded;BDS;2;Ethyl acrylate;41;14.4;1;1
+NonCoded;BDS;2;Ethyl acrylate;41;4.7;0.77;1
+NonCoded;BDS;2;Eugenol;42;9.2;1.4;1
+NonCoded;BDS;2;Eugenol;42;1.92;1.1;1
+NonCoded;BDS;2;Eugenol;42;NA;NA;1
+NonCoded;BDS;2;Eugenol;42;NA;NA;1
+NonCoded;BDS;2;Isobutyraldehyde;43;1.1;1;1
+NonCoded;BDS;2;Isobutyraldehyde;43;1.1;0.94;1
+NonCoded;BDS;2;Medroxyprogesterone acetate;44;2.1;0.8;1
+NonCoded;BDS;2;Medroxyprogesterone acetate;44;1.7;0.75;1
+NonCoded;BDS;2;Norethynodrel;45;NA;0.16;1
+NonCoded;BDS;2;Norethynodrel;45;1.3;1.3;1
+NonCoded;BDS;2;o-Anthranilic acid;46;1.3;1;1
+NonCoded;BDS;2;o-Anthranilic acid;46;1;1;1
+NonCoded;BDS;2;Phthalic anhydride;47;1.2;1;1
+NonCoded;BDS;2;Phthalic anhydride;47;1.1;1;1
+NonCoded;BDS;2;p-Nitrophenol;48;1.6;0.92;1
+NonCoded;BDS;2;p-Nitrophenol;48;1.2;0.91;1
+NonCoded;BDS;2;Propyl gallate;49;27.6;NA;1
+NonCoded;BDS;2;Propyl gallate;49;NA;NA;1
+NonCoded;BDS;2;Sodium saccharin;51;1;1;1
+NonCoded;BDS;2;Sodium saccharin;51;0.77;1;1
+NonCoded;BDS;2;Sodium xylene sulfonate;52;0.86;1.1;1
+NonCoded;BDS;2;Sodium xylene sulfonate;52;1;1.1;1
+NonCoded;BDS;2;Sulfisoxazole;53;1.1;1;1
+NonCoded;BDS;2;Sulfisoxazole;53;1;1;1
+NonCoded;BDS;2;Tertiary-butylhydroquinone;54;NA;NA;1
+NonCoded;BDS;2;Tertiary-butylhydroquinone;54;1.2;NA;1
+NonCoded;BDS;2;Testosterone;55;NA;0.83;1
+NonCoded;BDS;2;Testosterone;55;NA;NA;1
+NonCoded;BDS;2;Testosterone;55;NA;NA;1
+NonCoded;BDS;2;Urea;56;NA;NA;1
+NonCoded;BDS;2;Urea;56;NA;NA;1
+Coded;BDS;2;Atrazine;57;1.1;NA;1
+Coded;BDS;2;Atrazine;57;NA;NA;1
+Coded;BDS;2;Diethyltoluamide;58;NA;0.94;1
+Coded;BDS;2;Diethyltoluamide;58;NA;NA;1
+Coded;BDS;2;Diphenylamine;59;NA;NA;1
+Coded;BDS;2;Diphenylamine;59;NA;NA;1
+Coded;BDS;2;Endosulphan;60;NA;0.76;1
+Coded;BDS;2;Endosulphan;60;NA;NA;1
+Coded;BDS;2;EPTC;61;NA;NA;1
+Coded;BDS;2;EPTC;61;NA;0.84;1
+Coded;BDS;2;L-glutamic acid monosodium salt hydrate;62;NA;0.84;1
+Coded;BDS;2;L-glutamic acid monosodium salt hydrate;62;NA;NA;1
+Coded;BDS;2;Nickel 2 sulphate hexahydrate;63;NA;0.74;1
+Coded;BDS;2;Nickel 2 sulphate hexahydrate;63;NA;NA;1
+Coded;BDS;2;Nicotine;64;NA;1;1
+Coded;BDS;2;Nicotine;64;NA;NA;1
+NonCoded;BDS;3;1-Nitropyrene;65;1;1.1;1
+NonCoded;BDS;3;1-Nitropyrene;65;NA;0.33;1
+NonCoded;BDS;3;2,4-diaminotoluene;66;2.1;1;1
+NonCoded;BDS;3;2,4-diaminotoluene;66;2.1;1;1
+NonCoded;BDS;3;2,7-Dinitrofluorene;67;1.5;1.2;1
+NonCoded;BDS;3;2,7-Dinitrofluorene;67;1.1;1.2;1
+NonCoded;BDS;3;2-Acetylaminofluorene;68;NA;0.15;1
+NonCoded;BDS;3;2-Acetylaminofluorene;68;NA;NA;1
+NonCoded;BDS;3;4NQO;70;0.87;0.55;1
+NonCoded;BDS;3;4NQO;70;2.5;NA;1
+NonCoded;BDS;3;5-Fluorouracil;71;NA;NA;1
+NonCoded;BDS;3;5-Fluorouracil;71;NA;NA;1
+NonCoded;BDS;3;7,12-Dimethylbenzanthracene;72;5.2;0.9;1
+NonCoded;BDS;3;7,12-Dimethylbenzanthracene;72;14.7;1.3;1
+NonCoded;BDS;3;Aflatoxin B1;73;2.3;0.93;1
+NonCoded;BDS;3;Aflatoxin B1;73;NA;NA;1
+NonCoded;BDS;3;Azidothymidine;74;1;0.81;1
+NonCoded;BDS;3;Azidothymidine;74;1.3;1;1
+NonCoded;BDS;3;Benzo[a]pyrene;75;5.4;0.9;1
+NonCoded;BDS;3;Benzo[a]pyrene;75;6.2;1.2;1
+NonCoded;BDS;3;Cadmium chloride;76;NA;0.008;1
+NonCoded;BDS;3;Cadmium chloride;76;NA;3.00E-04;1
+NonCoded;BDS;3;Carbon tetrachloride (CCl4);77;2.2;1.2;1
+NonCoded;BDS;3;Carbon tetrachloride (CCl4);77;1.4;0.94;1
+NonCoded;BDS;3;Chloramphenicol;78;4.3;0.69;1
+NonCoded;BDS;3;Chloramphenicol;78;NA;NA;1
+NonCoded;BDS;3;Chloramphenicol;78;NA;NA;1
+NonCoded;BDS;3;Cisplatin;79;6.1;NA;1
+NonCoded;BDS;3;Cisplatin;79;NA;NA;1
+NonCoded;BDS;3;Clomiphene;80;1.3;1.1;1
+NonCoded;BDS;3;Clomiphene;80;1.6;1;1
+NonCoded;BDS;3;Colchicine;81;1.9;1.2;1
+NonCoded;BDS;3;Colchicine;81;2.3;1;1
+NonCoded;BDS;3;Colchicine;81;NA;NA;1
+NonCoded;BDS;3;Cyclophosphamide;82;3.6;0.92;1
+NonCoded;BDS;3;Cyclophosphamide;82;3.6;1;1
+NonCoded;BDS;3;Cytarabine;83;0.98;0.83;1
+NonCoded;BDS;3;Cytarabine;83;1.1;0.77;1
+NonCoded;BDS;3;Dexamethasone;84;0.78;0.82;1
+NonCoded;BDS;3;Dexamethasone;84;NA;NA;1
+NonCoded;BDS;3;Diethylstilbestrol;85;1;1.2;1
+NonCoded;BDS;3;Diethylstilbestrol;85;1.4;0.93;1
+NonCoded;BDS;3;Dimethylnitrosamine;86;4;1.1;1
+NonCoded;BDS;3;Dimethylnitrosamine;86;NA;NA;1
+NonCoded;BDS;3;ENU;88;1.1;1;1
+NonCoded;BDS;3;ENU;88;1.2;1;1
+NonCoded;BDS;3;Etoposide;89;NA;0.12;1
+NonCoded;BDS;3;Etoposide;89;2.2;0.63;1
+NonCoded;BDS;3;Hydroquinone;90;NA;0;1
+NonCoded;BDS;3;Hydroquinone;90;1.2;1;1
+NonCoded;BDS;3;IQ (2-amino-3methylimidazo[4,5-f]quinoline);91;2;1.2;1
+NonCoded;BDS;3;IQ (2-amino-3methylimidazo[4,5-f]quinoline);91;NA;NA;1
+NonCoded;BDS;3;Methyl methanosulfonate;92;NA;NA;1
+NonCoded;BDS;3;Methyl methanosulfonate;92;1.4;NA;1
+NonCoded;BDS;3;Nitrofurantoin;93;NA;0.37;1
+NonCoded;BDS;3;Nitrofurantoin;93;1.5;1;1
+NonCoded;BDS;3;Noscapine HCl;94;1.1;1.3;1
+NonCoded;BDS;3;Noscapine HCl;94;0.9;1;1
+NonCoded;BDS;3;p-chloroaniline;95;2.1;0.93;1
+NonCoded;BDS;3;p-chloroaniline;95;2.4;1;1
+NonCoded;BDS;3;PhIP.HCl (2-amino-1-methyl-6-phenylimidazo[4,5-b]pyridine;96;8.6;1.2;1
+NonCoded;BDS;3;PhIP.HCl (2-amino-1-methyl-6-phenylimidazo[4,5-b]pyridine;96;3.2;1.2;1
+NonCoded;BDS;3;Sodium arsenite;97;NA;0;1
+NonCoded;BDS;3;Sodium arsenite;97;NA;0;1
+NonCoded;BDS;3;Sodium arsenite;97;1.1;NA;1
+NonCoded;BDS;3;Tamoxifen;98;NA;0.78;1
+NonCoded;BDS;3;Tamoxifen;98;4.8;NA;1
+NonCoded;BDS;3;Taxol;99;NA;NA;1
+NonCoded;BDS;3;Taxol;99;1.1;NA;1
+Coded;BDS;3;Alachlor;100;NA;0.94;1
+Coded;BDS;3;Alachlor;100;NA;NA;1
+Coded;BDS;3;Alachlor;100;NA;NA;1
+Coded;BDS;3;Benomyl;101;NA;NA;1
+Coded;BDS;3;Benomyl;101;NA;NA;1
+Coded;BDS;3;Benzo[a]pyrene;102;NA;1.35;1
+Coded;BDS;3;Benzo[a]pyrene;102;NA;NA;1
+Coded;BDS;3;Benzo[a]pyrene;102;NA;NA;1
+Coded;BDS;3;Busulfan;103;NA;0.67;1
+Coded;BDS;3;Busulfan;103;NA;NA;1
+Coded;BDS;3;Cyclophosphamide;104;NA;NA;1
+Coded;BDS;3;Cyclophosphamide;104;NA;NA;1
+Coded;BDS;3;Dazomet;105;NA;0.79;1
+Coded;BDS;3;Dazomet;105;NA;NA;1
+Coded;BDS;3;Dichlorvos;106;NA;0.37;1
+Coded;BDS;3;Dichlorvos;106;NA;NA;1
+Coded;BDS;3;Dichlorvos;106;NA;NA;1
+Coded;BDS;3;Diclofenac;107;NA;0.94;1
+Coded;BDS;3;Diclofenac;107;NA;NA;1
+Coded;BDS;3;Dieldrin;108;NA;1;1
+Coded;BDS;3;Dieldrin;108;NA;1;1
+Coded;BDS;3;Dieldrin;108;NA;NA;1
+Coded;BDS;3;Griseofulvin;109;NA;NA;1
+Coded;BDS;3;Griseofulvin;109;NA;NA;1
+Coded;BDS;3;Hexachlorobutadieen;110;NA;NA;1
+Coded;BDS;3;Hexachlorobutadieen;110;NA;NA;1
+Coded;BDS;3;Hydralazine;111;NA;NA;1
+Coded;BDS;3;Hydralazine;111;NA;NA;1
+Coded;BDS;3;Imipramine HCl;112;NA;NA;1
+Coded;BDS;3;Imipramine HCl;112;NA;NA;1
+Coded;BDS;3;Methylnitrosurea;113;NA;1;1
+Coded;BDS;3;Methylnitrosurea;113;NA;0.97;1
+Coded;BDS;3;Oestradiol;114;NA;NA;1
+Coded;BDS;3;Oestradiol;114;NA;NA;1
+Coded;BDS;3;Ofloxacin;115;NA;0.08;1
+Coded;BDS;3;Ofloxacin;115;NA;NA;1
+NonCoded;HU;1;(2-chloroethyl)trimethyl-ammonium chloride;1;NA;NA;1
+NonCoded;HU;1;(2-chloroethyl)trimethyl-ammonium chloride;1;NA;NA;1
+NonCoded;HU;1;Amitrole;2;NA;NA;1
+NonCoded;HU;1;Amitrole;2;NA;NA;1
+NonCoded;HU;1;Ampicillin trihydrate;3;NA;NA;1
+NonCoded;HU;1;Ampicillin trihydrate;3;NA;NA;1
+NonCoded;HU;1;Cyclohexanone;4;1.11;0.58;1
+NonCoded;HU;1;Cyclohexanone;4;NA;NA;1
+NonCoded;HU;1;Di-(2-ethylhexyl)phthalate;5;NA;NA;1
+NonCoded;HU;1;Di-(2-ethylhexyl)phthalate;5;NA;NA;1
+NonCoded;HU;1;Diethanolamine;6;NA;NA;1
+NonCoded;HU;1;Diethanolamine;6;NA;NA;1
+NonCoded;HU;1;D-limonene;7;NA;NA;1
+NonCoded;HU;1;D-limonene;7;NA;NA;1
+NonCoded;HU;1;D-mannitol;8;NA;NA;1
+NonCoded;HU;1;D-mannitol;8;NA;NA;1
+NonCoded;HU;1;Erythromycin stearate;9;1.73;1.11;1
+NonCoded;HU;1;Erythromycin stearate;9;NA;NA;1
+NonCoded;HU;1;Fluometron;10;1;NA;1
+NonCoded;HU;1;Fluometron;10;NA;NA;1
+NonCoded;HU;1;Hexachloroethane;11;NA;NA;1
+NonCoded;HU;1;Hexachloroethane;11;NA;NA;1
+NonCoded;HU;1;Melamine;12;NA;NA;1
+NonCoded;HU;1;Melamine;12;NA;NA;1
+NonCoded;HU;1;Methyl carbamate;13;NA;NA;1
+NonCoded;HU;1;Methyl carbamate;13;NA;NA;1
+NonCoded;HU;1;N,N-dicyclohexyl thiourea;14;NA;NA;1
+NonCoded;HU;1;N,N-dicyclohexyl thiourea;14;NA;NA;1
+NonCoded;HU;1;n-butyl chloride;15;NA;NA;1
+NonCoded;HU;1;n-butyl chloride;15;NA;NA;1
+NonCoded;HU;1;Phenanthrene;16;4.07;0.51;1
+NonCoded;HU;1;Phenanthrene;16;NA;NA;1
+NonCoded;HU;1;Phenformin HCl;17;NA;NA;1
+NonCoded;HU;1;Phenformin HCl;17;NA;NA;1
+NonCoded;HU;1;Progesterone;18;NA;NA;1
+NonCoded;HU;1;Progesterone;18;NA;NA;1
+NonCoded;HU;1;Pyridine;19;NA;NA;1
+NonCoded;HU;1;Pyridine;19;NA;NA;1
+NonCoded;HU;1;Tert-butyl alcohol;20;NA;NA;1
+NonCoded;HU;1;Tert-butyl alcohol;20;NA;NA;1
+NonCoded;HU;1;Tris(2-ethylhexyl)phosphate;21;NA;NA;1
+NonCoded;HU;1;Tris(2-ethylhexyl)phosphate;21;NA;NA;1
+NonCoded;HU;1;Trisodium EDTA trihydrate;22;NA;NA;1
+NonCoded;HU;1;Trisodium EDTA trihydrate;22;NA;NA;1
+Coded;HU;1;1H-Benzotriazol;23;NA;NA;1
+Coded;HU;1;1H-Benzotriazol;23;NA;NA;1
+Coded;HU;1;4-nitroaniline;24;NA;NA;1
+Coded;HU;1;4-nitroaniline;24;NA;NA;1
+Coded;HU;1;6-methylquinoline;25;NA;0.02;1
+Coded;HU;1;6-methylquinoline;25;NA;0.02;1
+Coded;HU;1;8-methylquinoline;26;NA;0.18;1
+Coded;HU;1;8-methylquinoline;26;NA;0.83;1
+Coded;HU;1;8-methylquinoline;26;NA;NA;1
+Coded;HU;1;Azinphosmethyl;27;NA;0.3;1
+Coded;HU;1;Azinphosmethyl;27;NA;0.3;1
+Coded;HU;1;Bisphenol A;28;NA;NA;1
+Coded;HU;1;Bisphenol A;28;NA;NA;1
+Coded;HU;1;Bisphenol A;28;NA;NA;1
+Coded;HU;1;Phenylhydrazine;29;NA;0;1
+Coded;HU;1;Phenylhydrazine;29;NA;0;1
+Coded;HU;1;Phenylhydrazine;29;NA;0;1
+Coded;HU;1;Sodium azide;30;1.72;NA;1
+Coded;HU;1;Sodium azide;30;NA;NA;1
+NonCoded;HU;2;1,3-Dihydroxybenzene (resorcinol);31;1.16;1.02;1
+NonCoded;HU;2;1,3-Dihydroxybenzene (resorcinol);31;1.04;0.98;1
+NonCoded;HU;2;2,4-Dichlorophenol;32;1.23;1.08;1
+NonCoded;HU;2;2,4-Dichlorophenol;32;1.21;0.83;1
+NonCoded;HU;2;2-Ethyl-1,3-hexanediol;33;1.36;1;1
+NonCoded;HU;2;2-Ethyl-1,3-hexanediol;33;1.2;0.99;1
+NonCoded;HU;2;Allylestrenol;34;NA;0;1
+NonCoded;HU;2;Allylestrenol;34;4.38;0.78;1
+NonCoded;HU;2;Benzyl alcohol;35;1.25;1.01;1
+NonCoded;HU;2;Benzyl alcohol;35;1.08;1.01;1
+NonCoded;HU;2;Bromobenzene;36;NA;NA;1
+NonCoded;HU;2;Bromobenzene;36;2.39;1;1
+NonCoded;HU;2;Canrenoate K+;37;3.55;0.83;1
+NonCoded;HU;2;Canrenoate K+;37;NA;0.42;1
+NonCoded;HU;2;Curcumin;38;NA;0.001;1
+NonCoded;HU;2;Curcumin;38;NA;0.001;1
+NonCoded;HU;2;d,l-menthol;39;1.25;0.98;1
+NonCoded;HU;2;d,l-menthol;39;NA;NA;1
+NonCoded;HU;2;Ethionamide;40;1.08;0.81;1
+NonCoded;HU;2;Ethionamide;40;NA;NA;1
+NonCoded;HU;2;Ethyl acrylate;41;1.1;1.07;1
+NonCoded;HU;2;Ethyl acrylate;41;NA;NA;1
+NonCoded;HU;2;Eugenol;42;17.67;0.97;1
+NonCoded;HU;2;Eugenol;42;6.59;1;1
+NonCoded;HU;2;Isobutyraldehyde;43;1.49;1.01;1
+NonCoded;HU;2;Isobutyraldehyde;43;NA;NA;1
+NonCoded;HU;2;Medroxyprogesterone acetate;44;1.94;1.02;1
+NonCoded;HU;2;Medroxyprogesterone acetate;44;NA;NA;1
+NonCoded;HU;2;Norethynodrel;45;1.52;NA;1
+NonCoded;HU;2;Norethynodrel;45;NA;NA;1
+NonCoded;HU;2;o-Anthranilic acid;46;1.26;0.9;1
+NonCoded;HU;2;o-Anthranilic acid;46;1.11;0.9;1
+NonCoded;HU;2;Phthalic anhydride;47;1.42;1.02;1
+NonCoded;HU;2;Phthalic anhydride;47;NA;NA;1
+NonCoded;HU;2;p-Nitrophenol;48;NA;0.34;1
+NonCoded;HU;2;p-Nitrophenol;48;NA;NA;1
+NonCoded;HU;2;Propyl gallate;49;1.19;1;1
+NonCoded;HU;2;Propyl gallate;49;NA;NA;1
+NonCoded;HU;2;Salicylamide;50;3.11;0.92;1
+NonCoded;HU;2;Salicylamide;50;NA;NA;1
+NonCoded;HU;2;Sodium saccharin;51;NA;NA;1
+NonCoded;HU;2;Sodium saccharin;51;NA;NA;1
+NonCoded;HU;2;Sodium xylene sulfonate;52;1.16;0.97;1
+NonCoded;HU;2;Sodium xylene sulfonate;52;NA;NA;1
+NonCoded;HU;2;Sulfisoxazole;53;1.18;1.13;1
+NonCoded;HU;2;Sulfisoxazole;53;NA;NA;1
+NonCoded;HU;2;Tertiary-butylhydroquinone;54;NA;NA;1
+NonCoded;HU;2;Tertiary-butylhydroquinone;54;NA;NA;1
+NonCoded;HU;2;Testosterone;55;NA;0.35;1
+NonCoded;HU;2;Testosterone;55;NA;NA;1
+NonCoded;HU;2;Urea;56;1.18;0.97;1
+NonCoded;HU;2;Urea;56;NA;NA;1
+Coded;HU;2;Atrazine;57;NA;NA;1
+Coded;HU;2;Atrazine;57;NA;0.79;1
+Coded;HU;2;Atrazine;57;2.24;1;1
+Coded;HU;2;Diethyltoluamide;58;NA;NA;1
+Coded;HU;2;Diethyltoluamide;58;NA;0;1
+Coded;HU;2;Diethyltoluamide;58;NA;NA;1
+Coded;HU;2;Diphenylamine;59;NA;NA;1
+Coded;HU;2;Diphenylamine;59;NA;NA;1
+Coded;HU;2;Endosulphan;60;NA;NA;1
+Coded;HU;2;Endosulphan;60;2.14;0.88;1
+Coded;HU;2;Endosulphan;60;2.06;0.88;1
+Coded;HU;2;EPTC;61;4.32;1.13;1
+Coded;HU;2;EPTC;61;2.42;0.84;1
+Coded;HU;2;L-glutamic acid monosodium salt hydrate;62;NA;NA;1
+Coded;HU;2;L-glutamic acid monosodium salt hydrate;62;1.59;NA;1
+Coded;HU;2;Nickel 2 sulphate hexahydrate;63;NA;0.19;1
+Coded;HU;2;Nickel 2 sulphate hexahydrate;63;NA;0;1
+Coded;HU;2;Nicotine;64;NA;NA;1
+Coded;HU;2;Nicotine;64;NA;NA;1
+NonCoded;HU;3;1-Nitropyrene;65;NA;NA;1
+NonCoded;HU;3;1-Nitropyrene;65;NA;NA;1
+NonCoded;HU;3;2,4-diaminotoluene;66;NA;NA;1
+NonCoded;HU;3;2,4-diaminotoluene;66;NA;NA;1
+NonCoded;HU;3;2,7-Dinitrofluorene;67;NA;NA;1
+NonCoded;HU;3;2,7-Dinitrofluorene;67;NA;NA;1
+NonCoded;HU;3;2-Acetylaminofluorene;68;3.28;0.76;1
+NonCoded;HU;3;2-Methoxy-Estradiol;69;NA;0.39;1
+NonCoded;HU;3;2-Methoxy-Estradiol;69;NA;NA;1
+NonCoded;HU;3;4NQO;70;NA;NA;1
+NonCoded;HU;3;4NQO;70;NA;NA;1
+NonCoded;HU;3;5-Fluorouracil;71;2.75;1.38;1
+NonCoded;HU;3;5-Fluorouracil;71;NA;NA;1
+NonCoded;HU;3;7,12-Dimethylbenzanthracene;72;15;1.18;1
+NonCoded;HU;3;7,12-Dimethylbenzanthracene;72;8.9;1.18;1
+NonCoded;HU;3;Aflatoxin B1;73;NA;NA;1
+NonCoded;HU;3;Azidothymidine;74;1.18;1.13;1
+NonCoded;HU;3;Benzo[a]pyrene;75;12;0.86;1
+NonCoded;HU;3;Benzo[a]pyrene;75;9.91;0.89;1
+NonCoded;HU;3;Cadmium chloride;76;NA;NA;1
+NonCoded;HU;3;Cadmium chloride;76;NA;NA;1
+NonCoded;HU;3;Carbon tetrachloride (CCl4);77;1.62;1.07;1
+NonCoded;HU;3;Carbon tetrachloride (CCl4);77;NA;1.07;1
+NonCoded;HU;3;Chloramphenicol;78;3.72;0.93;1
+NonCoded;HU;3;Chloramphenicol;78;NA;NA;1
+NonCoded;HU;3;Cisplatin;79;6.57;0.88;1
+NonCoded;HU;3;Cisplatin;79;1.11;0.88;1
+NonCoded;HU;3;Clomiphene;80;NA;NA;1
+NonCoded;HU;3;Clomiphene;80;NA;NA;1
+NonCoded;HU;3;Colchicine;81;3.09;0.62;1
+NonCoded;HU;3;Colchicine;81;2.35;0.62;1
+NonCoded;HU;3;Cyclophosphamide;82;4.59;0.87;1
+NonCoded;HU;3;Cyclophosphamide;82;6.14;0.98;1
+NonCoded;HU;3;Cytarabine;83;1.34;0.77;1
+NonCoded;HU;3;Cytarabine;83;1.4;0.77;1
+NonCoded;HU;3;Dexamethasone;84;2.33;0.69;1
+NonCoded;HU;3;Dexamethasone;84;NA;NA;1
+NonCoded;HU;3;Diethylstilbestrol;85;NA;NA;1
+NonCoded;HU;3;Diethylstilbestrol;85;NA;NA;1
+NonCoded;HU;3;Dimethylnitrosamine;86;2.55;1.03;1
+NonCoded;HU;3;Dimethylnitrosamine;86;1.55;0.96;1
+NonCoded;HU;3;Doxorubicin;87;NA;NA;1
+NonCoded;HU;3;Doxorubicin;87;16.88;0.98;1
+NonCoded;HU;3;ENU;88;1.02;0.81;1
+NonCoded;HU;3;ENU;88;NA;NA;1
+NonCoded;HU;3;Etoposide;89;NA;0;1
+NonCoded;HU;3;Etoposide;89;NA;NA;1
+NonCoded;HU;3;Hydroquinone;90;NA;0;1
+NonCoded;HU;3;Hydroquinone;90;NA;NA;1
+NonCoded;HU;3;IQ (2-amino-3methylimidazo[4,5-f]quinoline);91;1.82;1.24;1
+NonCoded;HU;3;IQ (2-amino-3methylimidazo[4,5-f]quinoline);91;NA;NA;1
+NonCoded;HU;3;Methyl methanosulfonate;92;NA;0.12;1
+NonCoded;HU;3;Methyl methanosulfonate;92;NA;NA;1
+NonCoded;HU;3;Nitrofurantoin;93;1.53;NA;1
+NonCoded;HU;3;Nitrofurantoin;93;NA;NA;1
+NonCoded;HU;3;Noscapine HCl;94;NA;NA;1
+NonCoded;HU;3;Noscapine HCl;94;NA;NA;1
+NonCoded;HU;3;p-chloroaniline;95;NA;0.31;1
+NonCoded;HU;3;p-chloroaniline;95;19.65;NA;1
+NonCoded;HU;3;PhIP.HCl (2-amino-1-methyl-6-phenylimidazo[4,5-b]pyridine;96;4.77;1.1;1
+NonCoded;HU;3;PhIP.HCl (2-amino-1-methyl-6-phenylimidazo[4,5-b]pyridine;96;2.5;1.1;1
+NonCoded;HU;3;Sodium arsenite;97;NA;NA;1
+NonCoded;HU;3;Tamoxifen;98;NA;NA;1
+NonCoded;HU;3;Tamoxifen;98;NA;NA;1
+NonCoded;HU;3;Taxol;99;NA;0;1
+NonCoded;HU;3;Taxol;99;NA;NA;1
+Coded;HU;3;Alachlor;100;NA;0;1
+Coded;HU;3;Alachlor;100;NA;0.01;1
+Coded;HU;3;Alachlor;100;11.94;0.56;1
+Coded;HU;3;Benomyl;101;NA;0.78;1
+Coded;HU;3;Benomyl;101;NA;0;1
+Coded;HU;3;Benomyl;101;NA;0.78;1
+Coded;HU;3;Benzo[a]pyrene;102;NA;0.86;1
+Coded;HU;3;Benzo[a]pyrene;102;NA;1.07;1
+Coded;HU;3;Busulfan;103;NA;1.24;1
+Coded;HU;3;Busulfan;103;NA;1.24;1
+Coded;HU;3;Cyclophosphamide;104;NA;0.99;1
+Coded;HU;3;Cyclophosphamide;104;NA;0.99;1
+Coded;HU;3;Cyclophosphamide;104;2.27;1.03;1
+Coded;HU;3;Dazomet;105;NA;0;1
+Coded;HU;3;Dazomet;105;NA;0;1
+Coded;HU;3;Dazomet;105;NA;0;1
+Coded;HU;3;Dichlorvos;106;NA;0;1
+Coded;HU;3;Dichlorvos;106;NA;0;1
+Coded;HU;3;Dichlorvos;106;NA;NA;1
+Coded;HU;3;Diclofenac;107;NA;0;1
+Coded;HU;3;Diclofenac;107;NA;0;1
+Coded;HU;3;Diclofenac;107;NA;0;1
+Coded;HU;3;Dieldrin;108;NA;NA;1
+Coded;HU;3;Dieldrin;108;NA;NA;1
+Coded;HU;3;Dieldrin;108;NA;NA;1
+Coded;HU;3;Griseofulvin;109;NA;0.55;1
+Coded;HU;3;Griseofulvin;109;NA;NA;1
+Coded;HU;3;Griseofulvin;109;2.23;0.51;1
+Coded;HU;3;Hexachlorobutadieen;110;NA;0.52;1
+Coded;HU;3;Hexachlorobutadieen;110;NA;0.52;1
+Coded;HU;3;Hexachlorobutadieen;110;NA;NA;1
+Coded;HU;3;Hydralazine;111;NA;NA;1
+Coded;HU;3;Hydralazine;111;NA;NA;1
+Coded;HU;3;Imipramine HCl;112;NA;NA;1
+Coded;HU;3;Imipramine HCl;112;NA;NA;1
+Coded;HU;3;Methylnitrosurea;113;NA;NA;1
+Coded;HU;3;Methylnitrosurea;113;NA;NA;1
+Coded;HU;3;Oestradiol;114;NA;NA;1
+Coded;HU;3;Oestradiol;114;NA;NA;1
+Coded;HU;3;Ofloxacin;115;2.77;0.92;1
+Coded;HU;3;Ofloxacin;115;2.63;1.01;1
+Coded;HU;3;Ofloxacin;115;NA;NA;1
