@@ -29,6 +29,7 @@ suppressPackageStartupMessages({
     library(Biostrings)
     library(GenomicRanges)
     library(SummarizedExperiment)
+    library(tidyverse)
 })
 ```
 
@@ -69,8 +70,9 @@ More than 1,500 packages. Domains of expertise:
 
 ## High-throughput sequence work flow
 ```{r, echo=FALSE}
-knitr::include_graphics(file.path(root, "presentations", "unit_1_intro_to_r_bioconductor",
-"lecture-01-figures/SequencingEcosystem.png"))
+knitr::include_graphics(file.path(root,
+                                  "images",
+                                  "SequencingEcosystem.png"))
 ```
 
 ## DNA Sequences
@@ -108,9 +110,16 @@ methods(class="DNAStringSet")
 browseVignettes(package="Biostrings")
 ```
 
+## **EXERCISE**
+How would you translate this sequence to a peptide?
+
+```
+ATGGGCGCATTTAATAGCGCGATACCTCTG
+```
+
 ## Genomic Ranges
 
-![](lecture-01-figures/GRanges.png)
+![](`r here::here("images", "GRanges.png")`)
 
 [GenomicRanges][]
 
@@ -135,7 +144,6 @@ dna_sequence <- DNAString(
 as(dna_sequence, "Rle")
 ```
 
-
 ## Intra-range operations
 
 - e.g., `shift()`, `narrow()`, `flank()`
@@ -154,34 +162,35 @@ Shift sequence by +1 position
 shift(gr, 1)
 ```
 
-## `reduce()`
-get's the totally covered sequence by overlap
-```{r}
-reduce(gr)
-```
-
 ## `countPverlaps()`
 ```{r}
 query <- GRanges(c("chr1:4-6", "chr2:4-10"))
+```
+
+## Define subject
+```{r}
 subject <- GRanges(c("chr1:1-3", "chr2:4-5", "chr3:3-11"))
 countOverlaps(subject, query)
+```
+
+## `findOverlaps()`
+```{r}
 findOverlaps(subject = subject, query = query)
 intersect(subject, query)
-
-
 ```
+see also: https://bedtools.readthedocs.io/en/latest/content/tools/intersect.html
 
 ## Visualize `GRanges`
 ```{r}
 library(AneuFinder)
-# library(humarray)
-##plot.GRanges(subject)
+library(humarray)
+plot.GRanges(subject)
 ## PACKAGE REMOVEd FROM CRAN
-
+## instal old versions manualy from source
 ```
+see: https://cran.r-project.org/src/contrib/Archive/humarray/
 
 ## Help!
-
 ```{r, eval=FALSE}
 methods(class="GRanges")
 methods(class="GRangesList")
@@ -192,16 +201,65 @@ browseVignettes(package="GenomicRanges")
 
 ## Lists of Genomic Ranges
 ```{r}
- knitr::include_graphics(file.path(root,
-                                   "unit_1_intro_to_r_bioconductor",
-   "lecture-01-figures",
+ knitr::include_graphics(file.path(
+   root,
+   "images",
    "GRangesList.png"))
 ```
 - e.g., exons-within-transcripts, alignments-within-reads
 
-# Summarized Experiments
+## Matching sequences
+```{r}
+seq <- DNAString("AATAGGCGCGATA")
+matchPattern("AA", seq)
+```
 
-![](lecture-01-figures/SummarizedExperiment.png)
+## Multiple patterns
+```{r}
+map(c("AA", "TA", "GC"), 
+    matchPattern, 
+    subject = seq)
+```
+
+## Multiple subjects
+```{r}
+vmatchPattern(pattern = "AA", 
+              subject = DNAStringSet(
+                c("AAAAATCCGC", 
+                  "AATAGGCGCGATA")))
+```
+
+## Multiple subjects, multiple patterns
+```{r}
+
+patterns <- c("AA", "TA", "GC") 
+subjects <- DNAStringSet(c("AAAAATCCGC", 
+                    "AATAGGCGCGATA"))
+```
+
+## Provide names to better read the output
+```{r}
+names(subjects) <- c("peptide_1", "peptide_2") 
+names(patterns) <- patterns 
+```
+
+## Create anonymous function
+```{r}
+anonymous_f <- function(x, y){
+  vmatchPattern(pattern = x, 
+                subject = y)
+    
+}
+```
+
+## Loop function over patterns and subjects
+```{r}
+map(patterns, anonymous_f, y = subjects)
+```
+
+## `SummarizedExperiment`
+
+![](`r here::here("/images/SummarizedExperiment.png")`)
 
 ## Component parts
 
@@ -217,13 +275,11 @@ colData <- read.csv(here::here("data/airway_colData.csv"), row.names=1)
 colData[, 1:4]
 
 rowRanges <- readRDS(here::here("data/airway_rowRanges.rds"))
-
 updateObject(rowRanges)
 
 ```
 
-## Could manipulate independently...
-
+## We could manipulate the information in the se object independently...
 ```{r, fig.asp=1}
 cidx <- colData$dex == "trt"
 plot(
@@ -234,18 +290,68 @@ plot(
 
 - very fragile, e.g., what if `colData` rows had been re-ordered?
 
-Solution: coordinate in a single object -- [SummarizedExperiment][]
+Solution: Combine info in a single object -- [SummarizedExperiment][]
 
 ```{r, fig.asp=1}
 library(SummarizedExperiment)
 
 se <- SummarizedExperiment(counts, rowRanges = rowRanges, colData = colData)
 cidx <- se$dex == "trt"
-plot(
-    rowMeans(1 + assay(se)[, cidx]) ~ rowMeans(1 + assay(se)[, !cidx]),
-    log="xy"
-)
 ```
+
+## `{tidyverse}` way
+```{r}
+library(tidyverse)
+## ggplot
+
+counts_df <- assay(se) %>%
+  as_tibble
+
+trt <- counts_df[, cidx] %>% 
+  mutate(treatment = "trt",
+         ensembl_id = rownames(assay(se))) %>%
+  gather(1:4, 
+         key = "sample_name",
+         value = "counts") %>%
+  mutate(counts = 1 + counts)
+  
+untrt <- counts_df[, !cidx] %>%
+  mutate(treatment = "untrt",
+         ensembl_id = rownames(assay(se))) %>%
+  gather(1:4, 
+         key = "sample_name",
+         value = "counts") %>%
+         mutate(counts = 1 + counts)
+  
+bind_df_summarized <- dplyr::bind_rows(trt, untrt) %>%
+  group_by(treatment, ensembl_id) %>%
+  summarise(mean_counts = mean(counts))
+
+bind_df_summarized %>%
+  spread(key = treatment, value = mean_counts) %>%
+  ggplot(aes(x = log10(trt),
+           y = log10(untrt))) +
+  geom_point(alpha = 0.03)
+       
+```
+
+## **EXERCISE**
+Convert the above `tidyverse` way to a function that takes the `assay(se)` matrix and the coldata group information ("trt", "untrt" in the example) as input and generates the plot as output. How would you call this function?
+
+Use this template
+
+```
+function_name <- function(assay_data, group_1, group_2){
+
+  __function_body__
+
+  plot <- ....
+
+return(plot)
+}
+```
+
+
 
 - Much more robust to 'bookkeeping' errors
 - matrix-like interface: `dim()`, two-dimensional `[`, ...

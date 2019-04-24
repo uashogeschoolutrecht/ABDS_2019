@@ -12,3 +12,8 @@ gatto website on R for proteomics
 
 ## dplyr
 https://github.com/suzanbaert/Dplyr_Tutorials/blob/master/Dplyr01_Selecting_columns.Rmd
+
+## Differential Expression 
+https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
+
+
