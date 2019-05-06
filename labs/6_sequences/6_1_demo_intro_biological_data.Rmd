@@ -1,0 +1,386 @@
+---
+title: "Biological data intro"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output: 
+  ioslides_presentation: 
+    highlight: pygments
+    widescreen: yes
+---
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+```{r, knitr_setup, warning=FALSE, error=FALSE, message=FALSE, include=FALSE}
+## setting knitr options
+if (!require("knitr")) utils::install.packages("knitr")
+library(knitr)
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE, message = FALSE, fig.width = 3, fig.height = 3)
+knitr::opts_knit$set(root.dir = root)
+```
+
+## Bioconductor packages installation   
+```{r}     
+
+library(Biostrings)
+library(XVector)
+library(BiocGenerics)
+library(IRanges)
+library(S4Vectors)
+library(GenomicRanges)
+library(BSgenome)
+
+```
+
+## Bioconductor packages
+```{r, echo=FALSE}
+path_to_biostrings_sticker <- file.path(root, "images", "Biostrings.png")
+knitr::include_graphics(path_to_biostrings_sticker)
+
+path_to_genomicranges_sticker <- file.path(root, "images", "GenomicRanges.png" )
+knitr::include_graphics(path_to_genomicranges_sticker)
+
+path_to_iranges_sticker <- file.path(root, "images", "IRanges.png" )
+knitr::include_graphics(path_to_iranges_sticker)
+```
+
+## Biological data
+Biological data can be sequence data, genomic information, proteomics and metabolomics data, expression array data, genomic alignments etc. etc.
+
+As mentioned above www.bioconductor.org, but also packages from CRAN and packages people posted on www.github.com and www.bitbucket.org can be used to work with and analyze biological data.
+
+Lets' work with an example from the Bioconductor package "Biostrings"
+To get help on packages and learn about BIOCONDUCTOR workflows visit:
+https://www.bioconductor.org/help/workflows/
+
+Below we will show a little on the workflows: "Multiple Alignment" and "Sequencing / Pathway analysis. To get started we need two "BIOCONDUCTOR" packages:
+
+## Biostrings
+```{r}
+library(Biostrings)
+library(IRanges)
+``` 
+
+To view the vignettes (from which I distilled the code chunks below)
+```{r, eval=FALSE}
+browseVignettes("Biostrings"))  
+browseVignettes("IRanges")
+``` 
+
+## Create a BString class object
+```{r}
+b <- BString(c("I am a BString object"))
+b
+length(b)
+class(b)
+```
+
+## With two ambiguous nucleotides
+```{r}
+d <- DNAString("TTGAAAA-CTC-N")
+d
+length(d)
+class(d)
+```
+
+## DNA Alphabet
+```{r}
+(DNA_ALPHABET)
+```
+
+To see the meaning of the "N" and the other UIPAC nucleotide ambiguity codes in this sequence:
+http://www.chick.manchester.ac.uk/SiteSeer/IUPAC_codes.html
+
+## Indexing works the same as with __'normal'__ vectors
+```{r}
+(d[3])
+(d[7:12])
+```
+
+## Reversing the string order
+```{r}
+(b[length(b):1])
+(d[length(d):1]) ## see that d gets reversed?!
+```
+
+## Subsequences
+To get subsequencces of a larger sequence (e.g. to check primer sequences in a genomic sequence)
+```{r}
+(subseq(b, 3, 6))
+(subseq(d, end=7))
+(subseq(d, start=8))
+```
+
+## Find a specific pattern (a substring) in a larger string
+```{r}
+b == "am a"
+d != DNAString("TG") ## is not containing?
+```
+
+## DNAString, RNAString, Amino acid strings (protein)
+
+Logically, we can also define RNA and proteins as a string object.
+Converting DNA to RNA __transcribes__ the DNA string. Remember, what was so typical about RNA?
+
+Translating a DNA string to protein __translates the DNA sequence (triplets) to a string of amino acids. A physiologically relevant protein had a start, and a stop coding sequence.
+
+## Creating an RNA string
+```{r}
+r <- RNAString(d)
+r
+r == d ## checking if a DNA string codes for an RNA string
+```
+
+## A longer DNA string 
+
+Creating an hypothetical gene sequence 
+```{r}
+gene <- DNAString(c("ATGAAATTTGGGCGCGCTTTAAAATGGGCGCTGAACTCTTTCCCCCGCGCGCTTGTGTGTGAAATATATATGTAATAAATATTGCCCCCGCGCGCGTTTGTGTGGGGCTCGCCGCGCTTTTAG"))
+length(gene)
+```                  
+
+## From gene to protein 
+```{r}
+protein <- Biostrings::translate(gene)                  
+length(gene)/3
+protein
+```                  
+
+## Views on strings
+IRanges Views are a way to describe the subsequences of a longer sequence. 
+```{r}
+v4 <- Views(d, start=3:0, end=5:8)
+v4
+length(v4)
+```
+
+## Views can also be indexed
+```{r}
+v4[4:2]
+v4[[2]]
+```
+
+## Views from scratch
+```{r}
+v12 <- Views(DNAString("TAATAATG"), start=-2:9, end=0:11)
+v12
+as(d, "Views"); as(d, "Views")[[1]]
+```
+
+## Rle as the R class for storing long DNA sequences
+
+ - Storage of large sequences in easy format is feasible
+ - When regarding a full genome we can easily have sequences over 50 milion bases
+ - Considering the longest chomosome of the human (chromosome 1) is over 200 milion base pairs long
+ - You can appriciate the neccessity to store these strings of nucleotides in a computational-and-storage-friendle format. 
+ - In R this format is encoded by the Rle class of objects. 
+
+## Closer look at Rle
+Let's look at Rle. Assume you have a very short DNA sequence:
+AAATTGTGTGCCCTTT
+
+This sequence can be converted to a DNAString
+```{r}
+seq_demo <- DNAString("AAATTGTGTGCCCTTT")
+seq_demo
+```
+
+## Coerce to Rle 
+let's see what happens if we convert this sequence to an Rle object
+```{r}
+seq_rle <- Rle(as.vector(seq_demo))
+seq_rle
+```
+
+## Matching an pattern Longer Rle object
+```{r}
+## Our subject sequence (the longer sequence)
+subject_seq <- DNAString(c("ATTTGTTGATCATCATCATGTTTTATGTTTGTGTGTATTATTATTATTTCCGCGCGTA"))
+
+## the dictionary with a few three-base long sequences
+dictionary <- PDict(c("ATC", "ATG", "ATT", "TAT", "TTA"))
+```
+
+## Matching of the dictionary against the subject DNA sequence
+```{r}
+match <- Biostrings::matchPDict(pdict = dictionary, subject = subject_seq)
+names_patterns <- c("ATC", "ATG", "ATT", "TAT", "TTA")
+## the names of the pattern are added to the match object
+match@NAMES <- c(names_patterns)
+ str(match)
+ match@NAMES
+```
+
+## Contructing an IRangesList from match
+```{r}
+ir <- lapply(match, IRanges::IRanges)
+ir_list <- IRanges::IRangesList(ir)
+head(ir_list, 2)
+```
+
+## Let's make a plot!
+```{r, echo = FALSE, fig.width=6, fig.height=4}
+### code chunk number 31: plotRanges
+plot_iranges <- function(IRanges_object, sep=0.5, height=1,
+                         set_breaks=TRUE, labcol="grey",
+												names=NULL, cov=FALSE, clear=FALSE,
+												disjoint=NULL,
+												color=NULL) {
+	library(ggplot2)
+
+  if (!is.null(colors)) stopifnot(length(colors) <= 3L)
+	COLORS <- c("white", "#383838", "#DDDDDD")
+	x <- list(IRanges_object)
+	if (!is.null(names))
+		names(x) <- names
+	dl <- lapply(x, function(d) {
+							 out <- as.data.frame(d)
+							 out$y <- GenomicRanges::disjointBins(d)
+							 out
+							})
+	d <- do.call(rbind, dl)
+	if (!is.null(disjoint))
+		# manually assigned bins
+		d$y <- disjoint
+	d$ymin <- d$y * (sep + height) - height
+	d$ymax <- d$ymin + height
+	if (!is.null(color))
+		d$color <- color
+	if (length(x) > 1 && is.null(names(x)))
+		stop("multiple ranges must be given names like
+		     plotRanges(rng1=y, rng2=x)")
+	if (length(x) > 1)
+		d$range <- factor(rep(names(x), sapply(x, length)), names(x))
+	p <- ggplot2::ggplot(d)
+	if (clear)
+		p <- p + ggplot2::geom_rect(aes(ymin=ymin, ymax=ymax,
+		                       xmin=start-0.5, xmax=end+0.5),
+											 fill="white", color="grey30", size=0.3)
+	else if(is.null(color))
+		p <- p + ggplot2::geom_rect(aes(ymin=ymin, ymax=ymax, xmin=start-0.5,
+		                       xmax=end+0.5))
+	else {
+		p <- p + ggplot2::geom_rect(aes(ymin=ymin, ymax=ymax, xmin=start-0.5,
+													 xmax=end+0.5, fill=color),
+													 color="grey30", size=0.3)
+		p <- p + ggplot2::scale_fill_manual("", guide=FALSE,
+															 values=COLORS[1:length(unique(color))])
+	}
+	p <- p + ggplot2::theme_bw()
+	if (!is.null(d$names)) {
+		p <- p + ggplot2::geom_text(aes(x=start + width/2 - 0.5,
+													 y=ymin+(ymax-ymin)/2, label=names),
+													 size=4, color=labcol)
+	}
+	xmin <- min(d$start)
+	xmax <- max(d$end)
+	xbreaks <- seq(xmin - 1L, xmax + 1L)
+	if (set_breaks)
+		p <- p + ggplot2::scale_x_continuous(breaks=xbreaks)
+	p <- p + ggplot2::theme(panel.grid.major=element_blank(),
+								 panel.grid.minor.y=element_blank(),
+								 axis.ticks=element_blank())
+	if (!cov)
+		p <- p + ggplot2::theme(axis.text.y=element_blank())
+	p <- p + xlab("") + ylab("")
+	if (length(unique(d$range)) > 1)
+		p <- p + facet_wrap(~ range, ncol=1)
+	if (cov)
+		p <- p + ggplot2::geom_line(aes(x=pos, y=cov), covdf(coverage(rngs)),
+		                   color="red", size=3)
+	p
+}
+
+## Calling the plot
+plot <- plot_iranges(unlist(ir_list))
+plot
+```
+
+## A coverage plot indicates the depth of coverage of sequence and a number of patterns. Look at the plot to understand how coverage works.
+```{r, echo=FALSE, fig.width=6, fig.height=4}
+coverage_plot <- function(cx, start, end, min.depth, max.depth){
+  plot.new()
+  plot.window(c(start, end), c(min.depth, max.depth))
+  axis(1)
+  axis(2)
+  axis(4)
+  lines(start:end, cx[start:end], type="l")
+}
+
+## Get the coverage of the original subject:
+cov3R <- as.integer(IRanges::coverage(match, width=length(subject_seq)))
+#max(cov3R)
+#mean(cov3R)
+#sum(cov3R != 0) / length(cov3R)
+
+## A plot that shows the depth of the coverage (depht on the y-axis,
+## subject on the x-axis)
+
+coverplot <- coverage_plot(cx = cov3R,
+                           start = 1, end = 58,
+                           min.depth = 0, max.depth = 5)
+
+
+coverplot
+```
+
+## Concepts in biological string data
+
+The above matching, Views, plotting an IRangesList and coverage are cocepts that play an important role in understanding the methodology of sequencing and how sequence data can be interpreted. 
+
+If you want to learn more about analysis of sequence data in R, take a look at the BIOCONDUCTOR workflow below. 
+
+## Sequencing workflow
+Commonly used workflows can be downloaded from the the BIOCONDUCTOR website. Workflows are installed as packages and demonstrate a data workflow for commond experiments and data types in Life Sciences and Chmeistry. Examples of workflows can be found at:   
+
+## To start with a Biological workflow on sequencing data:
+```{r, eval=FALSE}
+BiocInstaller::biocValid()
+source("http://bioconductor.org/biocLite.R")
+workflowInstall("sequencing", dependencies = TRUE, type = "source")
+browseVignettes("sequencing")
+```
+
+## Bioconductor website
+see also http://bioconductor.org/packages/release/bioc/html/GenomicRanges.html for learning annotation, gene IDs, pathway analysis and much more:
+
+## BIOCONDUCTOR workflows: 
+
+https://www.bioconductor.org/help/workflows/ 
+
+## To learn R interactively visit 
+
+http://swirlstats.com/
+
+## Other resources
+There is a enormous amount of information on R freely available on the web. I find it realy helpful to use youtube tutorials, online tutorials, vignettes and workflows (BIOCONDUCTOR.org). Feel free to contact me for questions on which resource is best to start with or to advance your skills. 
+
+## Statistics
+For statistics, which will not be covered in detail during this course 
+
+The book by Andy Field "Discovering Statistics Using R" kept me awake at night! So it is a good place to start (if you have ambitions to becoming an insomniac).
+
+E-books from Amazon are good tools, take a look at the ratings and the reviews before buying, though. I find the books from Publisher 'O Reilly very good starting points and a book can be helpful as a solid go-to. 
+
+## Swirl
+One thing that will speed up your learning is running the code below. 
+```{r, eval = FALSE}
+install.packages("swirl")
+library(swirl)
+swirl()
+```
+
+## Citations
+```{r, eval=FALSE}
+citation("base")
+citation("ggplot2")
+citation("tidyverse")
+citation("knitr")
+citation("Biostrings")
+citation("IRanges")
+```

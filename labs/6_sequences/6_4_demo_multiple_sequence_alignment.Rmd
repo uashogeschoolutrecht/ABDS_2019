@@ -1,0 +1,407 @@
+---
+title: "Sequence alignment"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+  ioslides_presentation:
+    highlight: pygments
+    widescreen: yes
+---
+<style>
+
+.footer {
+    font-size: 16pt;
+    color: DarkBlue;
+    content: attr(label);
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align:center;
+    bottom: 10px;
+    line-height: 1.9;
+    display: block;
+}
+
+</style>
+
+<div class="footer" style="margin-top;font-size:120%;"> 
+R & Bioconductor for Bioinformatics - May 2018 </div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      error = FALSE)
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+## Introduction
+ 
+Learn:
+
+ - How to perform multiple alignment
+ - How to build graphs for alignment
+ - How to build a fylogenetic tree
+ - How and why to build `DNAStringset` and `AAStringSet` objects
+ - Appply sequence alignment in `{DECIPHER}` package on a new dataset
+ 
+## Packages
+```{r}
+library(msa)
+library(tidyverse)
+library(biomaRt)
+library(annotate)
+library(Biostrings)
+library(seqinr)
+# install.packages('msaR')
+library(DECIPHER)
+```
+
+## Vignettes
+```{r, eval=FALSE}
+browseVignettes("msaR")
+browseVignettes("DECIPHER")
+system.file("tex", "texshade.sty", package="msa")
+```
+
+## Theory
+Sequence alignment is important tool to investigate structural, evolutionary and mechanistical simularities in (biological) strings. 
+
+One algorithm used to score alignment of strings is the `Needleman-Wunsch` algorithm. We will explain how this works below.
+First let's create a visual representation of the algorithm score matrix
+
+### Needlman-Wunsch alignment score matrix for two sequences 
+
+ 1. `seq1 = AB`
+ 2. `seq2 = AA`
+
+```{r}
+source(file = file.path(root, "code", "plot_needleman_wunsch.R"))
+
+seq1 <- c("AB")
+seq2 <- c("AA")
+
+
+plotNeedlemanWunsch(seq1 = seq1,
+                    seq2 = seq2,
+                    1, 1, 1)
+
+
+```
+
+### How do we calculate the overall score?
+
+
+### How does the alignment work?
+
+
+
+
+
+
+## Data
+Remember the data with the homolog sequences for Caspase-3, -4 and -5 from Human, Orang Utan and Mouse?
+We will use it here to learn how to use Bioconductor to do multiple sequence alignments.
+
+```{r}
+example_caspase <- read_rds(path = file.path(root, "data", "biomaRt_homology_example_aa.rds"))
+example_caspase_dna <- read_rds(path = file.path(root, "data", "biomaRt_homology_example_dna.rds"))
+
+```
+
+## Filter for Caspase-4
+For example sake we use the sequences for Caspase-4 only. To select the right caspases, we need to convert to lower case for all the symbol names
+```{r}
+example_caspase$external_gene_name <- tolower(example_caspase$external_gene_name) 
+levels(as.factor(example_caspase$external_gene_name))
+
+casp4 <- example_caspase %>%
+  filter(external_gene_name == "casp4")
+casp4
+```
+
+## AAStringSet
+```{r}
+caspase_aa <- AAStringSet(casp4$amino_acid_sequence)
+caspase_aa
+```
+
+## Set names to AAStringSet sequences
+```{r}
+names(caspase_aa) <- paste(casp4$species, casp4$ensembl_gene_id, sep = "_")
+#duplicated(casp5$coding[1:42])
+caspase_aa
+```
+
+# Aligment of sequences, using the {msa} package
+
+## Using the `{msa}` package
+```{r}
+caspase_align <- msa::msa(caspase_aa)
+caspase_align
+```
+
+
+## Print alignment
+```{r}
+print(caspase_align, show="complete")
+```
+
+## Pretty print aligment
+```{r, eval=FALSE} 
+## does not work on my pc
+msaPrettyPrint(caspase_align, output="",  y=c(10, 30), showNames="none",
+               showLogo="none", askForOverwrite=FALSE, verbose=FALSE)
+
+```
+
+# Alignment using the {DECIPHER} package
+
+## Amino acids
+
+```{r, results='hide'}
+AA <- AlignSeqs(caspase_aa, processors = 8) # align the translation
+BrowseSeqs(AA, highlight=1) # view the alignment
+
+```
+
+## Alignment in browser
+```{r, echo=FALSE}
+knitr::include_graphics(file.path(root, "images", "BrowseSeq", "sequence_alignment_plots", "Dia1.PNG"))
+```
+
+## Subsetting an alignment
+Subsetting an alignment works the same as for ranges.
+First we select the sequences that we want subset, using normal indexing with `[]`, than we use the function `Biostrings::subseq()`
+
+Let's look at the sequence 5 for Human and 7 for Orang Utan only
+
+```{r, results='hide'}
+caspase_aa
+AA_subs <- Biostrings::subseq(caspase_aa[c(5, 7),], start = 1, end = 158)
+
+AA_subs <- AlignSeqs(AA_subs, processors = 8) # align the translation
+BrowseSeqs(AA_subs, highlight=1) # view the alignment
+```
+
+## Alignment in browser
+```{r, echo=FALSE}
+knitr::include_graphics(file.path(root, "images", "BrowseSeq", "sequence_alignment_plots","Dia2.PNG"))
+```
+
+## Aligning Amino acid sequences from DNA sequences 
+To align a translation from DNA use the `AlignTranslation()` function from `{DECIPHER}`
+```{r, results='hide'}
+dna_strings <- DNAStringSet(example_caspase_dna$coding)
+names(dna_strings) <- paste(example_caspase_dna$external_gene_name, 
+                            example_caspase$species)
+
+AA <- AlignTranslation(dna_strings, type="AAStringSet") # align the translation
+BrowseSeqs(AA, highlight=1) # view the alignment
+```
+
+## Alignment in browser
+```{r, echo=FALSE}
+knitr::include_graphics(file.path(root, "images", "BrowseSeq","sequence_alignment_plots", "Dia3.PNG"))
+```
+
+## Caspase-4 DNA
+Let's look at the DNA alignments for the caspase-4 human and oran-utan subset above
+```{r}
+casp4_dna <- example_caspase_dna %>%
+  dplyr::mutate(external_gene_name = tolower(external_gene_name)) %>%
+  dplyr::filter(species == "H. sapiens" | species == "P. abelii") %>%
+  dplyr::filter(external_gene_name == "casp4") %>%
+  print()
+
+dna_subset <- DNAStringSet(casp4_dna$coding)
+names(dna_subset) <- paste(casp4_dna$species, casp4_dna$ensembl_gene_id, sep = "_")
+```
+
+## Aligning Human and Orang Utan sequences
+```{r, results='hide'}
+casp_dna_subset <- AlignSeqs(dna_subset[c(4,5),], processors = 8)
+BrowseSeqs(casp_dna_subset, highlight=1) # view the alignment
+
+```
+How do the DNA and Amino acid aligment relate?
+
+## Alignment in browser
+```{r, echo=FALSE}
+knitr::include_graphics(file.path(root, "images", "BrowseSeq", "sequence_alignment_plots","Dia4.PNG"))
+```
+
+## Inspecting alignment Quality
+
+ - Look at the alignment
+ - `BrowseSeqs()`
+ 
+```{r, results='hide'}
+BrowseSeqs(caspase_aa[c(5, 7),], highlight = 0)
+```
+
+## Fylogenetic alignment (Evolutionary relationships)
+We create a fylogeny for Caspase-4, using the DNA from Human, Orang Utan and Mouse.
+Below we filter the DNA dataset for the relevant data
+```{r}
+mouse_human_orang_dna <- example_caspase_dna %>%
+  dplyr::mutate(external_gene_name = tolower(external_gene_name)) %>%
+  dplyr::filter(external_gene_name == "casp4") %>%
+  print
+```
+
+## Prepare alignment for fylogeny
+```{r, results='hide'}
+mouse_human_orang_dna_string_set <- DNAStringSet(mouse_human_orang_dna$coding, 
+                                                 start = 1, end = 210)
+names(mouse_human_orang_dna_string_set) <- mouse_human_orang_dna$species
+
+alignment_aa <- AlignTranslation(mouse_human_orang_dna_string_set, 
+                                 type = "AAStringSet", processors = 8)
+staggered <- StaggerAlignment(alignment_aa)
+BrowseSeqs(staggered)
+
+```
+
+## Alignment in browser
+```{r, echo=FALSE}
+knitr::include_graphics(file.path(root, "images", "BrowseSeq", "sequence_alignment_plots","Dia5.PNG"))
+```
+
+## Fylogenetic tree from distance matrix
+```{r, results='hide'}
+distance_matrix <- DistanceMatrix(staggered)
+dendrogram <- IdClusters(distance_matrix, showPlot = TRUE, type = 'both')
+```
+
+## Accessing the dendrogram plot
+```{r}
+plot(dendrogram[[2]])
+```
+
+## Save the plot
+```{r, eval = FALSE}
+png(filename = "./images/dendrogram.png")
+plot(plot[[2]])
+dev.off()
+```
+
+####################### NEEDS WORK ##############################
+
+
+## How could we come to a single sequence per species?
+
+ - Align sequences, isolate consensus
+ - Align Human sequences, isolate consensus
+ - Align human mouse consensus to Orang Utan sequence,
+
+## Towards a single sequence for each species
+### Mouse
+
+```{r, results='hide'}
+staggered
+
+# mouse
+mouse_only <- AlignTranslation(mouse_human_orang_dna_string_set[c(1:4),],
+                                    type = "AAStringSet")
+
+mouse_stagger <- StaggerAlignment(mouse_only)
+
+mouse_consensus <- ConsensusSequence(mouse_stagger)
+BrowseSeqs(mouse_stagger)
+```
+
+## Alignment in browser
+```{r, echo=FALSE}
+knitr::include_graphics(file.path(root, "images", "BrowseSeq","sequence_alignment_plots", "Dia6.PNG"))
+```
+
+## Human
+```{r, results='hide'}
+human_only <- AlignTranslation(mouse_human_orang_dna_string_set[c(5:8)],
+                               type = "AAStringSet")
+human_stagger <- StaggerAlignment(human_only)
+
+
+# CorrectFrameshifts(human_only)
+human_consensus <- ConsensusSequence(human_stagger) 
+BrowseSeqs(human_stagger)
+```
+
+## Alignment in browser
+```{r, echo=FALSE}
+knitr::include_graphics(file.path(root, "images", "BrowseSeq","sequence_alignment_plots", "Dia7.PNG"))
+```
+
+# orang utan
+```{r, results='hide'}
+orang_only <- mouse_human_orang_dna_string_set$`P. abelii` %>%  
+  Biostrings::translate() %>% 
+  AAStringSet() %>%
+  print()
+```
+
+## prepare data for alignment
+```{r, results='hide'}
+all_aa <- c(human_consensus, mouse_consensus, orang_only)
+
+names(all_aa) <- c("mouse", "human", "orang utan")
+
+equal_length <- AAStringSet(all_aa, start = 1, end = 8)
+
+#all_aa_aligned <- AlignSeqs(equal_length, type = "AAStringSet", processors = 8)
+
+#staggered <- StaggerAlignment(all_aa_aligned)
+#BrowseSeqs(staggered)
+```
+
+## Build new tree
+```{r, results='hide', fig.show='hide', eval=FALSE}
+distance_matrix <- DistanceMatrix(all_aa_aligned)
+dendrogram <- IdClusters(distance_matrix, showPlot = TRUE, type = 'both')
+```
+
+## Dendrogram of single sequence per species
+Why has the distance between Human and Orang Utan increased?
+```{r, eval=FALSE}
+dendrogram[[2]] %>% plot()
+```
+
+## Aligning RNA sequences
+16S ribosomal rRNA is used to characterize bacteria. Here we show an example with the build-in dataset from {DECIPHER} 
+```{r}
+# database containing 16S ribosomal RNA sequences
+db <- system.file("extdata", "Bacteria_175seqs.sqlite", package="DECIPHER")
+rna <- SearchDB(db, remove="all", type="RNAStringSet")
+alignedRNA <- AlignSeqs(rna, processors = 8, verbose = FALSE) # align with RNA secondary structure
+```
+
+## Viewing the alignment
+```{r, results='hide'}
+BrowseSeqs(alignedRNA)
+```
+
+## Alignment in browser
+```{r, echo=FALSE}
+knitr::include_graphics(file.path(root, "images", "BrowseSeq","sequence_alignment_plots", "Dia8.PNG"))
+```
+
+## Bacterial fylogenetic tree
+```{r, results='hide', fig.show='hide'}
+distance_matrix <- DistanceMatrix(StaggerAlignment(alignedRNA), verbose = FALSE)
+bacteria <- IdClusters(distance_matrix, showPlot = TRUE, type = 'dendrogram')
+```
+
+## Bacterial dendrogram (fylogenetic tree)
+```{r, fig.width=20, fig.height=14}
+bacteria[[2]] %>% plot()
+```
