@@ -50,6 +50,12 @@ mart
 datasets <- listDatasets(mart = mart) %>% 
   as_tibble() %>%
   print()
+
+
+ind <- str_detect(string = datasets$description,
+                pattern = "(S|s)loth.*")
+
+datasets[ind,]
 ```
 
 ## Using the Human dataset available from 'Ensembl'
@@ -71,6 +77,7 @@ h_sapiens_2 <- useMart(biomart = "ensembl",
 
 ## Filters; _stuff you put in_
 ```{r}
+h_sapiens
 filters = listFilters(h_sapiens) %>% 
   as_tibble() %>%
   print()
