@@ -8,27 +8,6 @@ output:
     highlight: pygments
     widescreen: yes
 ---
-<style>
-
-.footer {
-    font-size: 16pt;
-    color: DarkBlue;
-    content: attr(label);
-    position: absolute;
-    margin-left: auto;
-    margin-right: auto;
-    left: 0;
-    right: 0;
-    text-align:center;
-    bottom: 10px;
-    line-height: 1.9;
-    display: block;
-}
-
-</style>
-
-<div class="footer" style="margin-top;font-size:120%;"> 
-R & Bioconductor for Bioinformatics - May 2018 </div>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,
@@ -236,40 +215,4 @@ sessionInfo()
 
 
 ```
-
-# Exercise
-
-## Literature
-The article can be found at: http://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006512
-the dataset is available from:  GEO database (accession number GSE76073).
-
-
-## Data
-```{r}
-gds_76073 <- getGEO("GSE76073", GSEMatrix = TRUE)
-```
-
-## Inspecting the data
-Printing the gds object reveals two different `ExpressionSet` objects in a list
-We can store them individually in two new variables.
-
-```{r}
-gds_76073
-
-```
-
-
-
-## RNAseq Platform
-
-
-
-## Getting counts (experimental data)
-
-
-
-
-
-
-
 

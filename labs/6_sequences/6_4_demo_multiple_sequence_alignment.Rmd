@@ -8,27 +8,6 @@ output:
     highlight: pygments
     widescreen: yes
 ---
-<style>
-
-.footer {
-    font-size: 16pt;
-    color: DarkBlue;
-    content: attr(label);
-    position: absolute;
-    margin-left: auto;
-    margin-right: auto;
-    left: 0;
-    right: 0;
-    text-align:center;
-    bottom: 10px;
-    line-height: 1.9;
-    display: block;
-}
-
-</style>
-
-<div class="footer" style="margin-top;font-size:120%;"> 
-R & Bioconductor for Bioinformatics - May 2018 </div>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,
