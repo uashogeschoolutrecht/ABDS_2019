@@ -1,0 +1,49 @@
+---
+title: "demo"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, eval=TRUE, results='markup', echo=TRUE}
+if (!require("rprojroot")) install.packages("rprojroot")
+library("rprojroot")
+root <- find_root_file(criterion = is_rstudio_project)
+root
+```
+
+
+
+
+```{r}
+
+library(tidyverse)
+
+data <- read_csv(file.path(
+  root,
+  "data",
+  "dengue_data.csv"), skip = 10) 
+
+## get the head though bash command
+system("head -10 data/dengue_data.csv")
+
+?stats::filter
+?dplyr::filter
+
+dplyr::filter()
+dplyr::select()
+
+
+
+
+
+
+
+
+
+
+
+```
+
