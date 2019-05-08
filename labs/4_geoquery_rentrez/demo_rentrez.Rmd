@@ -647,7 +647,7 @@ For instance, we could get the first 200 sequences in 50-sequence chunks:
 (note: this code block is not executed as part of the vignette to save time and bandwidth):
 
 
-```{r}
+```{r, eval=FALSE}
 for( seq_start in seq(1,200,50)){
     recs <- entrez_fetch(db="nuccore", web_history=snail_coi$web_history,
                          rettype="fasta", retmax=50, retstart=seq_start)
