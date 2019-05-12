@@ -103,7 +103,8 @@ gds <- getGEO(filename=system.file("extdata/GDS507.soft.gz",package="GEOquery"))
 # If you have network access, the more typical way to do this
 # would be to use this:
 gds <- getGEO("GSM11805")
-gsm <- getGEO(filename=system.file("extdata/GSM11805.txt.gz",package="GEOquery"))
+gsm <- getGEO(filename=system.file("extdata/GSM11805.txt.gz",
+                                   package="GEOquery"))
 gsm
 ## ------------------------------------------------------------------------
 # Look at gsm metadata:
@@ -131,7 +132,7 @@ names(GPLList(gse))
 
 ## ------------------------------------------------------------------------
 # Note that GSEMatrix=TRUE is the default
-gse2553 <- getGEO('GSE2553',GSEMatrix=TRUE)
+gse2553 <- getGEO('GSE2553', GSEMatrix=TRUE)
 show(gse2553)
 show(pData(phenoData(gse2553[[1]]))[1:5,c(1,6,8)])
 
@@ -188,7 +189,7 @@ colnames(data.matrix) <- names(gsmlist)
 pdata <- data.frame(samples=names(gsmlist))
 rownames(pdata) <- names(gsmlist)
 pheno <- as(pdata,"AnnotatedDataFrame")
-eset2 <- new('ExpressionSet',exprs=data.matrix,phenoData=pheno)
+eset2 <- new('ExpressionSet', exprs=data.matrix,phenoData=pheno)
 eset2
 
 ## ------------------------------------------------------------------------

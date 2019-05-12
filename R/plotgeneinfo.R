@@ -5,21 +5,21 @@ library(biomaRt)
 
 
 
-biomart <- "ensembl"
-id = "ENSG00000140564"
-type = "ensembl_gene_id"
-plot_title = "ENSG00000140564"
-mart <- useMart(biomart = biomart, dataset = "hsapiens_gene_ensembl")
-mart
-marts <- listMarts(mart = mart)
+#biomart <- "ensembl"
+#id = "ENSG00000140564"
+#type = "ensembl_gene_id"
+#plot_title = "ENSG00000140564"
+#mart <- useMart(biomart = biomart, dataset = "hsapiens_gene_ensembl")
+#mart
+#marts <- listMarts(mart = mart)
 
-datasets <- listDatasets(mart = mart) %>% as_tibble()
+#datasets <- listDatasets(mart = mart) %>% as_tibble()
 
-dataset <- "hsapiens_gene_ensembl"
+#dataset <- "hsapiens_gene_ensembl"
 
 
 
-structure = c("gene", "transcript", "snps") 
+#structure = c("gene", "transcript", "snps") 
 
 
 
@@ -127,24 +127,24 @@ make_gene_graph <- function(biomart,
 }
 
 
-make_gene_graph(biomart = biomart,
-                dataset = dataset,
-                type = type,
-                id = id)
-#traceback()
-
-listDatasets(mart = biomart)
-
-biomart <- "ensembl"
-id = "ENSG00000140564"
-type = "ensembl_gene_id"
-plot_title = "ENSG00000140564"
-
-structure = c("gene", "transcript", "snps") 
-
-
-biomart <- "ensembl"
-id = "ENSG00000120075"
-type = "ensembl_gene_id"
-plot_title = "ENSG00000140564"
-
+# make_gene_graph(biomart = biomart,
+#                 dataset = dataset,
+#                 type = type,
+#                 id = id)
+# #traceback()
+# 
+# listDatasets(mart = biomart)
+# 
+# biomart <- "ensembl"
+# id = "ENSG00000140564"
+# type = "ensembl_gene_id"
+# plot_title = "ENSG00000140564"
+# 
+# structure = c("gene", "transcript", "snps") 
+# 
+# 
+# biomart <- "ensembl"
+# id = "ENSG00000120075"
+# type = "ensembl_gene_id"
+# plot_title = "ENSG00000140564"
+# 
