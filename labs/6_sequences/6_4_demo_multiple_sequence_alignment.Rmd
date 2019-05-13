@@ -2,11 +2,10 @@
 title: "Sequence alignment"
 author: "Marc A.T. Teunis"
 date: "`r Sys.Date()`"
-output:
-  word_document:
-  ioslides_presentation:
-    highlight: pygments
-    widescreen: yes
+output: 
+   BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
@@ -55,37 +54,9 @@ system.file("tex", "texshade.sty", package="msa")
 ## Theory
 Sequence alignment is important tool to investigate structural, evolutionary and mechanistical simularities in (biological) strings. 
 
-One algorithm used to score alignment of strings is the `Needleman-Wunsch` algorithm. We will explain how this works below.
-First let's create a visual representation of the algorithm score matrix
+One algorithm used to score alignment of strings is the `Needleman-Wunsch` algorithm. 
 
-### Needlman-Wunsch alignment score matrix for two sequences 
-
- 1. `seq1 = AB`
- 2. `seq2 = AA`
-
-```{r}
-source(file = file.path(root, "code", "plot_needleman_wunsch.R"))
-
-seq1 <- c("AB")
-seq2 <- c("AA")
-
-
-plotNeedlemanWunsch(seq1 = seq1,
-                    seq2 = seq2,
-                    1, 1, 1)
-
-
-```
-
-### How do we calculate the overall score?
-
-
-### How does the alignment work?
-
-
-
-
-
+The exect details of the algorithm are out of scope for this lesson. Wikipedia ia good source for details: https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
 
 ## Data
 Remember the data with the homolog sequences for Caspase-3, -4 and -5 from Human, Orang Utan and Mouse?
@@ -272,87 +243,6 @@ plot(dendrogram[[2]])
 png(filename = "./images/dendrogram.png")
 plot(plot[[2]])
 dev.off()
-```
-
-####################### NEEDS WORK ##############################
-
-
-## How could we come to a single sequence per species?
-
- - Align sequences, isolate consensus
- - Align Human sequences, isolate consensus
- - Align human mouse consensus to Orang Utan sequence,
-
-## Towards a single sequence for each species
-### Mouse
-
-```{r, results='hide'}
-staggered
-
-# mouse
-mouse_only <- AlignTranslation(mouse_human_orang_dna_string_set[c(1:4),],
-                                    type = "AAStringSet")
-
-mouse_stagger <- StaggerAlignment(mouse_only)
-
-mouse_consensus <- ConsensusSequence(mouse_stagger)
-BrowseSeqs(mouse_stagger)
-```
-
-## Alignment in browser
-```{r, echo=FALSE}
-knitr::include_graphics(file.path(root, "images", "BrowseSeq","sequence_alignment_plots", "Dia6.PNG"))
-```
-
-## Human
-```{r, results='hide'}
-human_only <- AlignTranslation(mouse_human_orang_dna_string_set[c(5:8)],
-                               type = "AAStringSet")
-human_stagger <- StaggerAlignment(human_only)
-
-
-# CorrectFrameshifts(human_only)
-human_consensus <- ConsensusSequence(human_stagger) 
-BrowseSeqs(human_stagger)
-```
-
-## Alignment in browser
-```{r, echo=FALSE}
-knitr::include_graphics(file.path(root, "images", "BrowseSeq","sequence_alignment_plots", "Dia7.PNG"))
-```
-
-# orang utan
-```{r, results='hide'}
-orang_only <- mouse_human_orang_dna_string_set$`P. abelii` %>%  
-  Biostrings::translate() %>% 
-  AAStringSet() %>%
-  print()
-```
-
-## prepare data for alignment
-```{r, results='hide'}
-all_aa <- c(human_consensus, mouse_consensus, orang_only)
-
-names(all_aa) <- c("mouse", "human", "orang utan")
-
-equal_length <- AAStringSet(all_aa, start = 1, end = 8)
-
-#all_aa_aligned <- AlignSeqs(equal_length, type = "AAStringSet", processors = 8)
-
-#staggered <- StaggerAlignment(all_aa_aligned)
-#BrowseSeqs(staggered)
-```
-
-## Build new tree
-```{r, results='hide', fig.show='hide', eval=FALSE}
-distance_matrix <- DistanceMatrix(all_aa_aligned)
-dendrogram <- IdClusters(distance_matrix, showPlot = TRUE, type = 'both')
-```
-
-## Dendrogram of single sequence per species
-Why has the distance between Human and Orang Utan increased?
-```{r, eval=FALSE}
-dendrogram[[2]] %>% plot()
 ```
 
 ## Aligning RNA sequences

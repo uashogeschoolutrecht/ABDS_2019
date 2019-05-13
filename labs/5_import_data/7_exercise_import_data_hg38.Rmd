@@ -218,15 +218,15 @@ results <- getBM(attributes = c("external_gene_name",
                  values = c(unique(as.character(hg38$gene))),
                  mart = mart)
 
-head(as_tibble(results))
-
-## get ensemble gene ids from gene names
+results <- head(as_tibble(results))
+results
+## get ensembl gene ids from gene names
 
 
 ```
 
 ## Visualize a gene or multiple genes
-```{r}
+```{r, echo=TRUE, eval=TRUE}
 
 source(file = file.path(root, "R", "plotgeneinfo.R"))
 
