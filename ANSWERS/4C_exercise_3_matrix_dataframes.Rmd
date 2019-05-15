@@ -1,0 +1,243 @@
+---
+title: "Exercise - matrix / dataframe"
+author: "Marc A.T. Teunis"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      results = 'hide',
+                      fig.show = 'hide',
+                      warning = FALSE, 
+                      message = FALSE, 
+                      error = FALSE)
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+```{r, packages}
+library(tidyverse)
+
+```
+
+## Exercise
+To complete this exercise you will need to upload a Rmd and corresponding rendered HTML file containing:
+
+ - The answers to the exercises
+ 
+ Upload the Rmd and rendered HTML files in CANVAS at the appropriate exercise number. 
+
+## Matrices
+
+## Creating a basic matrix
+During these exercises, we are going to work with a matrix of 8x10 that mostly contains (randomly generated) numerical values, interspersed with some missing values.
+
+We do this in a number of steps.
+
+1A) Create a numerical vector named `v` using the `runif()` function consisting of 80 values between -10 and 10.
+
+```{r}
+v <- runif(80, min=-10, max=10)
+```
+
+1B) Assign missing values randomly to this vector using the following R code:
+
+```{r, echo=TRUE}
+v[sample(1:80, sample(10:20, 1))] <- NA
+```
+
+1C) How many missing values do you have?
+```{r}
+length(v[is.na(v)])
+# or
+sum(is.na(v))
+```
+
+1D) Create a matrix named m from this numerical vector that has 8 rows. Check to make sure the dimensions are OK!
+
+- use the function `matrix()` to create the matrix
+
+```{r}
+m <- matrix(v, nrow=8, byrow=TRUE)
+head(m)
+dim(m)
+```
+
+1E) Assign row and column names using the following R code:
+
+ - number the rows `column_1`:`column_8` and the columns `column_1`:`column_10`
+ - use the `paste()` function, set `sep = "_"`
+ 
+```{r, echo=TRUE}
+rownames(m) <- paste("row", 1:8, sep="_")
+colnames(m) <- paste("column", 1:10, sep="_")
+```
+
+## Select statements
+The next couple of exercises will take you through some of the basics of selecting data within a matrix given some criteria. These basics will come back in more real life examples during the remainder of the course.
+
+2A) From row 1 select all values greater than 3. How many are there?
+
+ - subsetting in dataframe or matrix also works with 
+
+``` 
+ df[rows, columns]
+```
+
+```{r, eval=FALSE}
+length(m[1, m[1, ] > 3]) # or length(m["row1", m["row1", ] > 3])
+```
+
+2B) What is the average of these numbers?
+```{r}
+mean(m["row_1", m["row_1", ] > 3])
+```
+
+2C) Did you account for missing values? What happens when you have 
+missing values within your data?
+Probably not. These also get selected and also affect the outcome of certain functions.
+
+2D) Do the same, but now also exclude missing values. How many values did you select now?
+```{r}
+length(m["row_1", m["row_1", ] > 3 & !is.na(m["row_1", ])])
+```
+
+2E) What is the average of these numbers now?
+```{r}
+mean(m["row_1", m["row_1", ] > 3 & !is.na(m["row_1", ])])
+
+# or
+select <- m["row_1", ] > 3
+mean(select, na.rm = TRUE) 
+```
+
+
+## Storing intermediate products as index
+
+Working with implicit logical vectors easily becomes daunting when the logics are more complicated. It is usually better to then first save this vector and then use this (or in combination with another logical vector). 
+
+This also avoids mistakes during typing and reuses your code (both of which are good design principles). We are going to create a subselection of the data from rows 1, 4 and 8.
+
+3A) Selecting subset of the matrix
+
+To do this, first set up a vector for the rows that selects row 1, 4 and 8 and name this row_ind. Do this using a numerical vector and a character vector.
+
+```{r}
+
+row.ind <- c(1, 4, 8)
+row.ind <- c("row_1", "row_4", "row_8")
+
+```
+
+3B) Use this vector to create a new matrix that only contains these rows. Make sure you have a good look at the data structure to ensure you have selected the correct values.
+
+```{r}
+
+m2 <- m[row.ind,]
+
+```
+
+3C) For the second row in this new matrix, select all values between -2.5 and 4, excluding missing values. How many are there and what is the average?
+```{r}
+
+col_ind <- m2[2, ] > -2.5 & m2[2, ] < 4 & !is.na(m2[2,])  
+
+# note: if you use the names, the value should be "row_4"!!
+
+length(m2[2, col_ind])
+mean(m2[2, col_ind])
+
+```
+
+## Data frames
+
+4A) Create a dataframe (or tibble) from the individual vectors below.
+
+```{r, echo=TRUE}
+nr <- c(1.8, 4.5, 10.1, 8.3, 7.5)
+prime <- c(seq(1, 7, 2), 11)
+name <- c("abc1", "foo2", "bar3", "app5")
+valid <- c(TRUE, FALSE, FALSE, TRUE, FALSE)
+name <- c("abc1", "foo2", "bar3", "app5", "bar1")
+```
+
+**ANSWER**
+```{r}
+mydata <- data.frame(nr, prime, name, valid)
+names(mydata) <- c("id", "prime", "name", "valid")
+
+str(mydata)
+head(mydata)
+```
+
+4B) Get the values from the "prime" column. Use two different ways.
+```{r}
+
+mydata[, "prime"]
+mydata$prime
+
+```
+
+4C) Select the second value of the "id" column. Use at least two different ways.
+```{r}
+mydata[2, "id"]
+mydata$id[2]
+```
+
+4D) Calculate the sum of the "prime" column. 
+```{r}
+sum(mydata$prime)  #or 
+sum(mydata[,"prime"]) #or
+mydata %>% select(prime) %>% sum()
+```
+
+4E) Combine the "id" and "prime" columns (vectors) into a new vector.
+```{r}
+tmpvector <- c(mydata$id, mydata$prime)
+tmpvector
+```
+
+## Ordering
+The current data.frame has no particular ordering yet. The next few exercises, we are going to reorder the data.frame based on a particular column. We can order a dataframe by variable by using the `order()` function
+
+An example to order the `mydata` dataframe by `name`
+```{r, echo=TRUE, results='markup'}
+mydata <- mydata[order(mydata$name), ]
+mydata
+```
+This statement can be read as "order all variables (columns) of the dataframe by the rows of he variable 'name' in decreasing order". In this case `name` is a character vector, and order will order the variable according alphabetical order.
+
+You can also order dataframes (or so-called tibbles) with dplyr. We will see how this works with the `arrange()` function later in the course.
+
+5A) Order the data.frame based on the "id" column in increasing order.
+```{r}
+mydata$id
+mydata <- mydata[order(mydata$id), ]
+mydata
+```
+
+5B) Order the data.frame alphabetically using the "name" column.
+```{r}
+
+mydata <- mydata[order(mydata$name), ]
+
+```
+
+5C) Order the data.frame based on the "prime" column in decreasing order.
+```{r}
+mydata <- mydata[order(mydata$prime, decreasing=TRUE), ]
+```
+
+5E) What happens if you use the "valid" column for ordering? Can you explain this?
+```{r}
+
+mydata <- mydata[order(mydata$valid), ]
+
+```
+FALSE can also be written as 0, TRUE as 1 in binary notation

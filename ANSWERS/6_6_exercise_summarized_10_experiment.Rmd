@@ -1,0 +1,528 @@
+---
+title: "Creating a summarized Experiment"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+**## Check out new package `biomartr` with organism centric queries... compare to old way with `biomaRt`**
+
+```{r, root, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      error = FALSE, 
+                      message = FALSE,
+                      results = 'hide',
+                      fig.show = 'hide')
+```
+
+## Packages
+```{r}
+library(tidyverse)
+#source("http://bioconductor.org/workflows.R")
+#workflowInstall("RNAseq123")
+library(RNAseq123)
+library(lattice)
+library(Biobase)
+#install.packages("pheatmap")
+library(pheatmap)
+##  install.packages("xlsx")
+#library(xlsx)
+library(gdata)
+library(SummarizedExperiment)
+
+```
+
+## Reading data 
+
+Data was obtained from Dr. Jean Paul Ten Klooster (date: 06-02-2017)
+This file contains the sample information (columns or also called colData), the featureData (or `gene_id` names -> `ensembl_id`)
+
+The files that belong to this dataset are called:
+"./data/jp_counts.txt" (the count data)
+"./data/jp_coldata.txt (the sample information)
+"./data/jp_features.txt (gene_ensembl ids and corresponding gene names (symbol))
+"./data/jp_miame.txt" (additional info - experimentData)
+
+In this exercise you will learn how to construct a summarized experiment and from individual datafiles, and from there a DESeq2 expression set. 
+
+## Prequisites: 
+
+ - Go over the vignette for the package `{SummarizedExperiment}`.
+ 
+ To recap:
+ 
+ ## SummarizedExperiment
+
+*SummarizedExperiment* diagram of the three
+component pieces:
+
+```{r sumexp, echo = FALSE, out.width="80%", fig.cap="The component parts of a *SummarizedExperiment* object. The 'assay' (pink block) contains the matrix of counts, the 'rowRanges' or 'rowData' (blue block) contains information about the genomic ranges and the 'colData' (green block) contains information about the samples. The highlighted line in each block represents the first row (note that the first row of 'colData' lines up with the first column of the 'assay')."}
+par(mar = c(0,0,0,0))
+plot(1,1,xlim = c(0,100),ylim = c(0,100),bty = "n",
+     type="n",xlab="",ylab="",xaxt="n",yaxt="n")
+polygon(c(45,90,90,45),c(5,5,70,70),col="pink",border=NA)
+polygon(c(45,90,90,45),c(68,68,70,70),col="pink3",border=NA)
+text(67.5,40,"assay")
+text(67.5,35,'e.g. "counts"')
+polygon(c(10,40,40,10),c(5,5,70,70),col="skyblue",border=NA)
+polygon(c(10,40,40,10),c(68,68,70,70),col="skyblue3",border=NA)
+text(25,40,"rowRanges,")
+text(25,35,"or rowData")
+polygon(c(45,90,90,45),c(75,75,95,95),col="palegreen",border=NA)
+polygon(c(45,47,47,45),c(75,75,95,95),col="palegreen3",border=NA)
+text(67.5,85,"colData")
+```
+
+The *SummarizedExperiment* container is diagrammed in the Figure above
+and discussed in the latest Bioconductor paper [@Huber2015Orchestrating].
+In our case we have created a single matrix named `"counts"` that
+contains the estimated counts for each gene and sample, which is
+stored in `assay`. It is also possible to store multiple matrices,
+accessed with `assays`. The `rowData` for our object will keep track
+of the intermediate calculations for each gene: e.g. the mean of
+normalized counts, the dispersion estimates, the estimated
+coefficients and their standard error, etc. We can also include
+information about the location of each gene, in which case, we would
+use `rowRanges` to access the *GenomicRanges* or *GenomicRangesList*
+associated with each gene.The component parts of the
+*SummarizedExperiment* are accessed with an R function of the same
+name: `assay` (or `assays`), `rowRanges`/`rowData` and `colData`. 
+
+## DESeq2 and edgeR
+For running *DESeq2* or *edgeR* models, you can use R's formula notation to
+express any fixed-effects experimental design.
+Note that *DESeq2* and *edgeR* use the same formula notation as, for instance, the *lm*
+function of base R. If the research aim is to determine for which
+genes the effect of treatment is different across groups, then
+interaction terms can be included and tested using a design such as
+`~ group + treatment + group:treatment`. See the manual page for
+`?results` for more examples.
+
+## Question 1
+A) Load these 4 data files (see below jp_.....txt) into R. Be sure to read the data with the appropriate function. 
+
+
+```{r}
+## original data
+
+library(readr)
+counts <- read_tsv(file = file.path(root, "data", "jp_counts.txt"))
+pheno_data <- read_delim(file = file.path(root, "data", "jp_coldata.txt"), delim = ";")
+feature_data <- read_tsv(file = file.path(root, "data", "jp_features.txt"))
+miame <- read_tsv(file = file.path(root, "data", "jp_miame.txt"), col_names = FALSE)
+
+```
+
+B) Inspect each file when read into R (with a code chunk below). 
+What can you tell about the underlying relationship between these 4 files
+```{r}
+files <- list(counts, pheno_data, feature_data)
+lapply(files, head, 2)
+miame
+```
+
+## Question 2 ExpressionSet
+
+In this question you will need to create a SummarizedExperiment from the four individual data objects loaded above.
+
+A) Create a summarized experiment formal class object
+
+**TIPS**
+
+ - See the Vignette for the package `{SummarizedExperiment}`
+ - We are `contructing` a new object here...
+ - make sure that the colnames of the counts DataFrame are equal to the rownames of the colData, correct if neccessary
+ - Look at the help for `SummarizedExperiment()` to get more details on the constructor
+
+The code for the answer to question 2A below should contain the following steps:
+
+ 1. `Set rownames of pheno_data and convert to class AnnotatedDataFrame(). Convert all factor variables to factors.`
+ 2. `Set rownames of feature_data and convert to AnnotatedDataFrame()`
+ 3. `Remove first column of counts, leave only count data`
+ 4. `Check if rownames(pheno_data) is equal to colnames(counts)`
+ 5. `Fix rownames and if neccessary`
+ 6. `create metadata (need to be a list)`
+ 7. `Create an ExpressionSet from the counts and the colData. Create a matrix with ensembl ids as rownames. The colData needs to be of class AnnotatedDataFrame.`
+ 8. `From the ExpressionSet create a SummarizedExperiment. Add the metadata and the feature data. You can create the SummarizedExperiment from the ExpressionSet with the function: `makeSummarizedExperimentFromExpressionSet()``
+ 
+```{r}
+
+## set rownames of pheno_data, convert to dataframe for rownames 
+pheno_data$exposure <- as_factor(as.character(pheno_data$exposure))
+pheno_data$cell_type <- as_factor(as.character(pheno_data$cell_type))
+pheno_data$condition <- as_factor(as.character(pheno_data$condition))
+pheno_data <- as.data.frame(pheno_data)
+rownames(pheno_data) <- pheno_data$sample_name
+pheno_data
+
+## set rownames of feature_data, convert to dataframe for rownames 
+feature_data <- as.data.frame(feature_data)
+rownames(feature_data) <- feature_data$ensembl_id
+#feature_data <- AnnotatedDataFrame(feature_data)
+
+## colData, convert to dataframe, set rownames, than to matrix
+counts <- as.data.frame(counts)
+rownames(counts) <- counts$gene_id
+counts %>% head(2)
+## remove first column to keep only counts
+counts <- counts[,-1]
+counts %>% head(2)
+
+## convert counts to matrix
+counts <- as.matrix(counts)
+
+## check rownames(colData) is equal to colnames(counts)
+rownames(pheno_data) == colnames(counts)
+
+## create metadata (need to be a list)
+metadata <- list(name1 = miame[1,1] %>% as.character(),
+                 name2 = miame[2,1] %>% as.character(),
+                 lab = miame[3,1] %>% as.character(),
+                 email = miame[4,1] %>% as.character(),
+                 abstract = miame[5,1] %>% as.character(),
+                 url = miame[6,1] %>% as.character(),
+                 notes = miame[7,1] %>% as.character())
+
+metadata
+
+## construct ExpressionSet
+eset <- ExpressionSet(assayData = counts, 
+                      phenoData = AnnotatedDataFrame(pheno_data),
+                      featureData = AnnotatedDataFrame(feature_data))
+
+
+
+
+## construct SummarizedExperiment
+se <- makeSummarizedExperimentFromExpressionSet(from = eset)
+  
+se  
+  
+```
+
+B) Use the accessors below on your `SummarizedExperiment` object, this is an important check to see if the information is correct and the construction went according plan.
+
+Run the accessors below on your SummarizedExperiment object:
+
+ - `metadata()`
+ - `assays()$counts`
+ - `colData()`
+ 
+```{r}
+metadata(se)
+colData(se)
+assay(se) %>% head(2)
+rowData(se) %>% head(2)
+```
+
+##  Question 3. Creating an DESeqDataSet set from the SummarizedExperiment
+In order to analyze the data further we need to convert the SummarizedExperiment object to a DESeq2DataSet.
+This can be achieved using the `DESeqDataSEt()` function.
+
+A) Create an DESeqDataSet from the SummarizedExperiment object below
+```{r}
+library(DESeq2)
+colData(se)
+
+dds <- DESeqDataSet(se, design = ~ condition)
+assays(dds)
+dds
+dds <- DESeq(dds)
+```
+
+# TUTORIAL
+
+## Exploring the expression set
+from: https://www.bioconductor.org/help/workflows/rnaseqGene/ 
+
+```{r}
+dds_reduced <- dds[rowSums(counts(dds)) > 1.5, ]
+nrow(dds_reduced)
+head(dds_reduced)
+```
+
+# Study the steps below. You will need some of them again when we discuss RNASequencing data analysis.
+
+## plotting variance to mean logCPM
+```{r}
+cpm.mat <- log(cpm(assay(dds)))
+mean.vec <- apply(cpm.mat, 1, mean)
+sdvec <- apply(cpm.mat, 1, sd)
+plot(mean.vec, sdvec, pch=".", main="Variance to logCPM", ylab="sd", xlab="Average logCPM")
+```
+
+##The mean-variance relationship (and what it means)
+In RNA-Seq data, genes with larger average expression have on average larger observed variances across samples, that is, they vary in expression from sample to sample more than other genes with lower average expression. This phenomena of 'having different scatter' is known as data heteroscedasticity. In our figures, we observe this heteroscedasticity except that the logarithmic transformation counteracts this and overdoes the adjustment somewhat so that large log-counts now have smaller scatter than small log-counts.
+
+More, importantly we see the scatter tends to reduce as we increase the number of replicates. Standard deviations of averages are smaller than standard deviations of individual observations. So as you add more data (replicates), you get increasingly precise estimates of group means. With more precise estimates, we are more easily able to tell apart means which are close together.
+
+## Statistical models for DE analysis
+So how do we best model this type of data? The low levels of replication rule out, for all practical purposes, distribution-free rank or permutation-based methods. The Poisson model doesn't work either -- it is a single parameter model with mean == variance and real data has more variance than Poisson can explain (which we will look at in our dataset). The Negative Binomial (NB) model is a good approximation, where the variability between replicates is modeled by the dispersion parameter r citep("10.1038/nprot.2013.099").
+
+edgeR and DESeq2 are two very popular tools which implement differential expression analysis on the basis of the NB model. They offer overlapping functionality but differ in the way dispersions are estimated. Accurate estimation of the dispersion parameter is critical for the statistical inference of differential expression.
+DESeq2
+
+Both methods utilize the concept of "borrowing information from genes""; using the whole dataset to compute a common value, trend, or prior distribution for the dispersions, and then shrink individual gene-wise dispersion estimates toward this chosen anchor. With DESeq2 the first round of estimates are computed using maximum likelihood, and a curve is fit to provide an estimate of expected dispersion. Then the gene-wise dispersion estimates are shrunken toward the values predicted by the curve to obtain final dispersion values r citep("10.1186/s13059-014-0550-8"). 
+
+
+## Transformations, Negative Bionomial Distribution,
+This transformation 
+```{r}
+rld <- rlog(dds_reduced, blind=FALSE)
+rld
+head(assay(rld), 3)
+```
+
+## PCA plot
+The PCA plot can help detect interesting patterns in the data. It shows the raltive contribution to the variance in the data by groups. You can use the grouping variables to study clusters.
+```{r, fig.height= 8, fig.width=10}
+
+plotPCA(rld, intgroup = c("condition"))
+colData(se) %>% as_tibble()
+
+plotPCA(rld, intgroup = c("cell_type"))
+plotPCA(rld, intgroup = c("exposure"))
+```
+
+## Summarizing statistics
+```{r}
+dds <- DESeq(dds_reduced)
+res <- results(dds)
+
+summary(res)
+
+resLFC1 <- results(dds, lfcThreshold=1)
+table(resLFC1$padj < 0.1)
+
+sum(res$padj < 0.1, na.rm=TRUE)
+
+```
+
+# Plotting dispersion estimates
+```{r}
+plotDispEsts(dds)
+```
+
+## Gene and protein name for TopGene 
+```{r}
+topGene <- rownames(res)[which.min(res$padj)]
+plotCounts(dds, gene=topGene, intgroup=c("exposure"))
+topGene
+```
+
+
+## looking up the top gene from ENSML BioMart
+```{r}
+library(biomaRt)
+ensembl = useEnsembl(biomart="ensembl", dataset="mmusculus_gene_ensembl")
+topProtein <- getBM(attributes=c('ensembl_gene_id','ensembl_transcript_id','hgnc_symbol','hgnc_id', 'external_gene_name'),filters = 'ensembl_gene_id', values = topGene, mart = ensembl)
+topProtein
+```
+
+## A nicer graph with ggplot2
+```{r}
+geneCounts <- plotCounts(dds, gene=topGene, intgroup=c("condition", "exposure"), returnData=TRUE)
+ggplot(geneCounts, aes(x=exposure, y=count, color=condition)) +
+  scale_y_log10() + 
+  geom_point(position=position_jitter(width=.1,height=0), size=3)
+```
+
+## Volcano Plot
+```{r}
+
+plotMA(res, ylim=c(-5,5))
+
+plotMA(resLFC1, ylim=c(-5,5))
+topGene <- rownames(resLFC1)[which.min(resLFC1$padj)]
+with(resLFC1[topGene, ], {
+  points(baseMean, log2FoldChange, col="dodgerblue", cex=2, lwd=2)
+  text(baseMean, log2FoldChange, topGene, pos=2, col="dodgerblue")
+})
+```
+
+## Heatmap of top 10 transcripts
+```{r}
+library(genefilter)
+topVarGenes <- head(order(rowVars(assay(rld)),
+                          decreasing=TRUE), 10)
+
+mat_10 <- assay(rld)[ topVarGenes, ]
+mat_10
+
+mat_10 <- mat_10 - rowMeans(mat_10)
+df <- as.data.frame(colData(rld)[,c("condition")])
+
+png(filename = paste0(root, "/images/10genes.png"), res = 600, width = 14, height = 20, units = "cm")
+pheatmap(mat_10, show_rownames = TRUE)
+dev.off()
+
+## ?pheatmap
+row.names(mat_10)
+
+```
+
+## heatmap of top 1000 transcripts
+```{r}
+topVarGenes <- head(order(rowVars(assay(rld)), decreasing=TRUE), 1000)
+
+mat_1000 <- assay(rld)[ topVarGenes, ]
+
+mat_1000 <- mat_1000 - rowMeans(mat_1000)
+## df <- as.data.frame(colData(rld)[,c("treatment")])
+png(filename = paste0(root, "/images/1000genes.png"), res = 600, width = 8, height = 10, units = "cm")
+pheatmap(mat_1000, show_rownames = FALSE)
+dev.off()
+?pheatmap
+
+row.names(mat_1000)
+
+
+```
+
+## heatmap of top 10000 transcripts
+```{r}
+topVarGenes <- head(order(rowVars(assay(rld)), decreasing=TRUE), 10000)
+
+mat_10000 <- assay(rld)[ topVarGenes, ]
+
+mat_10000 <- mat_10000 - rowMeans(mat_10000)
+## df <- as.data.frame(colData(rld)[,c("treatment")])
+png(filename = paste0(root, "/images/10000genes.png"), res = 600, width = 8, height = 30, units = "cm")
+pheatmap(mat_10000, show_rownames = FALSE)
+dev.off()
+?pheatmap
+
+row.names(mat_10000)
+```
+
+## Get gene names and protein from ENSMBL IDs
+```{r}
+library(biomaRt)
+
+mart = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+listDatasets(mart)
+attributes <- as_tibble(listAttributes(mart))
+
+# help on biomaRt
+?useMart
+?listMarts()
+listMarts()
+
+## for the 10 genes
+ensembl = useEnsembl(biomart="ensembl", dataset="mmusculus_gene_ensembl")
+
+getBM(attributes = c('entrezgene','hgnc_symbol'), 
+      filters = 'go', 
+      values = 'GO:0004707', 
+      mart = mart)
+
+
+## for the 10000 genes
+ensembl = useEnsembl(biomart="ensembl", dataset="mmusculus_gene_ensembl")
+
+topVarGenes <- head(order(rowVars(assay(rld)), decreasing=TRUE), 10000)
+
+mat_10000 <- assay(rld)[ topVarGenes, ]
+
+mat_10000 <- mat_10000 - rowMeans(mat_10000)
+head(mat_10000)
+
+annotations_10000 <- 
+           getBM(attributes=c('go_id',
+                              'ensembl_gene_id',                                              'ensembl_transcript_id',
+                              'hgnc_symbol',
+                              'hgnc_id', 
+                              'external_gene_name',
+                              'ensembl_peptide_id',
+                              'description'),
+                 filters = 'ensembl_gene_id', 
+                 values = row.names(mat_10000), 
+                 mart = ensembl)
+
+head(annotations_10000)
+annotations_10000_df <- as_tibble(annotations_10000)
+
+
+
+
+```
+
+## A function to create a heatmap based on the number of top genes and annotians on the basis of go terms
+
+
+```{r}
+rld = rld
+number_top_genes = 1000
+go_term = "GO:0005576"
+
+create_annotated_heatmap <- function(rld, 
+                                     number_top_genes,
+                                     go_term){
+  
+  topVarGenes <- head(order(rowVars(assay(rld)), 
+                              decreasing=TRUE), 
+                              number_top_genes)
+
+counts_matrix <- assay(rld)[ topVarGenes, ]
+
+annotations <- 
+      getBM(attributes=c(
+                'go_id',
+                'ensembl_gene_id',                                                             'ensembl_transcript_id',
+                'hgnc_symbol',
+                'hgnc_id', 
+                'external_gene_name',
+                'ensembl_peptide_id',
+                'description'),
+                 filters = 'ensembl_gene_id', 
+                 values = row.names(counts_matrix), 
+                 mart = ensembl)
+
+# convert to dataframe
+df <- as_tibble(counts_matrix)
+df$gene_id <- row.names(counts_matrix)
+
+atribute_filtered <- annotations %>%
+  filter(go_id == go_term)
+
+
+library(dplyr)
+filtered_df <- mat_1000_df %>%
+      filter(gene_id %in% GO_0005576_extracellular$ensembl_gene_id)
+
+head(GO_df)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mat_1000 <- mat_1000 - rowMeans(mat_1000)
+## df <- as.data.frame(colData(rld)[,c("treatment")])
+png(filename = paste0(root, "/images/1000genes.png"), res = 600, width = 8, height = 10, units = "cm")
+pheatmap(mat_1000, show_rownames = FALSE)
+dev.off()
+  
+  
+  
+  
+}
+
+```

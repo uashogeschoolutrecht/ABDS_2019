@@ -1,0 +1,251 @@
+---
+title: "GEOquery Exercise"
+author: "Marc A.T. Teunis"
+date: '`r Sys.Date()`'
+output: 
+   BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      message = FALSE, 
+                      error = FALSE,
+                      results = 'hide',
+                      fig.show = 'hide')
+``` 
+
+# Use relative paths
+```{r, eval=TRUE, results='markup', echo=TRUE}
+if (!require("rprojroot")) install.packages("rprojroot")
+library("rprojroot")
+root <- find_root_file(criterion = is_rstudio_project)
+root
+```
+
+# End product
+
+**Generate a new RMarkdown file containing the answers to all questions below and render it to HTML. Upload your _Rmd AND HTML_ file to CANVAS under the corresponding (see file name) exercise number** 
+
+# Prerequisites
+
+ - Go over the GEOquery vignette (`BrowseVignettes("GEOquery")`)
+
+# Packages
+```{r, echo=TRUE}
+library(tidyverse) 
+library(GEOquery)
+
+```
+
+# GEO Data structures
+
+## Platforms
+
+A Platform record describes the list of elements on the array (e.g., cDNAs, oligonucleotide probesets, ORFs, antibodies) or the list of elements that may be detected and quantified in that experiment (e.g., SAGE tags, peptides). Each Platform record is assigned a unique and stable GEO accession number (GPLxxx). A Platform may reference many Samples that have been submitted by multiple submitters.
+
+## Samples
+
+A Sample record describes the conditions under which an individual Sample was handled, the manipulations it underwent, and the abundance measurement of each element derived from it. Each Sample record is assigned a unique and stable GEO accession number (GSMxxx). A Sample entity must reference only one Platform and may be included in multiple Series.
+1.3 Series
+
+A Series record defines a set of related Samples considered to be part of a group, how the Samples are related, and if and how they are ordered. A Series provides a focal point and description of the experiment as a whole. Series records may also contain tables describing extracted data, summary conclusions, or analyses. Each Series record is assigned a unique and stable GEO accession number (GSExxx). Series records are available in a couple of formats which are handled by GEOquery independently. The smaller and new GSEMatrix files are quite fast to parse; a simple flag is used by GEOquery to choose to use GSEMatrix files (see below).
+
+## Datasets
+
+GEO DataSets (GDSxxx) are curated sets of GEO Sample data. A GDS record represents a collection of biologically and statistically comparable GEO Samples and forms the basis of GEO’s suite of data display and analysis tools. Samples within a GDS refer to the same Platform, that is, they share a common set of probe elements. Value measurements for each Sample within a GDS are assumed to be calculated in an equivalent manner, that is, considerations such as background processing and normalization are consistent across the dataset. Information reflecting experimental design is provided through GDS subsets.
+
+# Data
+More information on the data used in this exercise: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116936 
+```{r, include=FALSE}
+accession_number <- "GSE116936"
+```
+
+# Question 1 
+
+A) Load the GSE for GEO accession `r accession_number` in R. Use the `{GEOquery}` package. Use `gse` as the object to store the data in. Construct `expression_set` as variable the contain the ExpressionSet contained in `gse` 
+
+**TIPS** 
+ 
+ - Look at the output `gse[[1]]`
+ - Complete the following syntax: 
+```
+gse <- GEOQuery::...(...)
+```
+
+```{r}
+# accession_number <- 'GSE95375'
+# accession_number <- 'GSE95375'
+# accession_number <- 'GSE80336'
+# accession_number <- "GSE62944"
+accession_number <- "GSE116936"
+gse <- getGEO(accession_number, GSEMatrix = TRUE)
+
+expression_set <- gse[[1]]  
+expression_set
+```
+
+B) Inspect the structure of your expression_set object 
+```{r}
+show(expression_set)
+exprs(expression_set)
+# gse$GSE95375_series_matrix.txt.gz@featureData@data
+```
+
+C) Does the downloaded structure (ExpressionSet) contain the raw or normalised counts?
+
+D) Download the supplemantary files with `getGEOSuppFiles()`
+```{r}
+supp <- getGEOSuppFiles(accession_number)
+```
+
+## Alignment of reads to get a counts matrix
+The alignment of read to a reference genome is a computing intensive taks usually done outside of R. There are a few different methods that can be used. These are out of scope for this course, but we will touch upon them in the RNA sequencing UNIT. 
+
+The raw data can be obtained from the SRA database (which we shall skip in this course)
+
+To learn more:
+Alignment of raw data (fasq) from SRA database
+https://f1000research.com/articles/4-1070/v2 
+
+## Count matrix in the ExpressionSet
+If we are lucky the submitters of the GEO materials included the raw counts of reads (for RNASeq) or raw expression levels (for Array) in the ExpressionSet. However, many times we are not so lucky and the raw counts are not included or are included as a supplementary file. Often the supplementary file(s) do not contain the raw data but the normalised data. In such case, it is wise to go to the raw data in SRA and do the alignment (RNAseq) or preprocessing (Array e.g. CEL files) yourself. The gds object from GEO contains all metadata you will need to execute this analysis. 
+
+Below we will work with examples where there is AssayData avaialable, either directly in the ExpressioSet, or as a supplementary file. In the RNASeq UNIT we will see how to process and analyze such data further. 
+
+https://wurmlab.github.io/genomicscourse/2016-SIB/practicals/rnaseq/TP2
+
+Question 2; Getting the Counts matrix (RNASeq)
+A) Check out whether the downloaded supplementary file from Question 1 contains raw counts.
+
+**TIPS**
+
+ - Use `untar()` to unzip the archive. It needs an additonal argument `destname` that specifies the output file 
+
+```{r, eval=FALSE}
+path_to_supp <- file.path(root, accession_number)
+supp_file_list <- list.files(path = path_to_supp, full.names = TRUE)
+untar(supp_file_list, exdir = file.path(path_to_supp, accession_number, "_RAW.txt"))
+
+lapply(list.files(file.path(path_to_supp, accession_number, "_RAW.txt"), full.names = TRUE), gunzip)
+
+
+raw_counts <- lapply(list.files(file.path(path_to_supp, accession_number, "_RAW.txt"), full.names = TRUE, pattern = "txt$"), read_tsv, col_names = FALSE)
+
+raw_counts[[1]]
+raw_counts[[2]]
+
+```
+
+B) Join all raw sample counts into one big matrix, before joining rename the columns to the appropriate sample names. Try writing a function and 
+use an iterations to loop over all individual raw counts files.
+
+**STEPS**
+
+ 1. Write a function that takes the path of an individual counts file as input. 
+ 2. This function must use `sample <- str_split(basename(path), pattern = "_")[[1]][1]` to get the sample name from the file name.
+ 3. The function must generate this output from a parsed file:
+
+``` 
+# A tibble: 34,700 x 3
+   ensemble_id     counts sample    
+   <chr>            <dbl> <chr>     
+ 1 ENSG00000000003    326 GSM3264576
+ 2 ENSG00000000005      0 GSM3264576
+ 3 ENSG00000000419    457 GSM3264576
+ 4 ENSG00000000457    146 GSM3264576
+ 5 ENSG00000000460    126 GSM3264576
+ 6 ENSG00000000938      0 GSM3264576
+ 7 ENSG00000000971      0 GSM3264576
+ 8 ENSG00000001036    913 GSM3264576
+ 9 ENSG00000001084    815 GSM3264576
+10 ENSG00000001167    384 GSM3264576
+# ... with 34,690 more rows 
+```
+ 
+ 4. Use a loop with `map()` to read all raw counts files in a list
+ 5. Use `dplyr::bind_rows()` to create a big dataframe from this list
+ 6. Use `tidyr::spread()` to create a wide dataframe that looks like:
+
+``` 
+ # A tibble: 34,700 x 13
+   ensemble_id GSM3264576 GSM3264577 GSM3264578 GSM3264579 GSM3264580 GSM3264581
+   <chr>            <dbl>      <dbl>      <dbl>      <dbl>      <dbl>      <dbl>
+ 1 ENSG000000~        326        387        338        337        362        382
+ 2 ENSG000000~          0          1          0          0          0          0
+ 3 ENSG000000~        457        395        381        327        348        398
+ 4 ENSG000000~        146        142        150        140        136        143
+ 5 ENSG000000~        126        113         93         97         93         94
+ 6 ENSG000000~          0          2          0          0          1          0
+ 7 ENSG000000~          0          0          0          0          0          0
+ 8 ENSG000000~        913        899        845        932        942       1093
+ 9 ENSG000000~        815        739        654        595        743        768
+10 ENSG000000~        384        375        322        275        394        459
+# ... with 34,690 more rows, and 6 more variables: GSM3264582 <dbl>,
+#   GSM3264583 <dbl>, GSM3264584 <dbl>, GSM3264585 <dbl>, GSM3264586 <dbl>,
+#   GSM3264587 <dbl>
+```
+
+ 7. As a final step create a matrix with `as.matrix()`. Assign columns names with `col.names()`. Use the ensemble_id column from step 6.  
+
+```{r}
+path_to_supp <- file.path(root, accession_number)
+path = list.files(file.path(path_to_supp, accession_number, "_RAW.txt"), full.names = TRUE, pattern = "txt$")[1]
+
+path = path[[1]]
+
+parse_raw <- function(path){
+  
+  sample <- str_split(basename(path), pattern = "_")[[1]][1]
+  data <- read_tsv(file = path, col_names = c("ensemble_id", "counts"))
+  
+  data$sample <- sample
+  # data
+  return(data)
+  
+}
+
+raw_counts_list <- list.files(file.path(path_to_supp, 
+                                        accession_number, 
+                                        "_RAW.txt"), 
+                              full.names = TRUE, pattern = "txt$")
+
+
+all_data_list <- lapply(raw_counts_list, parse_raw) 
+
+
+all_data <- all_data_list %>%
+  dplyr::bind_rows() %>%
+  spread(key = sample, value = counts)
+
+all_data_matrix <- as.matrix(all_data[,-1]) 
+
+row.names(all_data_matrix) <- all_data$ensemble_id
+
+all_data_matrix %>% head(3)
+```
+
+C) Construct a new ExpressionSet object from the ExpressionSet obtained in Question 1. Put the counts matrix in the assayData slot of this new ExpressionSet
+
+Provide the output of exprs(new_expression_set), it should be the counts matrix if all went well.
+
+```{r}
+
+pheno_data <- phenoData(expression_set)
+experiment_data <- experimentData(expression_set)
+# feature_data <- featureData(expression_set)
+
+expression_set <- ExpressionSet(assayData = all_data_matrix,
+                                experimentData = experiment_data,
+                                phenoData = pheno_data)
+
+expression_set
+
+exprs(expression_set)
+```
+ 
+ 
+ 
+ 
