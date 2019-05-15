@@ -76,10 +76,22 @@ data(airway, package="airway")
 se <- airway
 se
 
-## ----assays, eval = FALSE--------------------------------------------------
-#  assays(se)$counts
+se@assays
 
-## ----assays_table, echo = FALSE--------------------------------------------
+
+
+
+## ----assays, eval = FALSE--------------------------------------------------
+
+
+assays(se)$counts %>% head(2)
+
+
+
+
+
+## ---
+-assays_table, echo = FALSE--------------------------------------------
 knitr::kable(assays(se)$counts[1:10,])
 
 ## ----rowRanges-------------------------------------------------------------
@@ -87,6 +99,9 @@ rowRanges(se)
 
 ## ----colData---------------------------------------------------------------
 colData(se)
+
+~ cell + dex
+
 
 ## ----columnSubset----------------------------------------------------------
 # subset for only those samples treated with dexamethasone
@@ -96,7 +111,7 @@ se[, se$dex == "trt"]
 metadata(se)
 
 ## ----metadata-formula------------------------------------------------------
-metadata(se)$formula <- counts ~ dex + albut
+metadata(se)$formula <- counts ~ dex + cell
 
 metadata(se)
 
