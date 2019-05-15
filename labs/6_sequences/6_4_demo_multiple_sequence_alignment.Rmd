@@ -77,12 +77,20 @@ levels(as.factor(example_caspase$external_gene_name))
 casp4 <- example_caspase %>%
   filter(external_gene_name == "casp4")
 casp4
+
+
+
 ```
 
 ## AAStringSet
 ```{r}
-caspase_aa <- AAStringSet(casp4$amino_acid_sequence)
+caspase_aa <- Biostrings::AAStringSet(casp4$amino_acid_sequence)
 caspase_aa
+
+typeof(caspase_aa)
+
+caspase_aa[[1]][1:10]
+
 ```
 
 ## Set names to AAStringSet sequences
@@ -96,6 +104,8 @@ caspase_aa
 
 ## Using the `{msa}` package
 ```{r}
+library(msa)
+
 caspase_align <- msa::msa(caspase_aa)
 caspase_align
 ```
@@ -109,7 +119,7 @@ print(caspase_align, show="complete")
 ## Pretty print aligment
 ```{r, eval=FALSE} 
 ## does not work on my pc
-msaPrettyPrint(caspase_align, output="",  y=c(10, 30), showNames="none",
+msaPrettyPrint(caspase_align, output="pdf",  y=c(10, 30), showNames="none",
                showLogo="none", askForOverwrite=FALSE, verbose=FALSE)
 
 ```
