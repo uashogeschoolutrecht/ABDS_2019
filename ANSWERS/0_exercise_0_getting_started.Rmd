@@ -1,0 +1,175 @@
+---
+title: "Exercise - Getting Started"
+author: "Marc A.T. Teunis"
+date: '`r Sys.Date()`'
+output:
+   BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning = FALSE, 
+                      message = FALSE, 
+                      error = FALSE#, 
+                      #results = 'hide', 
+                      #fig.show = 'hide'
+                      )
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+# Exercise:
+Go over the code and text below, no upload in CANVAS is required
+
+# Packages
+```{r}
+library(tidyverse)
+```
+
+# Preface
+
+This is an R-Markdown document. It is an example of literate programming and it illustrates how we can combine code, text and output. It addresses the issue "Write code for humans, not for computers" very nicely.
+
+Code can be recognized by a code chunck:
+
+_start code chunk_
+
+` ```{r} `
+
+code that does something
+
+`average <- mean(runif(100))`
+
+` ``` `
+
+_end code chunk_
+
+To run the code chunks: set the cursor between the start ` ```{r} ` and the end 
+` ``` ` of the chunk and press Ctrl, Shift, Enter, or choose "Run" in the top-right lint
+
+# Getting started
+
+## R & RStudio
+Throughout this course you will be working with the open source programs R and RStudio. RStudio is an integrated development environment (IDE) that allows you to use R in an interactive (and graphical) way, write your scripts/code and manage your workspace. R and Rstudio are already pre-installed on the course laptops, but for home use can be downloaded for free from http://www.r-project.org and http://www.rstudio.com.
+
+## Cloud server for RStudio
+During the workshop, we will be using a preinstalled version of the R-IDE (integrated development environment) RStudio. This version runs on a remote server and has all the add-ons that are needed to run the code. You can login with the credentials supplied at the beginning of the course. 
+
+The advantage of cloud servers is that the users do not need to install anything on their own laptops. They will be able to access the IDE, using their preferred web-browser on their computer. No installation of packages or further steps are needed.
+
+## Server login
+login into the rserver with the credentials you recieved upon entering the room:
+the webaddress is: <YOUR PERSONAL RSTUDIO SERVER>
+
+## Cloning the material from Github.com
+
+ 1. Create an account on www.github.com
+ 2. Login in to github.com and go to: 
+
+https://github.com/uashogeschoolutrecht/ABDS_2019
+
+ 3. Copy the _url_ 
+ 4. Start a new project in RStudio-server, choose _"File" -> "New Project" -> "Git" -> "Version Control"_
+ 5. Copy the 'clone' link in the 'url' field, press enter
+ 6. Let the clone finish
+ 
+**Follow the steps above first before continuing**
+
+Did it work? Please let me know if not.
+
+## Contents of the course
+The files needed for this course need to be downloaded from github first. Follow the steps below to get started!
+
+## Using RStudio for the first-time
+Before we can start using RStudio, we first need to set a few options to make life easier. Start up RStudio by going to the Start Menu -> RStudio. You will see a similar screenshot as below:
+ 
+## Initialize a root object to locate the root folder of the project. 
+```{r, echo=TRUE, results='asis'} 
+if (!require("rprojroot")) install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+root
+``` 
+ 
+To see what the current working directory is, you can execute the command
+
+`getwd()` 
+
+in the Console window. Try it now!
+
+If all went well the latter half of the working directory will state "/bioc_course"
+
+## Creating a new R script
+For most analyses/projects, it is best to start by creating an `R Markdown (Rmd)` script file that will contain all the steps taken to get to a certain result. Initially this might be more like a scrapbook to note down what exactly you did. Later you can then separate this more cleanly in the workflow (steps taken and/or functions executed) and separate files for function definitions, or even a package. 
+
+During this course, we will create an Rmd script file for every exercise that contains the steps of that particular exercise (for instance a file named "exercise_dplyr.Rmd") and a common R script file that contains all functions that need to be reused between different exercises (for instance a file named "functions.R"). Create the first two R script files using one of the steps shown below.
+
+## Setting up package repositories
+Default RStudio has only enabled the CRAN repository, but there are other useful repositories that contain nice R packages. We will enable the Bioconductor repositories (located at http://www.bioconductor.org) as packages from these repositories are often used in molecular biology (and are used in this course often). We only need to do this once, so the next time you start Rstudio it remembers which repositories are enabled. Type in the Console window (not the R script window!) the following command: 
+
+```{r, eval = FALSE, echo=TRUE, results='asis'}
+setRepositories(graphics=TRUE)
+```
+This will show a popup window with the available package repositories. Select all repositories that contain "BioC" in their name and make sure you also keep the CRAN repositories selected and then press "Ok". The next time you need to install a package from any of these repositories, Rstudio automatically downloads them from these locations and installs them on your laptop (You can check this by clicking on the "install" icon in the packages window which should show all enabled repositories).
+
+## Installing a package from a repository
+As an example package (we will be using this later on), we are going to install the `{ggplot2}` package which allows you to create beautiful visualizations and graphs. Details of what you can do with this package and how to use it, will be provided later during the course. To install the package:
+
+```{r, eval=FALSE, echo=TRUE}
+install.packages("ggplot2")
+```
+
+To load this library into your workspace, type in library(ggplot2) in the Console (or even better, in the Rmd script press the keys `CNTRL` and `ENTER` simultaneaously. This h will execute the code on that particular line in the R/Rmd script.
+
+You can now use the functions defined within this package, for instance to plot a histogram of 1000 random values
+
+```{r, echo=TRUE, fig.show='asis', results='asis'}
+library(ggplot2)
+set.seed(1234)
+
+rnorm(mean = 10, sd = 2.4, n = 1000) %>%
+  enframe() %>%
+  ggplot(aes(x = value)) +
+  geom_histogram(bins = 20)
+
+``` 
+
+**Discussion**
+In the above code: what does the part 
+```
+%>%
+  enframe() 
+```
+do?
+
+What happens if you change the `bins = 20` argument?
+
+## Getting help
+Knowing how to get help, might be one of the most important skills when learning (a new) programming language. In R, there are various ways to get help. 
+
+A good start, is the overview documentation provided within R. You can get to this by executing help.start() in the Console window. This will show the help documentation in the Help window within Rstudio. There are a number of good manuals provided within this documentation, particularly useful are the "An Introduction to R" and "The R language definition" manuals. Have a quick look at both.
+
+Besides basic documentation, you also can get package specific documentation. The overview of the different packages and corresponding documentation can be found by clicking on the "Packages" link (You can also get here by going to the Packages window directly). How many packages are user specific?
+
+**Assignment**
+Lookup the documentation for the function sqrt(), what does it do?
+Run the examples for the function sqrt(). What does this do?
+
+## A good resource to start
+Free material on learning R is very broadly available on the web. You can start your adventuRe at:
+
+http://r4ds.had.co.nz/index.html
+
+the author Hadley Wickham is an excellent data scientist, speaker and developer at RStudio and the brain behind the `{tidyverse}` package, which we will use constantly thoughout the course 
+
+## R Markdown
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:

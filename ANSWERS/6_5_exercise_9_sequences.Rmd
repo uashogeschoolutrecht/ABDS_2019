@@ -1,0 +1,292 @@
+---
+title: "Exercise - Sequences"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE, error = FALSE, message = FALSE,
+                      results = 'hide',
+                      fig.show = 'hide')
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+# End product
+
+**Generate a new RMarkdown file containing the answers to all questions below and render it to HTML. Upload your _Rmd AND HTML_ file to CANVAS under the corresponding (see file name) exercise number** 
+
+## Prerequisites
+
+ - Study the UNIT 4 demo: "biomart_to_retrieve_data.Rmd"
+ - Study the vignette of the package `{seqinr}`
+ - Study the vignette of the package `{biomaRt}`
+ - Some details and more hints can be found here: https://monashbioinformaticsplatform.github.io/r-more/topics/sequences_and_features.html
+ - Go over the materials for the UNIT 4 demo: "joining data, relational data"
+ 
+## Packages
+```{r, packages, echo=TRUE}
+library(tidyverse)
+library(seqinr)
+library(biomaRt)
+library(Biostrings)
+```
+
+## Question 1 Reading FASTA
+Read the file "./data/human_hoxb1_protein.fasta" into R.
+
+**TIPS** Think careful about which function to use...to read a fasta file
+
+```{r}
+fasta_file <- file.path(root, 
+                        "data", "human_hoxb1_protein.fasta")
+h_hoxb1_prot <- read.fasta(fasta_file)
+
+```
+
+B) Inspecting FASTA R-object (List)
+Inspect the fasta sequence.
+
+```{r}
+head(h_hoxb1_prot)
+table(h_hoxb1_prot)
+sort(table(h_hoxb1_prot))
+str(h_hoxb1_prot)
+h_hoxb1_prot$`gi|24497526|ref|NP_002135.2|`
+
+h_hoxb1_prot_string <- read.fasta(fasta_file,
+                                  as.string = TRUE)
+
+h_hoxb1_prot_string$`gi|24497526|ref|NP_002135.2|`
+```
+
+## Question 2. Read a FASTA file with multiple sequences
+A) Read the file "./data/multi_hoxb1_protein.fasta" into R.
+```{r}
+multi_fasta_file <- file.path(root, 
+                         "data",
+                         "multi_hoxb1_protein.fasta")
+```
+
+B) Inspect this data
+```{r}
+multi_h_hoxb1_prot <- read.fasta(multi_fasta_file)
+head(multi_h_hoxb1_prot)
+str(multi_h_hoxb1_prot)
+multi_h_hoxb1_prot$Homo
+table(multi_h_hoxb1_prot$Homo)
+```
+
+## Question 3. Obtaining sequences from a remote database via Biomart
+
+A) Write a query, using Biomart to obtain the `ensembl_id`s and the `hgnc_symbol`s for all homeobox genes from human that contain the word `homeobox` in their gene description in their name:
+
+**TIPS** 
+
+ - check out this question on the `Bioc` forum: https://support.bioconductor.org/p/30370/  - Try creating a regular expression that matches "homeobox"
+ - Try the attributes, `hgnc_symbol`, `ensembl_id` and to obtain information on whether or not a gene is a hox gene: the `description` of a gene 
+ - Try installing the new package `biomartr` and review the vignette
+ - Use a regular expression to filter the `description` column for containing the word "homeobox"
+
+```{r}
+
+## old way
+library(biomaRt)
+listMarts()
+mart = useMart(biomart = "ensembl")
+listDatasets(mart)
+dataset <- "hsapiens_gene_ensembl"
+mart <- biomaRt::useMart(dataset = dataset, biomart = "ensembl")
+mart
+
+attributes <- listAttributes(mart) %>% as_tibble() %>% arrange(name)
+
+filters <- listFilters(mart = mart) %>% as_tibble() 
+
+with_hgnc <- getBM(mart = mart, 
+      attributes = c("ensembl_gene_id", "hgnc_symbol", "description"), 
+      filters = "with_hgnc", values = TRUE) %>%
+  as_tibble() 
+
+index <- str_detect(string = with_hgnc$description, pattern = ".*homeobox.*")
+
+hoxes <- with_hgnc[index,] %>% print()
+# 
+# ## new way using biomartr
+# #BiocManager::install("biomartr")
+# library(biomartr)
+# genome <- getGenome(db = "ensembl", organism = "Homo sapiens")
+# 
+# genome
+# 
+# head(biomartr::organismAttributes("Homo sapiens", topic = "id"))
+# 
+# a <- getAttributes(mart = "ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl")
+# f <- getFilters(mart = "ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl")
+# 
+# result_BM <- biomartr::biomart(genes = genome, 
+# # genes were retrieved using biomartr::getGenome()
+#                                mart = "ENSEMBL_MART_ENSEMBL", 
+# # marts were selected with biomartr::getMarts()
+#                                dataset = "hsapiens_gene_ensembl", 
+# # datasets were selected with biomartr::getDatasets()
+#                                attributes = c("ensembl_gene_id", 
+#                                                "hgnc_symbol", 
+#                                                "description"),
+# filters = "ensemble_gene_id",
+# values = "with_hgnc)
+#  
+# result_BM 
+
+
+```
+
+ B) Now get the coding sequences for all these homeobox genes. Put all DNA coding sequences in a `Biostrings DNAStringSet`
+
+**TIPS**
+ 
+ - Use the `biomaRt::getSequence()` function
+ - remember: attributes is what you get out, filters is what you put in...
+ - some ensemble_ids do not have a coding sequence. This will be visible by a record showing "Sequence unavailable". How can you eliminate these records? Try using `{dplyr}`
+ 
+```{r}
+
+sequences <- biomaRt::getSequence(id = hoxes$ensembl_gene_id, 
+            type="ensembl_gene_id",
+            seqType="coding",
+            mart= mart) %>%
+  as_tibble() %>%
+  dplyr::filter(coding != "Sequence unavailable") %>%
+  print()
+
+dna_coding_set <- Biostrings::DNAStringSet(sequences$coding)  
+names(dna_coding_set) <- sequences$ensembl_gene_id
+```
+
+C) Translate all coding sequences to proteins, using the `Biostrings::translate()` function. Put all proteins in a `Biostrings AAStringSet` object
+
+**TIPS**
+
+ - You will need to use `purrr::safely()` together with `lapply()` and then `purrr::transpose()` to get the results.
+
+```{r}
+
+## single protein
+Biostrings::translate(dna_coding_set[[1]])
+
+aa_string_set <- lapply(dna_coding_set, safely(Biostrings::translate)) 
+aa_string_set
+
+proteins_transposed <- purrr::transpose(aa_string_set)   
+
+## remove NULL sequences
+ind <- proteins_transposed$result != "NULL"
+
+aa_sequences <- proteins_transposed$result[ind]
+aa_sequences
+
+protein_set <- aa_sequences %>% AAStringSet()
+
+
+## function to convert XStrings to dataframe 
+#' Convert an XString(Set) to a dataframe  
+#' @param dss An object of formal calss XString or XStringSet, can be DANAString, DNAStringSet, AAString, AAStringSEt
+```
+
+## Qestion 4. Annotations
+
+YOU NEED THE FOLLOWING FUNCTION FOR THE ANSWER TO A BELOW
+```{r, echo=TRUE}
+xss2df <- function(dss){
+  
+  tbl <- tibble(width=width(dss), 
+         seq=as.character(dss), 
+         names=names(dss))
+  return(tbl)
+}
+
+```
+
+A) Export the protein sequences and the DNA sequences to a two seperate dataframes, (tibble) (**use the `xss2df()` function above. Add a new variable to the protein and to the dna table that indicates whether the sequence is protein or dna, call this variable 'sequence_type'. Use a join of the dna and the protein tables to get one table, keep the ensembl_gene_id in the table.
+
+**TIPS**
+
+- use `dplyr::mutate()` to generate the `sequence_type` variable
+- use `dplyr::full_join()` to join protein and 
+```{r, eval=FALSE}
+## write to disk for exercise join
+xss2df(protein_set) %>% write_tsv(path = "data/hox_aa_sequences.txt")
+xss2df(dna_coding_set) %>% write_tsv(path = "data/hox_dna_sequences.txt")
+```
+
+```{r}
+proteins_tbl <- xss2df(protein_set) %>%
+  dplyr::mutate(sequence_type = "protein") %>%
+  print()
+
+dna_tbl <- xss2df(dna_coding_set) %>%
+  dplyr::mutate(sequence_type = "dna") %>%
+  print()
+
+dna_protein_tbl <- full_join(proteins_tbl, dna_tbl)
+```
+
+ B) Get all associated go terms for the hox genes `r hoxes$hgnc_symbol[1:5]`.
+ Use as attributes:
+ 
+ - "goslim_goa_description"
+ - "goslim_goa_accession"
+ - "ensembl_gene_id"
+ 
+```{r}
+
+## via BiormaRt
+go_biomart <- getBM(mart = mart, attributes = c("ensembl_gene_id", "goslim_goa_description", "goslim_goa_accession"), filter = "hgnc_symbol", values = hoxes$hgnc_symbol[1:5] ) %>%
+  as_tibble()
+
+
+## via biomartr
+go_biomartr <- biomartr::getGO(organism = "Homo sapiens", 
+                          genes    = hoxes$hgnc_symbol[1:5],
+                          filters  = "hgnc_symbol") %>%
+  as_tibble()
+
+
+go_biomartr
+```
+ 
+C) Annotate this list of GO terms further with the `description` attribute
+```{r}
+go_biomart <- getBM(mart = mart, attributes = c("ensembl_gene_id", "goslim_goa_description", "goslim_goa_accession", "description"), filter = "ensembl_gene_id", values = hoxes$ensembl_gene_id[1:5] ) %>%
+  as_tibble()
+go_biomart
+```
+
+
+## Question 5; Join, Exporting and subsetting 
+
+A) Join the GO and description annotated table with the 5 Hox genes with the original Hox gene table containing all the sequences (DNA and Protein). Be sure that you join the right way, keeping only the information from the five completely annotated genes and all the sequence information. 
+
+**TIPS** 
+
+- Use one of the `dplyr::_join()` verbs
+- Go over the material from the UNIT 4 demo "joining data, relational data"
+- review the materials online in the R4DS book from Hadley, chapter "Data transformation" data
+
+```{r}
+dna_protein_tbl  <- dna_protein_tbl %>%
+  dplyr::rename(ensembl_gene_id = names)
+
+
+joined <- left_join(go_biomart, dna_protein_tbl, by = c("ensembl_gene_id"))
+joined
+```
+
+B) Write the table to file on disk as a *.csv and upload it in CANVAS under exercise 3_5

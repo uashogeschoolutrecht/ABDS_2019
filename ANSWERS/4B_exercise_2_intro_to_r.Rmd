@@ -1,0 +1,301 @@
+---
+title: "R basics - Exercise"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output: 
+   BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+---
+
+# Exercise
+To complete this exercise you will need to upload a Rmd and corresponding rendered HTML file containing:
+
+ - The answers to the exercises
+ 
+ Upload the Rmd and rendered HTML files in CANVAS at the appropriate exercise number. 
+
+
+# This document is an R Markdown Document
+An example of the use of _literate programming_ in R. R Markdown is based on the Markdown mark-up language used for easy writing for the web and can combine plain human-readable text with computer code and output from that code in one document. 
+
+If you want to hide the code you can set the option in the _setup_ block to `ECHO = FALSE`.
+
+# Knitr options
+Knitr is an R package that translates Rmd and LaTeX files into human-readable documents. In the first lesson we already saw the document that contains the code chunk like below. This chunk takes care of setting some options for the knitr package: We will explain later what this code does.
+```{r setup}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      message = FALSE, 
+                      error = FALSE,
+                      results = 'hide',
+                      fig.show = 'hide')
+``` 
+
+# Packages
+```{r, results='markup', echo=TRUE}
+library(tidyverse)
+```
+
+# Setting the project root
+We need to an object for the root of the project for purposes yet to explain.
+```{r, echo=TRUE, eval=TRUE, results='markup'}
+if (!require("rprojroot")) install.packages("rprojroot")
+library("rprojroot")
+root <- find_root_file(criterion = is_rstudio_project)
+root
+```
+
+# Load example dataset
+```{r, echo=TRUE, eval=TRUE, results='markup'}
+library(readr)
+simple_IO <- read_csv(paste0(root, "/data/simple-IO.csv"))
+dim(simple_IO)
+ncol(simple_IO)
+nrow(simple_IO)
+```
+
+1) Inspecting a dataframe
+
+ A) How do we inspect `simple_IO`?
+ B) How many variables does `simple_IO` have?
+ C) How many rows?
+ D) call `summary()` on `simple_IO`; In which variable do we observe the highest expression ratio?
+
+2) Pasting objects
+
+# To illustrate the difference between functions paste0() and paste()
+```{r, echo=TRUE}
+a <- c("a", "b", "c", NA)
+b <- c(1:4)
+c <- c(6:8, NA)
+d <- c(1.3, 1.6, 6.7)
+e <- as.integer(d)
+f <- as.integer(a)
+g <- as.numeric(a)
+
+(z <- paste(a, b, c))
+(zz <- paste0(a, b, c))
+
+```
+
+ A) What does the above `as.integer()` function do? And `as.numeric()`?
+
+ B) Check the contents of `e`, `f` and `g`.
+
+# Exercises R structures & objects
+
+3) R as a calculator
+
+R can be used as a "regular" calculator, we will practice this a bit, just to get familiar with the way R works and displays its information
+
+3A) What is the sum of 3, 12 and 250?
+```{r}
+sum(3, 12, 250)
+```
+
+3B) What is the difference between 4902 and 3987?
+```{r}
+
+4902 - 3987
+
+```
+
+3C) Calculate 2 to the power of 24
+```{r}
+
+2^24
+
+```
+
+3D) What is 240 divided by 14?
+```{r}
+
+240/14
+
+```
+
+3F) What is the average of 12 and 20?
+```{r}
+mean(c(12, 20))
+## or
+(12 + 20)/2
+
+```
+3G) What is the average of 10.8, 13.7 and 15.9?
+
+```{r}
+
+mean(c(10.8, 13.7, 15.9))
+
+```
+
+# Data types & structures
+R has a variety of different data types and structures. Knowing how to work with them is fundamental to learning and using R. The following exercises give a basic introduction to creating and manipulating them.
+Using the `c()` function here that `creates` vectors is essential.
+
+4A) Create a vector consisting of the numbers 10.5, 20.4, 30.5, 28.9 and 5,4.
+```{r}
+
+v <- c(10.5, 20.4, 30.5, 28.9, 5.4)
+
+```
+
+4B)	Create a vector consisting of a decreasing sequence of integers from 50 to -10.
+```{r}
+
+v <- c(50:-10)
+
+```
+
+4C) Create a vector consisting of an increasing sequence of even integers from -10 to 50. You can use the `seq()` function here.
+```{r}
+
+v <- seq(-10, 50, 2)
+
+```
+
+4D) Add the number 5 to the tail of the vector in 4C, and save the result as a new vector.
+```{r}
+
+v2 <- c(v, 5)
+
+```
+	
+4E) Create a vector of five hundred alternating zeros and ones. Use the function `rep()` here.
+```{r}
+
+v <- rep(c(0, 1), 500)
+
+```
+
+4F) Create a vector of a hundred, uniformly distributed, random values between -1 and +1. (Hint: see the function `runif()` )
+Use `set.seed(123)` to set the random number generator.
+```{r}
+?rnorm
+
+set.seed(123)
+v <- runif(100, min= -1, max= 1)
+hist(v)
+
+```
+
+4G)	Calculate the average of these random values. (Hint: see the function `mean()`. 
+
+Which value do you think the mean will be approaching. Discuss with you neighbour before running the code!!
+```{r}
+
+mean(v)
+
+```
+
+4H)	Now replace position 5 in the vector with NA, use `v[5]` in you call. 
+```{r}
+v[5] <- NA 
+## Have a look at the result
+v
+```
+
+4I)	Calculate the mean again. (Hint: make sure you deal with the missing values!). Look at `?mean()` for the solution.
+```{r}
+
+mean(v, na.rm=TRUE)
+
+```
+
+
+# The Matrix
+5A) Create a matrix of four columns and three rows with increasing integers from 1 to 12, left to right and then top to bottom. Use the function `matrix()`. See the help first.
+```{r}
+
+m <- matrix(1:12, nrow=3, byrow=TRUE)
+
+```
+
+5B)	Create a matrix of four columns and three rows, the first column only containing 1, the second only 2, the third only 3 and the fourth column only 4.
+```{r}
+
+m <- matrix(rep(c(1, 2, 3, 4), 3), nrow=3, byrow=TRUE)
+m
+```
+
+5C)	Calculate the sum of this matrix. (Hint: see the function sum() )
+```{r}
+
+sum(m)
+
+```
+
+# Vectors
+
+6A) Create the following items:
+
+ * A numerical vector named "nr" consisting of the following numbers: 1.8, 4.5, 10.1, 8.3 and 7.5
+```{r}
+
+nr <- c(1.8, 4.5, 10.1, 8.3, 7.5)
+
+``` 
+
+ * A numerical vector named "prime" consisting of the following integers: 1, 3, 5, 7 and 11
+```{r}
+
+prime <- c(1, 3, 5, 7, 11)
+
+```
+
+ * A character vector named "name" consisting of the following values: abc1, foo2, bar3 and app5
+```{r}
+
+name <- c("abc1", "foo2", "bar3", "app5")
+
+```
+
+ * A logical vector named "valid" consisting of: TRUE, FALSE, FALSE, TRUE and FALSE
+```{r}
+valid <- c(TRUE, FALSE, FALSE, TRUE, FALSE)
+valid
+```
+
+# The dataframe (tibble)
+
+7A) Try to create a `tibble` named "mydata" with the function `tibble()` from the above four vectors. This will fail, why? .
+```{r, eval=FALSE}
+# Not all vectors are of equal length.
+mydata <- tibble(nr, prime, name, valid)
+
+```
+
+7B) Fix the error you found and create the dataframe. Also try giving the columns different names. (Hint: see the function `names()` and the function `tibble()`.
+```{r}
+# Not all vectors are of equal length; addingan addiotnal element
+
+name <- c("abc1", "foo2", "bar3", "app5", NA)
+
+mydata <- tibble(nr, prime, name, valid)
+names(mydata) <- c("nr", "prime", "name", "valid")
+
+```
+
+7C) What happens if you try to calculate the sum of the data.frame?
+```{r, eval=FALSE}
+
+# You get an error, something like "only defined 
+# on data frame with all #numerical variables"
+sum(mydata)
+
+```
+
+7D) When you look at the structure of the tibble using `str()`, you will see that the column with the "abc1", "foo2", etc values has a certain data type. Which data type is "name"? Do you think it is the right type? Or do you need to change it?
+
+```{r}
+str(mydata)
+#The variable "name" is actually a factor, change the type of this variable if necessary.
+
+mydata$name <- as.factor(mydata$name)
+mydata
+```
+
+Note: the new packages of the tidyverse (readr and readxl) deal with this problem. Check out the documentation here:
+https://github.com/tidyverse/tidyverse 
+

@@ -1,0 +1,460 @@
+---
+title: "Exercise ranges and biological sequences"
+author: "Marc Teunis <marc.teunis@hu.nl>"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r style, echo = FALSE, results = 'asis', include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      error = FALSE, 
+                      message = FALSE,
+                      results = 'hide',
+                      fig.show = 'hide')
+
+```
+
+```{r, define_root}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+## Vignettes
+
+1) For this tutorial we will use the IRanges Package
+Browse for the vignette, using the `browseVignettes()` function. Look at the help for this function to see how it works.
+
+```{r, echo=FALSE}
+browseVignettes("IRanges")
+```
+
+## Load the IRanges package
+```{r, echo=TRUE}
+library(IRanges)
+```
+
+This section looks at working with sequences, primarily DNA sequences, and genomic features.
+
+We will be using Bioconductor packages for this. Recall that most R packages are available on the CRAN package repository, and installed using `install.packages()`. Bioconductor is another specialized repository devoted to bioinformatics R packages. Here is how to install packages from Bioconductor:
+
+## Packages
+Other packages that we will need for this exercise
+```{r eval=FALSE, echo=TRUE}
+# Don't run this if you are using our biotraining server, the packages are already installed!
+
+# Install further packages used in this tutorial
+library(Biostrings)
+library(GenomicRanges)
+library(BSgenome)
+library(rtracklayer)
+library(motifRG)
+library(AnnotationHub)
+library(ensembldb)
+library(tidyverse)
+
+```
+
+
+Bioconductor represents a different strand of current development in R, separate from the Hadley Wickham tidyverse. Where Hadley emphasizes the data frame above all else, Bioconductor uses a great variety of data types. It's the very opposite of tidy!
+
+Nevertheless, Bioconductor is overwhelmingly *comprehensive*, and represents the most complete environment available for working with bioinformatic data currently available.
+
+Bioconductor packages usually have useful documentation in the form of "vignettes". These are readable on the Bioconductor website, or within R:
+
+2) To get a bit of background on some of the functions we will be using in this course, read the vignette below   
+```{r, echo=TRUE, eval=FALSE}
+# vignette()
+# browseVignettes(package="Biostrings")
+vignette("BiostringsQuickOverview", package="Biostrings")
+```
+
+# DNA sequences and genomic ranges
+
+Load packages we will be using:
+
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+library(Biostrings)     # Provides DNAString, DNAStringSet, etc
+library(BSgenome)       # Provides getSeq()
+library(GenomicRanges)  # Provides GRanges, etc
+library(rtracklayer)    # Provides import() and export()
+```
+
+
+## DNAString
+
+Package `Biostrings` offers classes for storing DNA strings, `DNAString`, amino acid sequences, `AAString`, or anything else in a `BString`. These are very like character strings, but a variety of biologically meaningful functions can be applied to them.
+
+3. Creating and inspecting Biostring sequences A Using the `DNAString()` function, 
+
+A) create a DNA string called "myseq" containing the following sequence: "ACCATTGATTAT"
+```{r, echo=FALSE}
+myseq <- DNAString("ACCATTGATTAT")
+myseq
+```
+
+B) What is the class of this object? 
+```{r}
+class(myseq)
+```
+
+C) Reverse the order of the sequence using a function from `{Biostrings}`
+```{r}
+reverseComplement(myseq)
+```
+
+D) Translate the sequence to a peptide
+```{r}
+translate(myseq)
+```
+
+E) Create a subsequence 
+```{r}
+subseq(myseq, 3,5)
+myseq[3:5]
+
+as.character(myseq)
+```
+
+You can see a complete set of functions that work with DNAString with:
+
+```{r eval=FALSE, echo=TRUE}
+methods(class="DNAString")
+```
+
+You can see get help on the `DNAString` class with:
+
+```{r eval=FALSE, echo=TRUE}
+?"DNAString-class"
+```
+
+
+## DNAStringSet
+
+Often we want to work with a list of sequences, such as chromosomes.
+
+```{r, echo=TRUE}
+myset <- DNAStringSet( list(chrI=myseq, chrII=DNAString("ACGTACGT")) )
+myset
+
+# A DNAStringSet is list-like
+myset$chrII
+# or myset[["chrII"]]
+# or myset[[2]]
+```
+
+
+## GRanges
+
+We may then wish to refer to regions of these sequences, often with an associated strand. This is done with the `GRanges` type. `GRanges` builds on `IRanges`, "integer ranges". An IRanges has a starts and ends. A GRanges additionally has sequence names and strand information.
+
+```{r, echo=TRUE}
+range1 <- GRanges("chrI", IRanges(start=3,end=5), strand="+")
+range1
+getSeq(myset, range1)
+
+range2 <- GRanges("chrI", IRanges(start=3,end=5), strand="-")
+getSeq(myset, range2)
+```
+
+Accessing GRanges data:
+Execute following functions on the range1 and range2 objects
+```{r, eval=FALSE,  echo=TRUE}
+seqnames()
+start()
+end()
+strand()
+as.data.frame()
+```
+
+
+Further manipulations:
+
+```{r, echo=TRUE}
+# GRanges are sometimes like vectors:
+c(range1, range2)
+
+# GRanges can have metadata columns, so they are also like data frames:
+mcols(range1)$wobble <- 10
+range1
+mcols(range1)
+range1$wobble
+
+# A handy way to create a GRanges
+as("chrI:3-5:+", "GRanges")
+```
+
+## Question {.challenge}
+
+Based on what we saw for `DNAString`, how can we learn more about using `GRanges` and `IRanges` objects?
+
+
+## Challenge {.challenge}
+
+Reverse complement the following DNA sequence and then translate to an amino acid sequence:
+
+```
+TTCCATTTCCAT
+```
+
+
+# Loading files
+
+## Loading sequences
+
+DNA sequences are generally stored in FASTA format, a simple text format. These can be loaded with `readDNAStringSet` from `Biostrings`. Let's load the genome of E. coli strain K-12, obtained from the Ensembl FTP site.
+
+```
+### The start of the .fa file looks like this:
+# >Chromosome dna:chromosome chromosome:GCA_000800765.1:Chromosome:1:4558660:1
+# AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTC
+# TGATAGCAGCTTCTGAACTGGTTACCTGCCGTGAGTAAATTAAAATTTTATTGACTTAGG
+# TCACTAAATACTTTAACCAATATAGGCATAGCGCACAGACAGATAAAAATTACAGAGTAC
+# ACAACATCCATGAAACGCATTAGCACCACCATTACCACCACCATCACCATTACCACAGGT
+# AACGGTGCGGGCTGACGCGTACAGGAAACACAGAAAAAAGCCCGCACCTGACAGTGCGGG
+# CTTTTTTTTTCGACCAAAGGTAACGAGGTAACAACCATGCGAGTGTTGAAGTTCGGCGGT
+# ...
+```
+
+```{r, echo=TRUE}
+
+## this function can also read .gz archives so you do not need to gunzip first
+seqs <- readDNAStringSet(filepath = file.path(root,
+                                              "data",
+  "Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.dna.toplevel.fa.gz"))
+seqs
+
+# Our chromosome name is too verbose.
+# Remove everything from the name after the first space.
+```
+
+Conversely, a DNAStringSet can also be written to a file with `writeXStringSet`.
+
+
+## Loading features
+
+Genome annotations are available in a variety of text formats such as GFF3 and GTF. They can be loaded with the `import` function from `rtracklayer`. This GTF file is also from Ensembl, and gives the locations of the genes in the genome, and features within them.
+
+```
+### The start of the .gtf file looks like this:
+# #!genome-build ASM80076v1
+# #!genome-version GCA_000800765.1
+# #!genome-date 2014-12
+# #!genome-build-accession GCA_000800765.1
+# #!genebuild-last-updated 2014-12
+# Chromosome      ena     gene    190     255     .       +       .       gene_id "ER3413_4519"; gene_version "1"; gene_name "thrL"; gene_source "ena"; gene_biotype "protein_coding";
+# Chromosome      ena     transcript      190     255     .       +       .       gene_id "ER3413_4519"; gene_version "1"; transcript_id "AIZ54182"; transcript_version "1"; gene_name "thrL"; gene_source "ena"; gene_biotype "protein_coding"; transcript_name "thrL-1"; transcript_source "ena"; transcript_biotype "protein_coding";
+# Chromosome      ena     exon    190     255     .       +       .       gene_id "ER3413_4519"; gene_version "1"; transcript_id "AIZ54182"; transcript_version "1"; exon_number "1"; gene_name "thrL"; gene_source "ena"; gene_biotype "protein_coding"; transcript_name "thrL-1"; transcript_source "ena"; transcript_biotype "protein_coding"; exon_id "AIZ54182-1"; exon_version "1";
+# Chromosome      ena     CDS     190     252     .       +       0       gene_id "ER3413_4519"; gene_version "1"; transcript_id "AIZ54182"; transcript_version "1"; exon_number "1"; gene_name "thrL"; gene_source "ena"; gene_biotype "protein_coding"; transcript_name "thrL-1"; transcript_source "ena"; transcript_biotype "protein_coding"; protein_id "AIZ54182"; protein_version "1";
+# ...
+```
+
+
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+## this function  works with a .gz. archive
+features <- import(file.path(root, "data", "Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.37.gff3.gz"))
+
+
+
+features
+```
+
+
+The metadata columns let us query the GRanges, for example for a particular gene.
+
+```{r, echo=TRUE}
+library(tidyverse)
+features %>% as_tibble
+
+subset(features, external_name == "lacA")
+# Equivalently:
+#   features[features$gene_name == "lacA" & !is.na(features$gene_name),]
+```
+
+Note: `subset` is a generic R function. It is also similar to dplyr's `filter`. The second argument is special, in it you can refer to columns of the GRanges directly.
+
+We could also get all features of a particular type.
+
+```{r, echo=TRUE}
+cds <- subset(features, type == "CDS")
+cds
+# Equivalently:
+#   features[features$type == "CDS",]
+```
+
+# Further operations on GRanges
+
+## Inter-range
+
+```{r eval=FALSE, echo=TRUE}
+?"inter-range-methods"
+?"setops-methods"
+```
+
+One compelling feature of GenomicRanges is that it is able to find overlapping ranges very quickly.
+
+```{r, echo=TRUE}
+query <- as("Chromosome:9500-10000:+", "GRanges")
+hits <- findOverlaps(query, features, ignore.strand=TRUE)
+hits
+subjectHits(hits)
+features[subjectHits(hits),]
+
+findOverlaps(query, features, ignore.strand=FALSE)
+```
+
+With `findOverlaps`, we can use genomic location as the key when *joining* disparate types of data, so this is an important tool for *integrative* analysis. See also the related functions `nearest`, `precede`, `follow`, and `distance`.
+
+`GenomicRanges` also provides:
+
+* `range` - get a feature that spans from the start to the end of all features in a `GRanges`.
+
+* `reduce` - merge overlapping features, so that the same bases are covered by a reduced collection of features.
+
+* `disjoin` - as with reduce, but broken at each start and end of the input features.
+
+* `setdiff` - subtracts one set of features from another, could be used with range on a set of exons to get introns. Might need to use `GenomicRanges::setdiff` if also using `dplyr`.
+
+```
+# input
+#         (--------)
+#              (----------------)
+#                      (-----)
+#                                     (---)
+#                                     
+# range   (-------------------------------)
+# 
+# reduce  (----------------------)    (---)
+# 
+# disjoin (---)(---)(-)(-----)(--)    (---)
+# 
+# GenomicRanges::setdiff(range(input),input)
+#                                 (--)
+```
+
+
+
+
+# Further data types to explore
+
+**GRangesList, etc**: Many Bioconductor types have a List version -- `GRangesList`, `DNAStringSetList`, etc. For example the exons of a collection of genes could be naturally stored in a `GRangesList`. Most functions that work with `GRanges` will also worked with `GRangesList`, and operate on each list element separately.
+
+**TxDb**: `TxDb` objects represent the hierarchy of genes which contain transcripts which contain exons and CDS (CoDing Sequence) ranges. `TxDb` objects are provided by the `GenomicFeatures` package.
+
+**Seqinfo**: `GRanges` (and various other types) may have associated sequence information accessed with `seqinfo()`. This contains the names and lengths of the sequences the ranges may refer to, and whether they are circular. It allows for some error checking if present.
+
+
+# Finding a known motif
+
+AGGAGGU is the Shine-Dalgarno sequence, which assists binding of the ribosome to a transcript.
+
+```{r, echo=TRUE}
+vmatchPattern("AGGAGGT", seqs)
+```
+
+`vmatchPattern` is strand specific. If we want matches on the reverse strand we need to also:
+
+```{r, echo=TRUE}
+vmatchPattern(reverseComplement(DNAString("AGGAGGT")), seqs)
+```
+
+Demanding an exact match here is overly strict. `vmatchPattern` has arguments allowing inexact matches. Alternatively, there is a similar function for searching for a Position Weight Matrix pattern, `matchPWM`.
+
+The following will search both strands, allowing one mismatch, and produce the result in convenient GRanges form:
+
+```{r, echo=TRUE}
+query <- DNAString("AGGAGGT")
+max.mismatch <- 1
+
+fwd <- vmatchPattern(query, seqs, max.mismatch=max.mismatch)
+fwd <- as(fwd, "GRanges")
+strand(fwd) <- "+"
+rev <- vmatchPattern(reverseComplement(query), seqs, max.mismatch=max.mismatch)
+rev <- as(rev, "GRanges")
+strand(rev) <- "-"
+
+complete <- c(fwd, rev)
+complete
+
+# Write to GFF file
+export(complete, "motif-matches.gff")
+```
+
+# Next steps
+
+We've seen just the smallest part of what [Bioconductor](http://bioconductor.org/) has to offer in this space.
+
+* [Most downloaded Bioconctor packages](http://bioconductor.org/packages/stats/)
+* [Bioconductor cheat sheet](https://github.com/mikelove/bioc-refcard/blob/master/README.Rmd)
+* [COMBINE Bioconductor course from May 2017](https://combine-australia.github.io/2017-05-19-bioconductor-melbourne/)
+* [Bioconductor's Stack Overflow-style support site](https://support.bioconductor.org/)
+
+Besides software, Bioconductor includes packages with data for model organisms, for example. The data is generally from these central repositories:
+
+* NCBI's Entrez Gene gene database and Refseq reference sequences
+* The EBI's Ensembl genome browser
+* The UCSC genome browser
+
+These organizations will generally obtain genome assemblies from the same ultimate sources. For example, all of the above use the Genome Reference Consortium's GRCh38 DNA sequence for homo sapiens. UCSC likes to call this "hg38" but it is the same DNA sequence. These DNA sequences serve as a common frame of reference. However the three organizations above will differ on their exact set of gene and transcript annotations, and all use a different gene and transcript ID system. These annotations are also revised more often than the underlying DNA sequences.
+
+This mess is partly due to American/European rivalry, and partly due to differing goals. The UCSC genome browser has always been about practicality and showing many lines of evidence. The others are more concerned with careful curation and standardization.
+
+Some example packages:
+
+### BSgenome.Hsapiens.UCSC.hg38 
+
+Biostrings genome, Homo sapiens, from the UCSC browser, version hg38.
+
+DNA for chromosomes, usable in the same way as the DNAStringSet used above.
+
+### TxDb.Hsapiens.UCSC.hg38.knownGene
+
+Transcript database, Homo sapiens, from UCSC browser, genome verison hg38, "knownGene" gene annotations.
+
+GRanges information for genes and transcripts, much as we loaded from a GTF file above.
+
+### org.Hs.eg.db
+
+Organism Homo sapiens, primary key is Entrez Gene, database.
+
+Translation of gene ids from various databases, assignment to GO terms, KEGG pathways, etc. Entrez Gene ids are used as the primary key.
+
+### biomaRt 
+
+Access to BioMart data, on the internet -- translation of gene ids, gene sets, gene information, etc.
+
+### AnnotationHub
+
+AnnotationHub is a way to retrieve data from a more comprehensive set of organisms and data providers than the above styles of package. The retrieved data is returned in an appropriate Bioconductor type. If data is being updated over time (eg improved annotation of a genome), each version receives a unique ID in AnnotationHub, making it much easier to write reproducable analyses.
+
+AnnotationHub also provides access to experimental data which maps to locations on a genome, similar to the sorts of tracks you would load in the UCSC browser.
+
+Files are cached, so they will only be downloaded once.
+
+In the example below, the yeast genome and annotations are retrieved:
+
+```{r eval=FALSE}
+library(AnnotationHub)
+ah <- AnnotationHub()
+
+# ah contains a large collection of records that can be retrieved
+ah
+length(ah)
+colnames( mcols(ah) )
+table( ah$rdataclass )
+
+# query() searches for terms in an unstructured way
+records <- query(ah, c("Ensembl", "85", "Saccharomyces cerevisiae"))
+records
+
+mcols(records)
+mcols(records)[,c("title","rdataclass")]
+
+# Having located records of interest,
+# your R script can refer to the specific AH... record,
+# so it always uses the same version of the data.
+
+
+

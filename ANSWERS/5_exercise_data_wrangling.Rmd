@@ -1,0 +1,371 @@
+---
+title: "Exercise - Data Wrangling"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output: 
+   BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      message = FALSE, 
+                      error = FALSE,
+                      results = 'hide',
+                      fig.show = 'hide')
+``` 
+
+# End product
+
+**Generate a new RMarkdown file containing the answers to all questions below and render it to HTML. Upload your _Rmd AND HTML_ file to CANVAS under the corresponding (see file name) exercise number** 
+
+# Prerequisites
+
+ - Go over all Dplyr demo's of UNIT 2 (4 tutorials in total)
+ - Review the chapter "Relational Data" in "R for Data Science" by Grolemund and Wickham 
+
+# Packages
+```{r, results='markup', echo=TRUE}
+library(tidyverse)
+library(jsonlite)
+library(tidyverse)
+```
+
+# Setting the project root
+We need an object for the root of the project for robust and reproducible code.
+```{r, echo=TRUE, eval=TRUE, results='markup'}
+if (!require("rprojroot")) install.packages("rprojroot")
+library("rprojroot")
+root <- find_root_file(criterion = is_rstudio_project)
+root
+```
+
+# Prequisites:
+
+ - For this exercise you need to review the demos for `{dplyr}`
+ - Review the `join()` functions here: https://r4ds.had.co.nz/relational-data.html 
+ - Use dplyr syntax as much as possible
+ - You need to review visualizations with `{ggplot2}` to be able to create the requested graphs: https://r4ds.had.co.nz/data-visualisation.html
+ - Use the `%>%` operator where you can
+ - Prevent creating new variables in the `.GlobalEnv` as much as possible
+ 
+# Data
+This data was obtained from: https://www.kaggle.com/nationalparkservice
+The dataset consists of two files in a zip archive:
+
+# Question 1. Getting the data
+
+The files are located in `"./data/biodiversity-in-national-parks.zip"`
+and are called:
+ 
+ - `parks.csv`
+ - `species.csv`
+
+A) Extract the data using the `unzip()` function (this only need to be perfomed once)
+
+```{r, echo=FALSE}
+unzip(zipfile = file.path(root, "data", "biodiversity-in-national-parks.zip"),
+      exdir = file.path("data"))
+
+library(here)
+
+
+readr::read_csv(here("data", "airway_counts.csv"))
+
+
+```
+
+B) Read both data files into R
+
+Name them `species_data` and `park_data` appropriately according to the orignal file names.
+```{r}
+species_data <- read_csv(file = file.path(root,
+                                           "data",
+                                           "species.csv"))
+
+park_data <- read_csv(file = file.path(root,
+                                           "data",
+                                           "parks.csv"))
+
+```
+
+# Question 2 - `filter()`
+
+A) How many different species (`Scientific Name`) are there in `species_data`?
+```{r}
+## dplyr
+names(species_data)
+species_data %>% 
+   select(`Scientific Name`) %>%
+   unique() %>%
+#   arrange() %>%
+   count()
+
+## base
+species_data$`Scientific Name` %>%
+   as_factor() %>%
+   levels() %>%
+   length()
+```
+
+B) How many parks are there in `park_data`?
+```{r}
+names(park_data)
+## dplyr
+park_data %>%
+   select(`Park Name`)%>%
+   unique() %>%
+   count()
+```
+
+C) Using the filter function, how many species have the label "Endangered"
+```{r}
+species_data %>%
+   dplyr::filter(`Conservation Status` == "Endangered") %>%
+   select(`Scientific Name`) %>%
+   unique() %>%
+   count()
+```
+
+D) Which park has the most endangered species?
+
+**TIPS**
+
+ - You can use the `group_by()` function here, together with `tally(sort = TRUE)` 
+ 
+```{r}
+species_data %>%
+   dplyr::filter(`Conservation Status` == "Endangered") %>%
+   group_by(`Park Name`) %>% 
+   select(`Scientific Name`, `Park Name`) %>%
+   tally(sort = TRUE)
+    
+```
+
+# Qestions 3 - Join & Clean
+
+A) Join the `species_data` and the `parks_data` together by using a `left_join()`. You need to retain all the species data. Put the joined data in a new variable in the `.GlobalEnv`, name it `joined_data`.
+
+```{r}
+joined_data <- left_join(species_data, park_data)
+```
+
+**Use the `joined_data` table for the rest of the exercise**
+
+B) Set the variable names to lower case and rplace the spaces in the name for a "_" using `str_replace_all()`
+```{r}
+names(joined_data) <- names(joined_data) %>% 
+   tolower() %>%
+   str_replace_all(string = ., pattern = " ", replacement = "_")
+head(joined_data,3)
+```
+
+## Qestion 4 - Mutate
+A) The surface area of the Parks are provided in Acres. Create a new variable called `surface_km2` that displays the surface area in km^2 (square km). Try to provide scientific notation.
+see for more details: https://stackoverflow.com/questions/39623636/forcing-r-output-to-be-scientific-notation-with-at-most-two-decimals/39625148
+
+the conversion for acres to km^2 is:
+
+$km^2 = ac / 247.11$
+
+**TIPS**
+Do not forget to store the new column in the data
+
+```{r}
+joined_data <- joined_data %>%
+   mutate(surface_km2 = acres/247.11,
+          surface_km2 = formatC(surface_km2, format = "e", digits = 2))
+
+joined_data$surface_km2 %>% max()
+```
+
+# Question 5 - Summarize
+**Create a new table called `summary_data`**
+
+A) Calculate the total number of parks that **each** species is reported in. Create a new table and a new variable inside that table (`parks_recorded`). Sort from high to low.
+```{r}
+summary_data <- joined_data %>%
+   group_by(scientific_name) %>%
+   summarise(parks_recorded = n()) %>%
+   arrange(parks_recorded)
+
+summary_data
+```
+
+B) Create a new variable in the `summary_table` that displays the total surface area for each species in this table. Call this variable `total_surface`. Use the `surface_km2` variable to get to the answer.
+
+**TIPS**
+
+```{r}
+
+summary_data <- joined_data %>%
+   group_by(scientific_name) %>%
+   mutate(surface_km2 = as.numeric(surface_km2)) %>%
+   summarise(number_species = n(),
+             surface_area = sum(surface_km2)) %>%
+   arrange(surface_area)
+summary_data
+```
+
+
+C) Which species (multiple) have the smallest area to live in?
+
+```{r}
+
+summary_data
+map(summary_data, class) == "numeric"
+
+summary_data %>%
+   dplyr::filter(surface_area == 22.5) %>%
+   arrange(surface_area) %>%
+   select(scientific_name) %>%
+   unique()
+```
+
+# Question 6 - Visualize
+A) Create a plot that visualizes the relationship between the surface area of the parks `surface_km2` and the number of "Endangered" or "Species of Concern" animals
+
+```{r}
+x <- joined_data %>%
+   dplyr::filter(conservation_status == "Endangered" |
+                 conservation_status == "Species of Concern") %>%
+   mutate(surface_km2 = as.numeric(surface_km2)) %>%
+   group_by(park_name, conservation_status) %>%
+   summarize(n = n(),
+             surface = mean(surface_km2)) 
+x
+
+names(park_data) <- names(park_data) %>% tolower() %>%
+   str_replace_all(string = ., pattern = " ", replacement = "_")
+
+   
+left_join(x, park_data)   
+
+
+#   summarize(number_problem_species = n(),
+#             total_surface = sum(surface_km2)) 
+
+x %>%
+   ggplot(aes(x = surface,
+              y = n)) +
+   geom_point(aes(colour = conservation_status))
+```
+
+B) Try to solve the overplotting 
+```{r}
+x %>%
+   ggplot(aes(x = log10(surface),
+              y = n)) +
+   geom_point(aes(colour = conservation_status)) 
+```
+
+C) Add a linear model
+```{r}
+x %>%
+   ggplot(aes(x = log10(surface),
+              y = n)) +
+   geom_point(aes(colour = conservation_status)) +
+   geom_smooth(aes(group = conservation_status), method = "lm")
+```
+
+```{r}
+# install.packages("odbc")
+library(odbc)
+library(dplyr)
+library(dbplyr)
+library(DBI)
+library(purrr)
+suppressWarnings(library(rlang, warn.conflicts = FALSE)) 
+```
+
+
+# Question 7. Creating or Connecting to a database
+
+Follow the workflow in the link below and answer the questions below:
+
+https://bioconductor.org/packages/release/bioc/vignettes/Organism.dplyr/inst/doc/Organism.dplyr.html
+
+```{r}
+# BiocManager::install("Organism.dplyr")
+```
+
+A) Find all the transcripts for the genes that carry `FOXP` (Forkhead receptor) in their name (`Symbol`) in B. taurus?
+
+**TIPS**
+You need to install the appropriate `TxDb` organism package, before you can you use `Organism.dplyr` for that species. 
+```{r}
+
+library(TxDb.Btaurus.UCSC.bosTau8.refGene)
+library(Organism.dplyr)
+
+# BiocManager::install("TxDb.Btaurus.UCSC.bosTau8.refGene")
+# BiocManager::install("org.Bt.eg.db")
+
+## Running src_organism() without a given path will save the sqlite file to a tempdir():
+src <- src_organism("TxDb.Btaurus.UCSC.bosTau8.refGene")
+
+#Alternatively you can provide explicit path to where the sqlite file should be saved, and re-use the data base at a later date.
+#path <- "path/to/my.sqlite"
+#src <- src_organism("TxDb.Hsapiens.UCSC.hg38.knownGene", path)
+
+#supportedOrganisms() provides a list of organisms with corresponding ‘org’ and ‘TxDb’ packages being supported.
+
+supportedOrganisms()
+
+src_tbls(src)
+
+tbl(src, "ranges_gene")
+
+tbl(src, "id") %>%
+    dplyr::filter(symbol %like% "FOXP%") %>%
+    dplyr::select(entrez, alias, ensembl, symbol) %>%
+    distinct() %>% arrange(symbol) %>% collect()
+
+
+go <- inner_join(tbl(src, "id"), tbl(src, "id_go")) %>%
+    filter(symbol %like% "FOXP%") %>%
+    dplyr::select(entrez, ensembl, symbol, go, evidence, ontology) %>%
+    collect(n=Inf)
+
+go
+txcount <- inner_join(tbl(src, "id"), tbl(src, "ranges_tx")) %>%
+    filter(symbol %like% "FOXP%") %>%
+    dplyr::select(symbol, tx_id, ensembl, entrez) %>%
+    group_by(symbol) %>%
+ #   summarize(count = n()) %>%
+ #   dplyr::select(symbol, count) %>%
+ #   arrange(desc(count)) %>%
+    collect(n=Inf)
+
+txcount
+ids <- txcount$entrez
+ids
+
+```
+
+
+B) What are the `uniprot` ids belonging to the list of transcripts (`entrez`) ids of A)
+```{r, eval=FALSE}
+### needs work
+
+src_tbls(src)
+
+tbl(src, "id_protein")
+
+
+proteins <- inner_join(tbl(src, "id_transcript"), tbl(src, "id_protein")) %>%
+    filter(entrez %in% ids) %>%
+    dplyr::select(uniprot, ensembltrans, entrez) %>%
+#    group_by(symbol) %>%
+#   summarize(count = n()) %>%
+ #   dplyr::select(symbol, count) %>%
+ #   arrange(desc(count)) %>%
+    collect(n=Inf)
+proteins
+```
+
+
+https://mdsr-book.github.io/instructor/sql.html
+
