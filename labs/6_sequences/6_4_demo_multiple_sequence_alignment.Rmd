@@ -129,6 +129,8 @@ msaPrettyPrint(caspase_align, output="pdf",  y=c(10, 30), showNames="none",
 ## Amino acids
 
 ```{r, results='hide'}
+# BiocManager::install("DECIPHER")
+library(DECIPHER)
 AA <- AlignSeqs(caspase_aa, processors = 8) # align the translation
 BrowseSeqs(AA, highlight=1) # view the alignment
 

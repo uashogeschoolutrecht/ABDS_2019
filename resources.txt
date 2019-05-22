@@ -16,4 +16,10 @@ https://github.com/suzanbaert/Dplyr_Tutorials/blob/master/Dplyr01_Selecting_colu
 ## Differential Expression 
 https://www.bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html
 
+## MutationalPatterns
 
+### Vignettes and BIOC landing page
+http://bioconductor.org/packages/release/bioc/html/MutationalPatterns.html 
+
+### Literature
+https://www.biorxiv.org/content/biorxiv/early/2018/05/15/322859.full.pdf
