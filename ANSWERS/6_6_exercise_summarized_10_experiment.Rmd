@@ -2,7 +2,10 @@
 title: "Creating a summarized Experiment"
 author: "Marc A.T. Teunis"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+   BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
 ---
 
 **## Check out new package `biomartr` with organism centric queries... compare to old way with `biomaRt`**
@@ -16,15 +19,18 @@ root <- find_root_file(criterion = is_rstudio_project)
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, 
-                      warning = FALSE, 
-                      error = FALSE, 
-                      message = FALSE,
-                      results = 'hide',
-                      fig.show = 'hide')
+knitr::opts_chunk$set(echo = FALSE
+                      , 
+                       warning = FALSE, 
+                       error = FALSE, 
+                       message = FALSE
+                       #,
+                      # results = 'hide',
+                      # fig.show = 'hide'
+                      )
 ```
 
-## Packages
+# Packages
 ```{r}
 library(tidyverse)
 #source("http://bioconductor.org/workflows.R")
@@ -54,13 +60,13 @@ The files that belong to this dataset are called:
 
 In this exercise you will learn how to construct a summarized experiment and from individual datafiles, and from there a DESeq2 expression set. 
 
-## Prequisites: 
+# Prequisites: 
 
  - Go over the vignette for the package `{SummarizedExperiment}`.
  
  To recap:
  
- ## SummarizedExperiment
+# SummarizedExperiment
 
 *SummarizedExperiment* diagram of the three
 component pieces:
@@ -107,7 +113,7 @@ interaction terms can be included and tested using a design such as
 `~ group + treatment + group:treatment`. See the manual page for
 `?results` for more examples.
 
-## Question 1
+# Question 1
 A) Load these 4 data files (see below jp_.....txt) into R. Be sure to read the data with the appropriate function. 
 
 
@@ -118,7 +124,7 @@ library(readr)
 counts <- read_tsv(file = file.path(root, "data", "jp_counts.txt"))
 pheno_data <- read_delim(file = file.path(root, "data", "jp_coldata.txt"), delim = ";")
 feature_data <- read_tsv(file = file.path(root, "data", "jp_features.txt"))
-miame <- read_tsv(file = file.path(root, "data", "jp_miame.txt"), col_names = FALSE)
+miame <- read_csv2(file = file.path(root, "data", "jp_miame.txt"), col_names = TRUE)
 
 ```
 
@@ -130,7 +136,7 @@ lapply(files, head, 2)
 miame
 ```
 
-## Question 2 ExpressionSet
+# Question 2 ExpressionSet
 
 In this question you will need to create a SummarizedExperiment from the four individual data objects loaded above.
 
@@ -180,17 +186,18 @@ counts %>% head(2)
 ## convert counts to matrix
 counts <- as.matrix(counts)
 
+
 ## check rownames(colData) is equal to colnames(counts)
 rownames(pheno_data) == colnames(counts)
 
-## create metadata (need to be a list)
-metadata <- list(name1 = miame[1,1] %>% as.character(),
-                 name2 = miame[2,1] %>% as.character(),
-                 lab = miame[3,1] %>% as.character(),
-                 email = miame[4,1] %>% as.character(),
-                 abstract = miame[5,1] %>% as.character(),
-                 url = miame[6,1] %>% as.character(),
-                 notes = miame[7,1] %>% as.character())
+## create metadata (needs to be a list)
+metadata <- list(name1 = miame$details[1] %>% as.character(),
+                 name2 = miame$details[2] %>% as.character(),
+                 lab = miame$details[3] %>% as.character(),
+                 email = miame$details[4] %>% as.character(),
+                 abstract = miame$details[5] %>% as.character(),
+                 url = miame$details[6] %>% as.character(),
+                 notes = miame$details[7] %>% as.character())
 
 metadata
 
@@ -224,7 +231,8 @@ assay(se) %>% head(2)
 rowData(se) %>% head(2)
 ```
 
-##  Question 3. Creating an DESeqDataSet set from the SummarizedExperiment
+# Question 3. Creating an DESeqDataSet 
+Createa DESeqDataSet from the SummarizedExperiment object
 In order to analyze the data further we need to convert the SummarizedExperiment object to a DESeq2DataSet.
 This can be achieved using the `DESeqDataSEt()` function.
 
@@ -244,7 +252,7 @@ dds <- DESeq(dds)
 ## Exploring the expression set
 from: https://www.bioconductor.org/help/workflows/rnaseqGene/ 
 
-```{r}
+```{r, echo=TRUE}
 dds_reduced <- dds[rowSums(counts(dds)) > 1.5, ]
 nrow(dds_reduced)
 head(dds_reduced)
@@ -253,7 +261,7 @@ head(dds_reduced)
 # Study the steps below. You will need some of them again when we discuss RNASequencing data analysis.
 
 ## plotting variance to mean logCPM
-```{r}
+```{r, echo=TRUE}
 cpm.mat <- log(cpm(assay(dds)))
 mean.vec <- apply(cpm.mat, 1, mean)
 sdvec <- apply(cpm.mat, 1, sd)
@@ -273,10 +281,10 @@ DESeq2
 
 Both methods utilize the concept of "borrowing information from genes""; using the whole dataset to compute a common value, trend, or prior distribution for the dispersions, and then shrink individual gene-wise dispersion estimates toward this chosen anchor. With DESeq2 the first round of estimates are computed using maximum likelihood, and a curve is fit to provide an estimate of expected dispersion. Then the gene-wise dispersion estimates are shrunken toward the values predicted by the curve to obtain final dispersion values r citep("10.1186/s13059-014-0550-8"). 
 
-
 ## Transformations, Negative Bionomial Distribution,
-This transformation 
-```{r}
+This transformation normalizes the data according the presumed distribution of the count data
+
+```{r, echo=TRUE}
 rld <- rlog(dds_reduced, blind=FALSE)
 rld
 head(assay(rld), 3)
@@ -284,7 +292,7 @@ head(assay(rld), 3)
 
 ## PCA plot
 The PCA plot can help detect interesting patterns in the data. It shows the raltive contribution to the variance in the data by groups. You can use the grouping variables to study clusters.
-```{r, fig.height= 8, fig.width=10}
+```{r, fig.height= 8, fig.width=10, echo=TRUE}
 
 plotPCA(rld, intgroup = c("condition"))
 colData(se) %>% as_tibble()
@@ -294,7 +302,7 @@ plotPCA(rld, intgroup = c("exposure"))
 ```
 
 ## Summarizing statistics
-```{r}
+```{r, echo=TRUE}
 dds <- DESeq(dds_reduced)
 res <- results(dds)
 
@@ -308,12 +316,12 @@ sum(res$padj < 0.1, na.rm=TRUE)
 ```
 
 # Plotting dispersion estimates
-```{r}
+```{r, echo=TRUE}
 plotDispEsts(dds)
 ```
 
 ## Gene and protein name for TopGene 
-```{r}
+```{r, echo=TRUE}
 topGene <- rownames(res)[which.min(res$padj)]
 plotCounts(dds, gene=topGene, intgroup=c("exposure"))
 topGene
@@ -321,7 +329,7 @@ topGene
 
 
 ## looking up the top gene from ENSML BioMart
-```{r}
+```{r, echo=TRUE}
 library(biomaRt)
 ensembl = useEnsembl(biomart="ensembl", dataset="mmusculus_gene_ensembl")
 topProtein <- getBM(attributes=c('ensembl_gene_id','ensembl_transcript_id','hgnc_symbol','hgnc_id', 'external_gene_name'),filters = 'ensembl_gene_id', values = topGene, mart = ensembl)
@@ -329,7 +337,7 @@ topProtein
 ```
 
 ## A nicer graph with ggplot2
-```{r}
+```{r, echo=TRUE}
 geneCounts <- plotCounts(dds, gene=topGene, intgroup=c("condition", "exposure"), returnData=TRUE)
 ggplot(geneCounts, aes(x=exposure, y=count, color=condition)) +
   scale_y_log10() + 
@@ -337,7 +345,7 @@ ggplot(geneCounts, aes(x=exposure, y=count, color=condition)) +
 ```
 
 ## Volcano Plot
-```{r}
+```{r, echo=TRUE}
 
 plotMA(res, ylim=c(-5,5))
 
@@ -350,7 +358,7 @@ with(resLFC1[topGene, ], {
 ```
 
 ## Heatmap of top 10 transcripts
-```{r}
+```{r, echo=TRUE}
 library(genefilter)
 topVarGenes <- head(order(rowVars(assay(rld)),
                           decreasing=TRUE), 10)
@@ -371,12 +379,12 @@ row.names(mat_10)
 ```
 
 ## heatmap of top 1000 transcripts
-```{r}
+```{r, echo=TRUE}
 topVarGenes <- head(order(rowVars(assay(rld)), decreasing=TRUE), 1000)
 
 mat_1000 <- assay(rld)[ topVarGenes, ]
 
-mat_1000 <- mat_1000 - rowMeans(mat_1000)
+mat_1000 <- mat_1000 - rowMeans(mat_1000) ## normalize by row
 ## df <- as.data.frame(colData(rld)[,c("treatment")])
 png(filename = paste0(root, "/images/1000genes.png"), res = 600, width = 8, height = 10, units = "cm")
 pheatmap(mat_1000, show_rownames = FALSE)
@@ -389,7 +397,7 @@ row.names(mat_1000)
 ```
 
 ## heatmap of top 10000 transcripts
-```{r}
+```{r, echo=TRUE}
 topVarGenes <- head(order(rowVars(assay(rld)), decreasing=TRUE), 10000)
 
 mat_10000 <- assay(rld)[ topVarGenes, ]
@@ -405,7 +413,7 @@ row.names(mat_10000)
 ```
 
 ## Get gene names and protein from ENSMBL IDs
-```{r}
+```{r, echo=TRUE}
 library(biomaRt)
 
 mart = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
@@ -459,7 +467,7 @@ annotations_10000_df <- as_tibble(annotations_10000)
 ## A function to create a heatmap based on the number of top genes and annotians on the basis of go terms
 
 
-```{r}
+```{r, echo=TRUE}
 rld = rld
 number_top_genes = 1000
 go_term = "GO:0005576"
@@ -516,7 +524,7 @@ head(GO_df)
 
 mat_1000 <- mat_1000 - rowMeans(mat_1000)
 ## df <- as.data.frame(colData(rld)[,c("treatment")])
-png(filename = paste0(root, "/images/1000genes.png"), res = 600, width = 8, height = 10, units = "cm")
+png(filename = paste0(root, "/images/1000genes.png"), res = 600, width = 18, height = 30, units = "cm")
 pheatmap(mat_1000, show_rownames = FALSE)
 dev.off()
   
