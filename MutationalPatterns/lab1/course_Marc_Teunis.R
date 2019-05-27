@@ -12,7 +12,8 @@ library(dplyr)
 
 
 ###output_dir
-dirpath="~/surfdrive/Shared/Sig17/HMF_data/somatic_organoid_vcfs/HMF_pipeline/plots/March/"
+dirpath <- here::here("MutationalPatterns", "output")
+dir.create(dirpath)
 
 
 ###Functions
@@ -74,34 +75,70 @@ colorpalette = c("Signature.1" =  '#8dd3c7',
 #_________________#
 
 #import SNVs
-vcf_organoids <- list.files("~/surfdrive/Shared/Sig17/HMF_data/somatic_organoid_vcfs/HMF_pipeline/filtered_pass/SNVs/filtered_VAF/", pattern = ".vcf", full.names = TRUE)
-vcf_files_names <- substr(basename(vcf_organoids), 1, nchar(basename(vcf_organoids)) - 4) 
-vcf_files_names <- sub("_pass_filtered_indel_VAF30_70","",vcf_files_names)
-vcfs_grange <- read_vcfs_as_granges(vcf_organoids, vcf_files_names, genome = ref_genome)
-treatment <- c(rep("Control", 6),rep("5-FU", 2))
+vcf_organoids <- list.files(here::here("MutationalPatterns", 
+                                       "filtered_VAF"), 
+                            pattern = ".vcf", 
+                            full.names = TRUE)
+vcf_files_names <- substr(basename(vcf_organoids), 1, 
+                          nchar(basename(vcf_organoids)) - 4) 
+vcf_files_names <- sub("_pass_filtered_indel_VAF30_70",
+                       "",
+                       vcf_files_names)
+vcfs_grange <- read_vcfs_as_granges(vcf_organoids, 
+                                    vcf_files_names, 
+                                    genome = ref_genome)
+treatment <- c(rep("Control", 6),
+               rep("5-FU", 2))
 
 #total number of SNVs
 length(vcfs_grange$"STE072-control-p17_5-FU-2-625-8")
 length(vcfs_grange$"STE072-control-p17_5-FU-3-625-7")
 
 #plot type occurences
-type_occurrences <- mut_type_occurrences(vcfs_grange, ref_genome)
+type_occurrences <- mut_type_occurrences(vcfs_grange, 
+                                         ref_genome)
 type_occurrences
 plot_spectrum(type_occurrences)
-plot_spectrum(type_occurrences, CT = TRUE, legend = FALSE)
-plot_spectrum(type_occurrences, by = treatment, CT = TRUE, legend = TRUE)
+plot_spectrum(type_occurrences, 
+              CT = TRUE, 
+              legend = FALSE)
+plot_spectrum(type_occurrences, 
+              by = treatment, 
+              CT = TRUE, 
+              legend = TRUE)
 
 #create 96-mutation matrix
-auto <- extractSeqlevelsByGroup(species="Homo_sapiens",style="UCSC",group="auto")
-vcfs <- lapply(vcfs_grange, function(x) keepSeqlevels(x, auto, pruning.mode="coarse"))
-vcfs_mm <- mut_matrix(vcf_list = vcfs, ref_genome = ref_genome)
+auto <- extractSeqlevelsByGroup(species="Homo_sapiens",
+                                style="UCSC",
+                                group="auto")
+
+## filter ranges for autosomal 
+vcfs <- lapply(vcfs_grange, function(x) keepSeqlevels(
+  x, auto, pruning.mode="coarse")
+  )
+
+vcfs_mm <- mut_matrix(vcf_list = vcfs, 
+                      ref_genome = ref_genome)
+
 colnames(vcfs_mm)
 colSums(vcfs_mm)
 plot_96_profile(vcfs_mm)
 
 vcfs_mm_treatment <- as.data.frame(vcfs_mm)
-vcfs_mm_treatment <- cbind(as.data.frame(rowSums(vcfs_mm_treatment[grep("5-FU", names(vcfs_mm_treatment),value = T)])),
-                    as.data.frame(rowSums(vcfs_mm_treatment[grep("^STE00", names(vcfs_mm_treatment),value = T)])))
+
+vcfs_mm_treatment <- cbind(as.data.frame(
+  rowSums(vcfs_mm_treatment[grep("5-FU", 
+                                 names(vcfs_mm_treatment),
+                                 value = T)])),
+                    as.data.frame(rowSums(
+                      vcfs_mm_treatment[grep("^STE00", 
+                                             names(vcfs_mm_treatment),
+                                             value = T)])
+                      )
+  )
+
+plot_96_profile(vcfs_mm_treatment)
+
 colnames(vcfs_mm_treatment) <- c("5-FU", "Control")
 plot_compare_profiles(vcfs_mm_treatment[,1], 
                       vcfs_mm_treatment[,2], 
@@ -111,11 +148,15 @@ plot_compare_profiles(vcfs_mm_treatment[,1],
 cos_sim(vcfs_mm_treatment[,1], vcfs_mm_treatment[,2])
 
 # generate 5FU specific signature
-vcfs_mm_treatment %>% mutate(relative_5FU = vcfs_mm_treatment[,1]/ sum(vcfs_mm_treatment[,1]),
-                             relative_control = vcfs_mm_treatment[,2]/ sum(vcfs_mm_treatment[,2]),
-                             diff = relative_5FU - relative_control,
-                             diff_5FU = ifelse(diff >0, diff, 0),
-                             diff_control = ifelse(diff <0, abs(diff), 0)) -> vcfs_mm_treatment
+vcfs_mm_treatment <- vcfs_mm_treatment %>% 
+  mutate(relative_5FU = vcfs_mm_treatment[,1]/ 
+           sum(vcfs_mm_treatment[,1]),
+    relative_control = vcfs_mm_treatment[,2]/ 
+      sum(vcfs_mm_treatment[,2]),
+    diff = relative_5FU - relative_control,
+    diff_5FU = ifelse(diff >0, diff, 0),
+    diff_control = ifelse(diff <0, abs(diff), 0))
+
 plot_96_profile(vcfs_mm_treatment[,6:7],ymax = 0.4)
 cos_sim(vcfs_mm_treatment[,6], vcfs_mm_treatment[,7])
 
@@ -133,6 +174,7 @@ cosmic_order = colnames(cancer_signatures)[hclust_cosmic$order]
 
 #method 1: least square regression fitting
 fit_res <- fit_to_signatures(vcfs_mm_treatment[,1:2], cancer_signatures)
+fit_res$contribution
 #select <- which(rowSums(fit_res$contribution) > 200)
 select <- which((rowSums(fit_res$contribution)/sum(fit_res$contribution)*100) > 10)
 plot_contribution(fit_res$contribution[select,],
@@ -144,7 +186,6 @@ cos_sim_samples = cos_sim_matrix(as.matrix(vcfs_mm_treatment[,6:7]),cancer_signa
 plot_cosine_heatmap(cos_sim_samples,
                     col_order = cosmic_order,
                     cluster_rows = TRUE)
-
 
 
 #####----#### de novo sigantures
