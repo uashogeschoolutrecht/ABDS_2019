@@ -11,8 +11,21 @@ output:
   BiocStyle::html_document:
 vignette: >
   %\VignetteIndexEntry{RNA-seq workflow at the gene level}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown}=
 ---
+
+# Disclaimer;
+
+ - This workflow contains only reference to DESeq2 Differential Analysis Expression analysis. I chose to remove reference to other workflows for clarity. 
+ - The starting point for this workflow is an existing or constructed SummarizedExperiment formal R-Class object.
+ - In order to contruct a `SummarizedExperiment` you need at least three things:
+ 
+ 1. The matrix containing raw counts per feature (in rows) and the samples (in columns)
+ 2. The columdata describing the samples and experimental design
+ 3. The rowdata describing the features (annotations)
+
+To construct a SummarizedExperiment you can use the constructor function `SummarizedExperiment()` 
+
 
 # RNA Sequencing {#id}
 
@@ -100,6 +113,9 @@ package, but this version uses the newer
 *airway2* because it contains *Salmon* quantification files, which
 will be discussed later.
 
+## GEO accession number
+The data can also be accessed under accession number `GSE52778`.
+We use this later to access the expression set and construct a SummarizedExperiment formal R-Class object.
 
 ## Preparing count matrices
 
@@ -113,8 +129,7 @@ As input, the count-based statistical methods, such as
 
 ## Count matrix structure
 
-The above packages expect input data as obtained, e.g., from RNA-seq or another
-high-throughput sequencing experiment, in the form of a matrix of counts.
+The above packages expect input data as obtained, e.g., from RNA-seq or another high-throughput sequencing experiment, in the form of a matrix of counts.
 
 This matrix takes the general form:
 ```{r}
@@ -139,172 +154,12 @@ counts
 - Is designed to account for library size differences
 internally.
 
-## Transcript abundances and the *tximport* pipeline
-
-In this workflow, we will use transcript abundances as quantified by the
-[Salmon](https://combine-lab.github.io/salmon/) [@Patro2017Salmon]
-software package. *Salmon* and other methods, such as
-[Sailfish](http://www.cs.cmu.edu/~ckingsf/software/sailfish/) [@Patro2014Sailfish],
-[kallisto](https://pachterlab.github.io/kallisto/) [@Bray2016Near], or 
-[RSEM](http://deweylab.github.io/RSEM/) [@Li2011RSEM],
-estimate the relative abundances of all (known, annotated) transcripts
-without aligning reads. Because estimating the abundance of the
-transcripts involves an inference step, the counts are *estimated*.
-Most methods either use a statistical framework called
-Estimation-Maximization or Bayesian techniques to estimate the
-abundances and counts. 
-
-## Quantification
-Following quantification, we will use the `r Biocpkg("tximport")` [@Soneson2015Differential]
-package for assembling estimated count and offset matrices for use
-with Bioconductor differential gene expression packages. 
-
- - This approach corrects for any potential
-changes in gene length across samples (e.g. from differential isoform
-usage) [@Trapnell2013Differential]; 
- - Some of these methods are substantially faster and require less memory and disk usage compared
-to alignment-based methods; and it is possible to avoid discarding
-those fragments that can align to multiple genes with homologous
-sequence [@Robert2015Errors]. 
-- Note that transcript abundance quantifiers skip the generation of large files which store read alignments (SAM or BAM files), instead producing smaller files which
-store estimated abundances, counts and effective lengths per
-transcript. 
-- For more details, see the manuscript describing this approach
-[@Soneson2015Differential] and the `r Biocpkg("tximport")` package
-vignette for software details.
-
-## *Salmon*
-
-A full tutorial on how to use the *Salmon* software for quantifying
-transcript abundance can be
-found [here](https://combine-lab.github.io/salmon/getting_started/),
-but in the next section we will provide the specific command line code
-that was used to quantify the eight samples that will be used in this workflow. 
-
-## Install *Salmon* in a conda environment called *salmon*
-
-Run this command in the `Linux Terminal` from RStudio or a Bash Terminal
-
-`conda create -n salmon salmon`
-
-
-To activate this environment:
-
-```
-source activate salmon
-```
-
-To deactivate:
-
-```
-source deactivate
-``` 
-
-## *Salmon* quantification
-
-![The Salmon software logo)](img/salmonlogo.png)
-
-We begin by providing *Salmon* with the sequence of all of the
-reference transcripts, which we will call the *reference
-transcriptome*. We used version 27 of the GENCODE human
-transcripts, downloaded from
-the [GENCODE website](https://www.gencodegenes.org/). As of writing,
-GENCODE has already released a newer version, but for computational
-reproducibility, all previous versions are available from the website.
-
-## Downloading the Version 27 human transcripts
-```{r, eval=FALSE}
-url <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_27/gencode.v27.transcripts.fa.gz"
-
-dir.create(file.path(root, "temp"))
-download.file(url = url, 
-              destfile = file.path(root,
-                                  "temp",
-                                  "gencode.v27.transcripts.fa.gz"), cacheOK = FALSE)
-```
-
-## Transcriptome index
-On the command line, creating the transcriptome index looks like:
-
-```
-salmon index -i gencode.v27_salmon_0.10.0 -t gencode.v27.transcripts.fa.gz
-```
-
-The `0.10.0` refers to the version of *Salmon* that was used. As of writing,
-*Salmon* is up to version 0.10.1 and it's always best to use the
-latest version of software available.
-
-To download a file containing the raw read of one sample we can use the `SRA` toolkit from NCBI. We can install the toolkit using
-
-```
-conda install -c bioconda sra-tools
-```
-
-To download one sample (we use the first sample id from the experiment 
-```{r}
-# devtools::install_github("mikelove/airway2")
-library("airway2")
-dir <- system.file("extdata", package="airway2")
-dir
-list.files(dir)
-list.files(file.path(dir,"quants"))[1] 
-
-```
-
-We can download the raw reads from this `r list.files(file.path(dir,"quants"))[1]` sample by using the SRA toolkit in the command  line
-
-```
-prefetch -v SRR1039508
-```
-
-To analyse this sample we need to convert it to fastq and rename to 
-```
-fastq-dump --outdir /home/<user>/ncbi/public/sra/fastq --split-files /home/marc_teunis/ncbi/public/sra/SRR1039508.sra
-```
-
-
-## Calculating transcript abundance for one sample of "airway2"
-
-To quantify an individual sample, `SSR039508`, the following command
-can be used:
-**NOTE:** Mkae sure the gencode.v27 index file is in the same directory as the downloaded raw reads (fastq format). Naviagte into this folder in the Terminal and run the command below. **this takes about 5-10 minutes on an average laptop.**
-```
-salmon quant -i gencode.v27_salmon_0.10.0 -p 6 --libType A \
-  --gcBias --biasSpeedSamp 5 \
-  -1 SRR1039508_1.fastq -2 SRR1039508_2.fastq \
-  -o sample_01
-```
-
-In simple English, this command says to "quantify a sample using this
-transcriptome index, with 6 threads, using automatic 
-[library type](http://salmon.readthedocs.io/en/latest/library_type.html) detection,
-using GC bias correction (the bias speed part is no longer
-needed with current versions of *Salmon*), here are the first and second
-read, and use this output directory." The output directory will be
-created if it doesn't exist, though if earlier parts of the path do
-not exist, it will give an error. A single sample of human RNA-seq
-usually takes ~5 minutes with the GC bias correction.
-
-Rather than writing the above command on the command line, for
-quantifying these eight samples, a simple
-[R script](https://github.com/mikelove/airway2/blob/master/inst/scripts/salmon.R) 
-was written to perform the following *Salmon* calls from R, looping
-over the samples. It is also possible to loop over files using a
-bash loop, or more advanced workflow management
-systems such as Snakemake [@Koster2012Snakemake] or Nextflow
-[@Di2017Nextflow].
-
 ## Importing into R with *tximport*
 
 Following quantification, we can use *tximport* to import the data
-into R and perform statistical analysis using Bioconductor packages.
-Normally, we would simply point *tximport* to the `quant.sf` files on
-our machine. However, because we are distributing these files as part
-of an R package, we have to do some extra steps, to figure out where
-the R package, and so the files, are located on *your* machine.
+into R and perform statistical analysis using Bioconductor packages. Normally, we would simply point *tximport* to the `quant.sf` files on our machine. However, because we are distributing these files as part of an R package, we have to do some extra steps, to figure out where the R package, and so the files, are located on *your* machine.
 
-The output directories from the above *Salmon* quantification calls has been
-stored in the `extdata` directory of the R package called *airway2*. 
+The output directories from the above *Salmon* quantification calls has been stored in the `extdata` directory of the R package called *airway2*. 
 
 ```{r eval=FALSE}
 # install.packages("devtools")
@@ -454,7 +309,10 @@ differential expression of the count data, including
 - `r Biocpkg("baySeq")` [@Hardcastle2010BaySeq].
 @Schurch2016How
 
-## `DESeq2` and `edgeR`
+## `DESeq2`
+
+For clarity we only show the DESeq2 workflow. Below you can find a comparison.
+
 [compared performance](https://www.ncbi.nlm.nih.gov/pmc/articles/pmid/27022035/) 
 of different statistical methods for RNA-seq using a large number of biological replicates and can help to decide which tools make sense to use, and how many
 biological replicates are necessary to obtain a certain sensitivity.
@@ -463,9 +321,7 @@ We will continue using `r Biocpkg("DESeq2")` [@Love2014Moderated] and
 
 ## SummarizedExperiment
 
-The *DESeq2* package will store the data and intermediate results in
-an object called a *DESeqDataSet*. This object builds on top of a
-general Bioconductor class of object called the
+The *DESeq2* package will store the data and intermediate results in an object called a *DESeqDataSet*. This object builds on top of a general Bioconductor class of object called the
 *SummarizedExperiment*. We will therefore first introduce the
 *SummarizedExperiment* and we begin with a diagram of the three
 component pieces:
@@ -487,20 +343,13 @@ polygon(c(45,47,47,45),c(75,75,95,95),col="palegreen3",border=NA)
 text(67.5,85,"colData")
 ```
 
-The *SummarizedExperiment* container is diagrammed in the Figure above
-and discussed in the latest Bioconductor paper [@Huber2015Orchestrating].
+The *SummarizedExperiment* container is diagrammed in the Figure above and discussed in the latest Bioconductor paper [@Huber2015Orchestrating].
 In our case we have created a single matrix named `"counts"` that
 contains the estimated counts for each gene and sample, which is
 stored in `assay`. It is also possible to store multiple matrices,
-accessed with `assays`. The `rowData` for our object will keep track
-of the intermediate calculations for each gene: e.g. the mean of
-normalized counts, the dispersion estimates, the estimated
+accessed with `assays`. The `rowData` for our object will keep track of the intermediate calculations for each gene: e.g. the mean of normalized counts, the dispersion estimates, the estimated
 coefficients and their standard error, etc. We can also include
-information about the location of each gene, in which case, we would
-use `rowRanges` to access the *GenomicRanges* or *GenomicRangesList*
-associated with each gene.The component parts of the
-*SummarizedExperiment* are accessed with an R function of the same
-name: `assay` (or `assays`), `rowRanges`/`rowData` and `colData`. 
+information about the location of each gene, in which case, we would use `rowRanges` to access the *GenomicRanges* or *GenomicRangesList* associated with each gene.The component parts of the *SummarizedExperiment* are accessed with an R function of the same name: `assay` (or `assays`), `rowRanges`/`rowData` and `colData`. 
 
 <a id="construct"></a>
 
@@ -508,27 +357,31 @@ name: `assay` (or `assays`), `rowRanges`/`rowData` and `colData`.
 
 ## Bioconductor Data Classes
 
-Bioconductor software packages often define and use a custom class for
-storing data that makes sure that all the needed data slots are
+Bioconductor software packages often define and use a custom class for storing data that makes sure that all the needed data slots are
 consistently provided and fulfill the requirements.  In addition,
 Bioconductor has general data classes (such as the
 *SummarizedExperiment*) that can be used to move data between
-packages. Additionally, the core Bioconductor classes provide useful
-functionality: for example, subsetting or reordering the rows or
-columns of a *SummarizedExperiment* automatically subsets or reorders
-the associated *rowData* and *colData*, which can help to prevent
-accidental sample swaps that would otherwise lead to spurious
-results. With *SummarizedExperiment* this is all taken care of behind
-the scenes.
+packages. Additionally, the core Bioconductor classes provide useful functionality: for example, subsetting or reordering the rows or columns of a *SummarizedExperiment* automatically subsets or reorders the associated *rowData* and *colData*, which can help to prevent accidental sample swaps that would otherwise lead to spurious results. With *SummarizedExperiment* this is all taken care of behind the scenes.
 
 ## DESeqDataSet
 
  - In *DESeq2*, the custom class is called *DESeqDataSet*. 
  - Main differences with *SummarizedExperiment* is that we will use the
 *counts* function to access the `assay` matrix, 
-- It is required
-that this matrix stores non-negative integers (this is to prevent
-mistaken use of the package for non-count data).
+- It is required that this matrix stores non-negative integers (this is to prevent mistaken use of the package for non-count data).
+
+
+We can construct a *DESeqDataSet* object from the *tximport* object
+using the function *DESeqDataSetFromTximport*:
+
+```{r}
+#BiocManager::install("DESeq2", dependencies = TRUE)
+library(DESeq2)
+dds <- DESeqDataSetFromTximport(txi, coldata, design = ~ cell + dex)
+
+dds
+
+```
 
 
 ## The design formula
@@ -540,21 +393,13 @@ specify the experimental design and how these factors should be used
 in the analysis.
 
 ## Example design formula
+
 The simplest design formula for differential expression would be
 `~ condition`, where `condition` is a column in `colData(dds)` that
 specifies which of two (or more groups) the samples belong to.  For
 the airway experiment, we will specify `~ cell + dex`
 meaning that we want to test for the effect of dexamethasone (`dex`)
 controlling for the effect of different cell line (`cell`). 
-
-We can construct a *DESeqDataSet* object from the *tximport* object
-using the function *DESeqDataSetFromTximport*:
-
-```{r}
-#BiocManager::install("DESeq2", dependencies = TRUE)
-library(DESeq2)
-dds <- DESeqDataSetFromTximport(txi, coldata, design = ~cell + dex)
-```
 
 For running *DESeq2* or *edgeR* models, you can use R's formula notation to
 express any fixed-effects experimental design.
@@ -565,69 +410,6 @@ interaction terms can be included and tested using a design such as
 `~ group + treatment + group:treatment`. See the manual page for
 `?results` for more examples.
 
-## Creating a DGEList for use with *edgeR*
-
-The *edgeR* package uses another type of data container,
-namely a *DGEList* object. It is just as easy to create a *DGEList* object using
-the count matrix and information about samples. We can additionally add
-information about the genes:
-
-```{r}
-genetable <- data.frame(gene.id = rownames(txi$counts))
-```
-
-Because we are using counts from *tximport*, we have a slightly
-different procedure to import them, which involves calculating a
-statistical *offset* that will account for differences in gene length
-across samples. The following code is from the *tximport* vignette in
-the *edgeR* section.
-
-```{r message=FALSE}
-library("edgeR")
-cts <- txi$counts
-normMat <- txi$length
-normMat <- normMat/exp(rowMeans(log(normMat)))
-o <- log(calcNormFactors(cts/normMat)) + log(colSums(cts/normMat))
-```
-
-Actually creating the *DGEList* object simply entails providing the
-counts, sample information, gene and information. The second line adds
-an appropriate offset.
-
-```{r}
-dge <- DGEList(counts = cts,
-               samples = coldata,
-               genes = genetable)
-dge <- scaleOffset(dge, t(t(log(normMat)) + o))
-names(dge)
-```
-
-A much simpler approach with respect to the amount of code is to generate
-counts-from-abundance using *tximport*, which correct for the gene
-length changes directly. Example for this code is:
-
-```{r}
-library(tximport)
-txi2 <- tximport(files, type="salmon", tx2gene=tx2gene,
-                 countsFromAbundance="lengthScaledTPM")
-dge2 <- DGEList(counts = txi2$counts,
-               sample = coldata,
-               gene = genetable)
-names(dge2)
-```
-
-The *counts + offset* method and the *counts-from-abundance* method
-are not statistically identical (obviously), but tend to output
-roughly similar groups of genes. In this dataset, using
-counts-from-abundance has 96% of genes in common with *count + offset*
-at a target 5% FDR.
-
-Just like the *SummarizedExperiment* and the *DESeqDataSet* the
-*DGEList* contains all the information we need: the count matrix,
-information about the samples (columns of the count matrix), and
-information about the genes (rows of the count matrix).
-
-<a id="eda"></a>
 
 # Exploratory analysis and visualization
 
@@ -654,25 +436,10 @@ workflow.
 ```{r}
 pre <- nrow(dds)
 dds <- dds[ rowSums(counts(dds)) > 1, ]
+
+
 post <- nrow(dds)
 (post/pre)*100 # percentage reduction 
-```
-
-Here, we also filter the *DGEList* for *edgeR* in the same way. Note, however,
-that *edgeR* does not apply filtering internally, and for this reason, typically
-a stronger prefiltering criterion is used at this stage for *edgeR*.
-
-```{r}
-dge <- dge[rowSums(round(dge$counts)) > 1, ]
-all(rownames(dge) == rownames(dds))
-```
-
-We use the above code mostly for aiding comparison with *DESeq2* in
-later sections. The recommended filtering code for *edgeR* (here not
-evaluated) is as follows:
-
-```{r, eval=FALSE}
-dge <- dge[filterByExpr(dge),]
 ```
 
 ## Variance stabilizing transformations
@@ -733,22 +500,12 @@ becomes approximately homoskedastic, and can be used directly for
 computing distances between samples, making PCA plots, or as input to
 downstream methods which perform best with homoskedastic data.
 
-**Which transformation to choose?** Mike tends to prefer the VST.  The
-VST is much faster to compute via the function *vst* and is less
-sensitive to high count outliers than the rlog. Perhaps further
-development on the rlog would make it less sensitive to outliers.
-(Why have the rlog at all then? In the DESeq2 paper, the rlog
-sometimes outperformed the VST in terms of recovering clusters when
-there was a large range of sequencing depth across samples e.g. x10
-from lowest to highest sequencing depth.)
+**Which transformation to choose?** Mike tends to prefer the VST.  The VST is much faster to compute via the function *vst* and is less sensitive to high count outliers than the rlog. Perhaps further development on the rlog would make it less sensitive to outliers. (Why have the rlog at all then? In the DESeq2 paper, the rlog sometimes outperformed the VST in terms of recovering clusters when there was a large range of sequencing depth across samples e.g. x10 from lowest to highest sequencing depth.)
 
-Note that the two transformations offered by DESeq2 are provided for
-applications *other* than differential testing. 
+Note that the two transformations offered by DESeq2 are provided for applications *other* than differential testing. 
 For differential testing we recommend the
 *DESeq* function applied to raw counts, as described later
-in this workflow, which also takes into account the dependence of the
-variance of counts on the mean value during the dispersion estimation
-step.
+in this workflow, which also takes into account the dependence of the variance of counts on the mean value during the dispersion estimation step.
 
 Both transformation functions return an object based on the *SummarizedExperiment*
 class that contains the transformed values in its *assay* slot.
@@ -757,6 +514,7 @@ class that contains the transformed values in its *assay* slot.
 vsd <- vst(dds, blind = FALSE)
 head(assay(vsd), 3)
 meanSdPlot(assay(vsd), ranks = FALSE)
+counts(dds)
 ```
 
 ```{r rlog, fig.cap="SD over mean plot for rlog-transformed counts from this workflow."}
@@ -994,7 +752,7 @@ the first level. The comparison is printed at the top of the output:
 
 ```{r}
 res <- results(dds)
-res
+res[1,] %>% as_tibble()
 ```
 
 We could have equivalently produced this results table with the
@@ -1069,8 +827,8 @@ inform the `results()` function about it, so that the function can use this
 threshold for the optimal independent filtering that it performs:
 
 ```{r}
-res.05 <- results(dds, alpha = 0.05)
-table(res.05$padj < 0.05)
+res.05 <- results(dds, alpha = 0.01)
+table(res.05$padj < 0.01)
 ```
 
 If we want to raise the log2 fold change threshold, so that we test
@@ -1144,66 +902,6 @@ argument of *results* should be used. Please see the
 help page for the *results* function for details on the additional
 ways to build results tables. In particular, the **Examples** section of
 the help page for *results* gives some pertinent examples.
-
-## Performing differential expression testing with *edgeR*
-
-Next we will show how to perform differential expression analysis with *edgeR*.
-Recall that we have a `DGEList` `dge`, containing three objects:
-
-```{r}
-names(dge)
-```
-
-We first define a design matrix, using the same formula syntax as for *DESeq2*
-above.
-
-```{r}
-design <- model.matrix(~ cell + dex, dge$samples)
-```
-
-Then, we calculate normalization factors and estimate the dispersion for each
-gene. Note that we need to specify the design in the dispersion calculation.
-
-```{r}
-dge <- calcNormFactors(dge)
-dge <- estimateDisp(dge, design)
-```
-
-Finally, we fit the generalized linear model and perform the test. In the
-`glmLRT` function, we indicate which coefficient (which column in the design
-matrix) that we would like to test for. It is possible to test more general 
-contrasts as well, and the user guide contains many examples on how to do this.
-The `topTags` function extracts the top-ranked genes. You can indicate the
-adjusted p-value cutoff, and/or the number of genes to keep.
-
-```{r edgeRcall}
-fit <- glmFit(dge, design)
-lrt <- glmLRT(fit, coef = ncol(design))
-tt <- topTags(lrt, n = nrow(dge), p.value = 0.1)
-tt10 <- topTags(lrt) # just the top 10 by default
-tt10
-```
-
-We can compare to see how the results from the two software
-overlap:
-
-```{r}
-tt.all <- topTags(lrt, n = nrow(dge), sort.by = "none")
-table(DESeq2 = res$padj < 0.1)
-table(edgeR = tt.all$table$FDR < 0.1)
-```
-
-Also with edgeR we can test for significance relative to a fold-change 
-threshold, using the function `glmTreat` instead of `glmLRT`. Below we set the
-log2 fold-change threshold to 1 (i.e., fold change threshold equal to 2), as for
-DESeq2 above. We also compare the results to those obtained with DESeq2.
-
-```{r}
-treatres <- glmTreat(fit, coef = ncol(design), lfc = 1)
-tt.treat <- topTags(treatres, n = nrow(dge), sort.by = "none")
-table(DESeq2 = resLFC1$padj < 0.1)
-table(edgeR = tt.treat$table$FDR < 0.1)
-```
 
 ## Citing packages used in research
 
@@ -1313,32 +1011,6 @@ small counts, which otherwise generate spikes in the histogram.
 ```{r histpvalue2, fig.cap="Histogram of *p* values for genes with mean normalized count larger than 1."}
 hist(res$pvalue[res$baseMean > 1], breaks = 0:20/20,
      col = "grey50", border = "white")
-```
-
-## Counts plot with *edgeR*
-
-As we made a counts plot previously, we can also make this with the
-top gene from the *edgeR* analysis:
-
-```{r plot-counts-edger, fig.cap="CPM per sample for the top gene from the *edgeR* analysis."}
-cpms <- cpm(dge)
-topGene <- as.character(tt10$table$gene.id[1])
-ord <- order(dge$samples$dex)
-col <- as.integer(dge$samples$dex[ord])
-par(mar=c(10,4,4,2))
-barplot(cpms[topGene,ord],
-        col=c("skyblue","orange")[col],
-        names.arg=paste(dge$sample$dex[ord],"--",dge$sample$cell[ord]),
-        las=2, ylab="counts per million (CPM)")
-```
-
-
-## MA / Smear plot with *edgeR*
-
-In *edgeR*, the MA plot is obtained via the `plotSmear` function. 
-
-```{r plot-smear, out.width="80%", fig.cap="The *edgeR* package includes the `plotSmear` function for generating MA plots."}
-plotSmear(lrt, de.tags = tt$table$gene.id)
 ```
 
 ## Gene clustering
