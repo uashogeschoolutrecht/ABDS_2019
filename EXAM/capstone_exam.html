@@ -649,7 +649,9 @@ $(document).ready(function () {
 <li><a href="#introduction-to-the-exam"><span class="toc-section-number">4</span> Introduction to the exam</a></li>
 <li><a href="#steps-in-the-required-analysis"><span class="toc-section-number">5</span> Steps in the required analysis</a></li>
 <li><a href="#step-1-download-the-data-4-points"><span class="toc-section-number">6</span> <em>STEP 1: Download the data</em> (4 points)</a></li>
-<li><a href="#step2-generate-a-summarizedexperiment-object-4-points"><span class="toc-section-number">7</span> <em>STEP2: Generate a <code>SummarizedExperiment</code> object</em> (4 points)</a></li>
+<li><a href="#step2-generate-a-summarizedexperiment-object-4-points"><span class="toc-section-number">7</span> <em>STEP2: Generate a <code>SummarizedExperiment</code> object</em> (4 points)</a><ul>
+<li><a href="#construct-deseqdataset-from-counts-and-coldata"><span class="toc-section-number">7.1</span> Construct DESeqDataSet from counts and coldata</a></li>
+</ul></li>
 <li><a href="#step3-differential-gene-expression-profile-de-8-points"><span class="toc-section-number">8</span> <em>STEP3: Differential Gene Expression Profile (DE)</em> (8 points)</a></li>
 <li><a href="#step-4-heatmaps-4-points"><span class="toc-section-number">9</span> <em>STEP 4: Heatmaps</em> (4 points)</a></li>
 <li><a href="#step-5-additional-info-2-points"><span class="toc-section-number">10</span> <em>STEP 5: Additional info</em> (2 points)</a></li>
@@ -745,6 +747,16 @@ root
 - `PhenoData`/`ColData`: An annotatedDataFrame with column information, corresponding to the AssayData matrix  
 - `ExperimentData`/Metadata: An object (MIAME) with metainformation about the Experiment
 - `FeatureData`: A dataframe with linkage between the feature ids (usually ensembl_ids or entrez_ids) and additional gene annotions such as symbol (gene_name).</code></pre>
+<div id="construct-deseqdataset-from-counts-and-coldata" class="section level2">
+<h2><span class="header-section-number">7.1</span> Construct DESeqDataSet from counts and coldata</h2>
+<p>If you have the counts and coldata in two seperate files or objects you can construct a DESeqDataset by using the function
+<code>DESeq2::DESeqDataSetFromMatrix()</code></p>
+<p>You need to make sure that the colnames of the counts matrix are equal to the rownames of the coldata</p>
+<p>Example</p>
+<pre><code>DESeq2::DESeqDataSetFromMatrix(countData = ...,
+colData = ..., design = ~ cell + dex)
+</code></pre>
+</div>
 </div>
 <div id="step3-differential-gene-expression-profile-de-8-points" class="section level1">
 <h1><span class="header-section-number">8</span> <em>STEP3: Differential Gene Expression Profile (DE)</em> (8 points)</h1>

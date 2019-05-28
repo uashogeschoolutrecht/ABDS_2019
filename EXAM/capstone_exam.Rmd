@@ -118,6 +118,20 @@ The `SummarizedExperiment` class R object must at least include the following it
     - `ExperimentData`/Metadata: An object (MIAME) with metainformation about the Experiment
     - `FeatureData`: A dataframe with linkage between the feature ids (usually ensembl_ids or entrez_ids) and additional gene annotions such as symbol (gene_name).
 
+## Construct DESeqDataSet from counts and coldata
+If you have the counts and coldata in two seperate files or objects you can construct a DESeqDataset by using the function
+`DESeq2::DESeqDataSetFromMatrix()`
+
+You need to make sure that the colnames of the counts matrix are equal to the rownames of the coldata
+
+Example
+```
+DESeq2::DESeqDataSetFromMatrix(countData = ...,
+colData = ..., design = ~ cell + dex)
+
+```
+
+
 # _STEP3: Differential Gene Expression Profile (DE)_ (8 points)
 Using the workflow explained during the course, run a complete Differential Gene Expression analysis on the supplied dataset.
 

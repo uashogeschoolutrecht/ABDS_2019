@@ -384,6 +384,20 @@ dds
 ```
 
 
+## Construct DESeqDataSet from counts and coldata
+If you have the counts and coldata in two seperate files or objects you can construct a DESeqDataset by using the function
+`DESeq2::DESeqDataSetFromMatrix()`
+
+You need to make sure that the colnames of the counts matrix are equal to the rownames of the coldata
+
+Example
+```
+DESeq2::DESeqDataSetFromMatrix(countData = ...,
+colData = ..., design = ~ cell + dex)
+
+```
+
+
 ## The design formula
 
  - A second difference is that the *DESeqDataSet* has an associated
