@@ -1,0 +1,92 @@
+---
+title: "Package `adventr` Statistics tutorials by Andy Field"
+author: "Marc A.T. Teunis"
+date: '`r Sys.Date()`'
+output:
+  ioslides_presentation: 
+    highlight: pygments
+    widescreen: yes
+---
+
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+```{r, knitr_setup, warning=FALSE, error=FALSE, message=FALSE, include=FALSE}
+## setting knitr options
+if (!require("knitr")) utils::install.packages("knitr")
+library(knitr)
+
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning = FALSE, 
+                      error = FALSE, 
+                      message = FALSE, fig.width = 5, fig.height = 5)
+knitr::opts_knit$set(root.dir = root)
+```
+
+## The `learnr` package is a great tool to learn R. 
+
+The author of the book 'Discovering Statitics Using R' (Prof dr. Andy Field) shared his `learnr` tutorials with me. 
+In this lesson we will be working with Andy's "Milton Rocks" repository and `learnr` to discover how to properly do ANOVA in R. 
+
+## Packages
+```{r, eval=FALSE}
+library(tidyverse)
+#install.packages("lubridate")
+library(devtools)
+install_github("profandyfield/adventr")
+
+```
+
+## Contents:
+
+The tutorials are named to correspond (roughly) to the relevant chapter of the book. For example, adventr_03 would be a good tutorial to run alongside teaching related to chapter 3, and so on.
+
+    adventr_02: Data basics in R and RStudio
+    adventr_03: Summarizing data (introducing ggplot2)
+    adventr_04: Fitting models (central tendency)
+    adventr_05: Presenting data (summarizing groups and more ggplot2)
+    adventr_08: Inferential statistics and robust estimation (covers Chapter 9 too)
+    adventr_11: Hypothesis testing
+    adventr_14: The general linear model
+    adventr_15: Comparing two means
+    adventr_15_rm: Comparing two means (repeated measures)
+    adventr_16: Comparing several means
+    adventr_16_rm: Comparing several means (repeated measures)
+    adventr_17: Factorial designs
+    adventr_mlm: Multilevel models (not covered in the book)
+    adventr_growth: Growth models (not covered in the book)
+    adventr_log: Logistic regression (not covered in the book)
+
+## Running tutorials
+
+To run a tutorial execute:
+
+`learnr::run_tutorial("name_of_tutorial", package = "adventr")`
+
+## Summarizing data
+Let's look at "Summarizing data""
+```{r, eval=FALSE}
+library(adventr)
+learnr::run_tutorial("adventr_03", package = "adventr")
+```
+
+## Comparing two means
+Let's look at "Comparing two means"
+```{r, eval=FALSE}
+learnr::run_tutorial("adventr_15", package = "adventr")
+```
+
+## Multilevel models
+```{r, eval=FALSE}
+learnr::run_tutorial("adventr_mlm", package = "adventr")
+```
+
+## Logistic Regression
+```{r, eval=FALSE}
+learnr::run_tutorial("adventr_log", package = "adventr")
+```

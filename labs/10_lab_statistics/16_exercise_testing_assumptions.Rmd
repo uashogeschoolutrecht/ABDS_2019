@@ -1,0 +1,353 @@
+---
+title: "Exercise - Testing Assumptions"
+author: "Marc A.T. Teunis"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE, 
+                      message = FALSE, 
+                      error = FALSE,
+                      results = 'hide',
+                      fig.show = 'hide')
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+```{r, packages}
+library(tidyverse)
+
+```
+
+__Write an Rmd file, containing code chunks (if applicable) and answer all the questions below. Store the file in a folder called: "./answers_exercises" in your course project folder. Give this file the same name as the title of the current Rmd file__
+
+## Data Transformations
+
+1A) Load the `DownloadFestival(No Outlier).dat` data into R from the folder "./data"
+
+```{r}
+dlf <- read_delim(file = file.path(root, 
+                  "data",                                                                   "DownloadFestival(No Outlier).dat"),
+                  delim = "\t", 
+                  na = c("", " "))
+dlf %>% head(3)
+```
+
+ - Create a 'long' format of the data, gather the Day1:Day3 variables to achieve this, call your new variable for the days `day` and the values you call `hygiene_score`. Use `tidyr::gather` to get there.
+ - Transform the `score` variable by adding four new variables: `score_log10` (log10 transform), `score_log2` (log2 transform), `score_power2` (take each score to the power 2), `score_div_mean` (divide each hygiene score through the mean for the all hygiene scores). 
+ - In this last transformation, how would you deal with missing values?
+
+```{r}
+# long format
+dlf_long <- dlf %>% 
+  tidyr::gather(day1:day3, key = "days", value = "hygiene_score")
+
+# transform
+
+mean_hygiene_score <- mean(dlf_long$hygiene_score, na.rm = TRUE)
+
+dlf_long <- dlf_long %>%
+  dplyr::mutate(score_log10 = log10(hygiene_score),
+                score_log2 = log2(hygiene_score),
+                score_power2 = hygiene_score^2,
+                score_div_mean = hygiene_score / mean_hygiene_score)
+
+
+```
+
+
+
+
+1B) Plot histograms for `score`, `score_log10`, `score_log2`, `score_div_mean`. Facet the histograms for each `day`. Use `ggplot2` to achieve you goal.
+
+```{r}
+# untransformed scores
+names(dlf_long)
+hist_scores <- ggplot(dlf_long, aes(hygiene_score)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="Hygiene score on day 1", y = "Density") +
+  theme(legend.position = "none") +
+  facet_grid(gender ~ days)
+hist_scores
+
+# log 10 transformed scores
+hist_scores_log10 <- ggplot(dlf_long, aes(score_log10)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="Hygiene score on day 1", y = "Density") +
+  theme(legend.position = "none") +
+  facet_grid(gender ~ days)
+hist_scores_log10
+
+# log2 transfromed
+hist_scores_log2 <- ggplot(dlf_long, aes(score_log2)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="Hygiene score on day 1", y = "Density") +
+  theme(legend.position = "none") +
+  facet_grid(gender ~ days)
+hist_scores_log2
+
+hist_scores_power2 <- ggplot(dlf_long, aes(score_power2)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="Hygiene score on day 1", y = "Density") +
+  theme(legend.position = "none") +
+  facet_grid(gender ~ days)
+hist_scores_power2
+
+ggsave(filename = file.path(root, "images", "some_silly_histogram.svg"))
+
+ggsave(filename = file.path(root, "images", "some_silly_histogram.png"))
+
+
+```
+
+1C) Which transformation worked best? Do you know of a way to fomally test this?
+If so, apply your test to the data
+
+```{r, eval=FALSE}
+## Check with Shapiro Wilk: see presentations for Code
+library(pastecs)
+names(dlf_long)
+
+shapiro.test(dlf$day1) # 
+shapiro.test(dlf$day2) 
+shapiro.test(dlf$day3)
+
+
+
+hist(dlf$day1)
+
+
+dlf_nested <- dlf_long %>%
+  group_by(days, gender) %>%
+  nest()
+
+item_1_nested <- dlf_nested$data[[1]]
+
+stat.desc(item_1_nested, norm = TRUE)
+
+dlf_nested$data[[1]]
+
+dlf_descr <- dlf_nested %>%
+  mutate(descriptives = map(data, stat.desc, basic = TRUE, norm = TRUE))
+
+
+dlf_descr$descriptives[[1]][20, c("hygiene_score", "score_log10")]
+
+get_shapiro_wilk <- function(df){
+  p_value <- df[20 , c("hygiene_score", 
+                       "score_log10",
+                       "score_log2",
+                       "score_power2",
+                       "score_div_mean")]
+  return(p_value)
+}
+
+## apply get shapiro to nested table
+dlf_descr <- dlf_descr %>%
+  mutate(shap_wilk = map(descriptives, get_shapiro_wilk))
+
+descriptives <- unnest(dlf_descr, shap_wilk)
+descriptives[ , c("days", 
+                  "gender", 
+                  "hygiene_score", 
+                  "score_log10",
+                  "score_log2",
+                  "score_power2",
+                  "score_div_mean")]
+
+
+class(dlf_nested$data)
+
+```
+
+## Example data: Enzazaden, 
+
+Use the dataset `Wateruptake.xlsx` in folder "./data"
+
+2A) Load the data into R using the `{readxl}` package
+```{r}
+library(readxl)
+library(tidyverse)
+enza <- readxl::read_xlsx(path = file.path(root, "data", "Wateruptake.xlsx"))
+
+new_names <- enza[1,] %>% as.character
+new_names[1] <- "date_time"
+
+names(enza) <- new_names
+enza <- enza[-1,]
+
+names(enza) <- str_replace_all(names(enza), 
+                               pattern = " ", 
+                               replacement = "_") %>%
+tolower()
+
+
+names(enza)
+enza_long <- enza %>%
+  gather(tomaat_1:prei_3, key = "vegetable", value = "wateruptake")
+
+enza_long$wateruptake <- as.numeric(enza_long$wateruptake)
+enza_long$vegetable <- as.factor(enza_long$vegetable)
+
+
+enza_long
+
+```
+
+2B) Inspect the data, do you need to clean the data?
+```{r}
+## many NAs
+sum(is.na(enza_long))
+
+## check class of vars
+lapply(enza_long[, c(1:ncol(enza_long))], class)
+```
+
+2C) Create a tidy dataframe:
+
+ - lower_case variable names
+ - long format of the data, if not already
+ - convert to factors if necessary
+
+```
+# see above
+```
+
+2D) Check normality with Shapiro and Perform a Levene Test for equal variance
+```{r}
+
+## add vegetable type
+enza_long <- enza_long %>%
+  separate(vegetable, 
+  into = c("vegetable_type", "id"), sep = "_", remove = FALSE)
+
+## normality plots
+
+source(file = file.path(root, "code", "ggqq.R"))
+
+gg_qq_1 <- gg_qq(enza_long$wateruptake)
+gg_qq_1 <- gg_qq(log10(enza_long$wateruptake)) 
+  
+# histograms
+hist_enza_all <- ggplot(enza_long, aes(wateruptake)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="wateruptake", y = "Density") +
+  theme(legend.position = "none") 
+hist_enza_all
+
+hist_enza <- ggplot(enza_long, aes(wateruptake)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="wateruptake", y = "Density") +
+  theme(legend.position = "none") +
+  facet_wrap(~ vegetable_type)
+hist_enza
+
+hist_enza_log10 <- ggplot(enza_long, aes(log10(wateruptake))) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="wateruptake", y = "Density") +
+  theme(legend.position = "none") +
+  facet_wrap(~ vegetable_type)
+hist_enza_log10
+
+
+```
+
+
+```{r}
+## Shap-Wilk / Levene
+
+
+enza_nested <- enza_long %>%
+  group_by(vegetable_type) %>%
+  nest()
+
+library(pastecs)
+library(car)
+names(enza_long)
+
+enza_nested$data[[1]]
+
+enza_descr <- enza_nested %>%
+  mutate(descriptives = map(data, stat.desc, basic = TRUE, norm = TRUE))
+
+
+enza_descr$descriptives[[1]][20, ]
+
+get_shapiro_wilk <- function(df){
+  p_value <- df[20 , c("wateruptake")]
+  return(p_value)
+}
+
+## apply get shapiro to nested table
+enza_descr <- enza_descr %>%
+  mutate(shap_wilk = map(descriptives, get_shapiro_wilk))
+
+enza_descr$shap_wilk
+
+descriptives <- unnest(enza_descr, shap_wilk)
+descriptives[, "shap_wilk"]
+
+
+
+
+## isolate only complete cases
+ind <- complete.cases(enza)
+
+enza_complete_long <- enza[ind, ] %>% 
+  gather(tomaat_1:prei_3, 
+         key = "vegetable", 
+         value = "wateruptake") %>%                
+  separate(vegetable, 
+  into = c("vegetable_type", "id"), 
+  sep = "_", remove = FALSE) %>%
+  mutate(wateruptake = as.numeric(wateruptake))
+
+
+hist_enza_all_complete <- ggplot(enza_complete_long, aes(wateruptake)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="wateruptake", y = "Density") +
+  theme(legend.position = "none") 
+hist_enza_all_complete
+
+
+enza_nested_complete <- enza_complete_long %>%
+    separate(vegetable, 
+  into = c("vegetable_type", "id"), sep = "_", remove = FALSE) %>%
+  mutate(wateruptake = as.numeric(wateruptake)) %>%
+  group_by(vegetable_type) %>%
+  nest()
+
+tomato_complete <- enza_nested_complete$data[[1]][, "wateruptake"] %>% na.omit
+onion_complete <- enza_nested_complete$data[[2]][, "wateruptake"] %>% na.omit
+leek_complete <- enza_nested_complete$data[[3]][, "wateruptake"] %>% na.omit
+
+leveneTest(wateruptake ~ vegetable_type, data = enza_long)
+leveneTest(wateruptake ~ vegetable_type, data = enza_complete_long)
+
+
+```
+
+3) How could you fix the normality problem?

@@ -1,0 +1,545 @@
+---
+title: "Statistics; Repeated measures ANOVA (GLM4)"
+author: "Marc A.T. Teunis"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+  ioslides_presentation: 
+    highlight: pygments
+    widescreen: yes
+---
+<style>
+
+.footer {
+    font-size: 16pt;
+    color: Black;
+    font-family: 'Helvetica'
+    content: attr(label);
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align:center;
+    bottom: 10px;
+    line-height: 1.9;
+    display: block;
+}
+
+</style>
+
+<div class="footer" style="margin-top;font-size:120%;"> 
+Data Analysis Using R - November 2017 </div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 10, fig.height = 8,
+                      warning = FALSE,
+                      error = FALSE,
+                      message = FALSE)
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+## References and sources
+
+R Code for Chapter 13 of:
+Field, A. P., Miles, J. N. V., & Field, Z. C. (2012). Discovering Statistics Using R: and Sex and Drugs and Rock 'N' Roll. 
+London Sage
+(c) 2011 Andy P. Field, Jeremy N. V. Miles & Zoe C. Field
+
+## Install packages
+```{r}
+# install.packages("compute.es")
+# install.packages("ez")
+# install.packages("ggplot2")
+# install.packages("multcomp")
+# install.packages("nlme")
+# install.packages("pastecs")
+# install.packages("reshape")
+# install.packages("WRS", repos="http://R-Forge.R-project.org")
+# install.packages("akima")
+
+#Initiate packages
+library(compute.es)
+library(ez)
+library(ggplot2)
+library(multcomp)
+library(nlme)
+library(pastecs)
+library(reshape)
+library(WRS)
+## source("http://www-rcf.usc.edu/~rwilcox/Rallfun-v14")
+# install.packages("nlme")
+```
+
+## Assumptions
+From the testing assumptions we know that there is a normality problem and that there are many missing values. For the analysis below we disregard the normality issue for now. We assume that the data is normally distributed
+
+## Vegetables example
+```{r}
+library(readxl)
+library(tidyverse)
+enza <- readxl::read_xlsx(path = file.path(root, "data", "Wateruptake.xlsx"))
+
+new_names <- enza[1,] %>% as.character
+new_names[1] <- "date_time"
+
+names(enza) <- new_names
+enza <- enza[-1,]
+
+names(enza) <- str_replace_all(names(enza), 
+                               pattern = " ", 
+                               replacement = "_") %>%
+tolower()
+
+
+names(enza)
+enza_long <- enza %>%
+  gather(tomaat_1:prei_3, key = "vegetable", value = "wateruptake")
+
+enza_long$wateruptake <- as.numeric(enza_long$wateruptake)
+enza_long$vegetable <- as.factor(enza_long$vegetable)
+
+
+enza_long
+
+```
+
+How man(y rows does the dataframe have?
+`r nrow(enzo_long)`
+
+## Scatterplot
+```{r}
+enza_long %>% ggplot(aes(x = date_time, y = wateruptake)) +
+  geom_point(aes(colour = vegetable))
+
+
+```
+
+## Trimming could solve normality
+```{r}
+hist_enza_all <- ggplot(enza_long, aes(wateruptake)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="wateruptake", y = "Density") +
+  theme(legend.position = "none") 
+hist_enza_all
+
+## keep all data with wateruptake < 12.5
+
+enza_trimmed <- enza_long %>%
+  filter(wateruptake < 10)
+
+hist_enza_all_trimmed <- ggplot(enza_trimmed, aes(wateruptake^2)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="wateruptake", y = "Density") +
+  theme(legend.position = "none") 
+hist_enza_all_trimmed
+
+shapiro.test(enza_trimmed$wateruptake)
+
+```
+
+Did we solve the normality issue?
+
+
+## EDA
+```{r}
+enza_long %>% ggplot(aes(x = date_time, y = wateruptake)) +
+  geom_point(aes(colour = vegetable))
+```
+
+## Anova with `aov`
+```{r}
+enza_aov <- aov(wateruptake ~ date_time, data = enza_long)
+summary(enza_aov)
+```
+
+## Adding an extra variable `vegatable_type`
+```{r}
+names(enza_long)
+
+# enza_long$vegetable <- as.character(enza_long$vegetable)
+
+enza_long <- enza_long %>%
+  separate(vegetable, 
+  into = c("vegetable_type", "id"), sep = "_", remove = FALSE)
+
+names(enza_long)
+enza_long
+```
+
+## Two way ANOVA with `time` and `vegetable_type` and their interaction `time:vegetable_type` as independent factors (non-repeated measures)
+```{r}
+enza_long$date_time <- as.factor(enza_long$date_time)
+aov_two_way_enza <- aov(wateruptake ~ date_time + vegetable_type + 
+                        date_time:vegetable_type, 
+                        data = enza_long)
+summary(aov_two_way_enza)
+```
+
+
+## Setting and using contrasts
+```{r}
+enza_long$vegetable_type <- as.factor(enza_long$vegetable_type)
+
+levels(enza_long$vegetable_type %>% na.omit)
+
+contrasts <- cbind(c(0, 1, -1),
+                  c(1, -1, 0))
+
+
+aov_two_way_enza <- aov(wateruptake ~ vegetable_type,
+                        data = enza_long)
+                        
+
+pairwise.t.test(enza_long$wateruptake, enza_long$vegetable_type,
+                p.adjust.method = "BH")
+
+```
+
+## Interpretation of ANOVA results
+This independent ANOVA with `aov()` reveals a significant effect of `vegetable_type` on `wateruptake`, meaning that the wateruptake between vegetable types in the dataset differs significantly. The effect of `date_time` on `wateruptake` is also significant, meaning that wateruptake increases (see the graph) significantly over time. There is no significant interaction, meaning that the effect that time has on wateruptake is the same for every vegetable type (the lines run parallel or do not cross). 
+
+Let's look a summary plot for the lines to see if they indeed run parallel:
+```{r}
+library(lubridate)
+enza_long$date_time <- as_datetime(enza_long$date_time)
+enza_long %>%
+  group_by(vegetable_type, date_time) %>%
+  summarise(mean_wateruptake = mean(wateruptake)) %>%
+  ggplot(aes(x = lubridate::as_datetime(date_time),
+             y = mean_wateruptake)) +
+  geom_point(aes(colour = vegetable_type), size = 4) +
+  geom_point(data = enza_long, aes(x = lubridate::as_datetime(date_time), y = wateruptake, colour = vegetable_type), size = 0.2, alpha = 4/5)
+
+```
+
+What do you think?
+
+ - What - Is the mean a good model for the data?
+ - How could you deal with the missing values?
+ other model would suit this data?
+ 
+## Let's transform the `wateruptake`
+```{r}
+library(lubridate)
+enza_long$date_time <- as_datetime(enza_long$date_time)
+enza_long %>%
+  group_by(vegetable_type, date_time) %>%
+  summarise(mean_wateruptake = mean(wateruptake)) %>%
+  ggplot(aes(x = lubridate::as_datetime(date_time),
+             y = mean_wateruptake^8)) +
+  geom_point(aes(colour = vegetable_type), size = 4) +
+  geom_point(data = enza_long, aes(x = lubridate::as_datetime(date_time), y = wateruptake^8, colour = vegetable_type), size = 0.2, alpha = 4/5) 
+```
+ 
+## Transformations
+So we could conclude that taken the i-th power of each value for wateruptake yield an approximate straight line. Is this a good idea? 
+
+## Checking normality
+Do you know how to check normality of this data?
+
+## Repeated measures ANOVA using `lme`
+First we remove the onions because the data for this vegetable is very incomplete and possible disrupts the model too much. 
+```{r}
+
+sum(is.na(enza_long))
+enza_long_no_na <- na.omit(enza_long)
+
+
+removed_onion <- enza_long %>%
+  filter(vegetable_type != "ui") %>%
+  droplevels() %>%
+  mutate(date_time = as.factor(date_time),
+         vegetable_type = as_factor(vegetable_type),
+         wateruptake = scale(.$wateruptake, scale = FALSE)) %>%
+  na.omit()
+
+
+```
+
+
+```{r, eval = FALSE}
+library(tidyverse)
+
+## baseline model
+veggies_baseline <-lme(wateruptake ~ 1, 
+                         random = ~1|vegetable/date_time, 
+                         data = removed_onion, method = "ML")
+
+
+anova(veggies_baseline) %>% stargazer::stargazer()
+
+
+## only fixed effects
+veggies_fixed <- lm(wateruptake ~ vegetable_type, data = removed_onion)
+AIC(veggies_fixed)
+AIC(veggies_baseline) # select the model with lowest AIC (Akaike Information Criteria)
+
+
+## add vegetable_type as predictor
+veggies_veggie_type <-update(veggies_baseline, .~. + vegetable_type)
+AIC(veggies_veggie_type)
+anova(veggies_veggie_type)
+
+## add date_time as predictor
+veggies_date_time <-update(veggies_veggie_type, .~. + date_time)
+AIC(veggies_date_time)
+anova(veggies_date_time)
+
+## add interaction
+# veggies_full <-update(veggies_date_time, .~. + vegetable_type:date_time)
+# does not work due to numerical instability of the data:
+# Error in MEEM(object, conLin, control$niterEM) : 
+#  Singularity in backsolve at level 0, block 1
+# try transformations!!
+
+write_rds(veggies_date_time, path = file.path(root, "data", "mlm_complete_model.rds"))
+
+results_multilevel_model <-anova(veggies_baseline, veggies_veggie_type, 
+                                 veggies_date_time)
+results_multilevel_model
+summary(veggies_date_time)
+
+library(readr)
+
+write_rds(results_multilevel_model, path = file.path(root, "data", "wateruptake_model.rds"))
+
+```
+
+# Explore data - some more!
+
+## Impute or extrapolate missing values
+```{r}
+
+anova_models <- read_rds(path = file.path(root, "data", "wateruptake_model.rds"))
+complete_mlm <- read_rds(path = file.path(root, "data", "mlm_complete_model.rds"))
+
+## missingness
+pMiss <- function(x){sum(is.na(x))/length(x)*100}
+apply(enza,2,pMiss)
+apply(enza,1,pMiss)
+
+## amelia to plot missing values
+# install.packages("Amelia")
+library(Amelia)
+missmap(enza, main = "Missing values vs observed")
+
+
+## There is a lot of missingness in the vegetables
+## We can try to extrapolate the data from the point where it is missing on the basis of a logistic regression model
+enza_long$date_time <- as_datetime(enza_long$date_time)
+enza_long %>%
+  group_by(vegetable_type, date_time) %>%
+  summarise(mean_wateruptake = mean(wateruptake)) %>%
+  ggplot(aes(x = lubridate::as_datetime(date_time),
+             y = mean_wateruptake)) +
+  geom_point(aes(colour = vegetable_type), size = 4) +
+  geom_point(data = enza_long, aes(x = lubridate::as_datetime(date_time), y = wateruptake, colour = vegetable_type), size = 0.2, alpha = 4/5) 
+
+# convert time to numbers
+enza_long$date_time_num <- as.numeric(enza_long$date_time) %>%
+  abs()
+
+enza_long %>%
+  group_by(vegetable_type, date_time_num) %>%
+  summarise(mean_wateruptake = mean(wateruptake)) %>%
+  ggplot(aes(x = date_time_num,
+             y = mean_wateruptake)) +
+  geom_point(aes(colour = vegetable_type), size = 4) +
+  geom_point(data = enza_long, aes(x =  date_time_num, y = wateruptake, colour = vegetable_type), size = 0.2, alpha = 4/5)
+
+```
+
+## Plotting a logisitc model
+```{r}
+
+## linear
+glm_model_1 <- glm(log10(wateruptake) ~ poly(date_time_num,1,raw=TRUE) + vegetable_type, data = enza_long)
+
+## second_degree
+glm_model_2 <- glm(wateruptake ~ poly(date_time_num,2,raw=TRUE) + vegetable_type, data = enza_long)
+
+## third degree
+glm_model_3 <- glm(wateruptake ~ poly(date_time_num,3,raw=TRUE) + vegetable_type, data = enza_long)
+
+## forth degree
+glm_model_4 <- glm(wateruptake ~ poly(date_time_num,4,raw=TRUE) + vegetable_type, data = enza_long)
+
+
+model_list <- list(glm_model_1,
+                   glm_model_2,
+                   glm_model_3,
+                   glm_model_4)
+
+lapply(model_list, summary)
+
+## the AIC does not deacrease from model two to model three, model two is better than model 1 but model 3 and 4 do not increase the fit.
+
+ind <- is.na(enza_long$wateruptake)
+missing_date_time <- enza_long[ind, ]
+
+# impute missing data <- missing_date_time$date_time
+
+new_dv <- predict(glm_model_2, newdata = data.frame(date_time_num = missing_date_time$date_time_num, vegetable_type = missing_date_time$vegetable_type))
+
+new_dv
+
+new_data <- tibble(date_time = missing_date_time$date_time, 
+                   wateruptake = new_dv, 
+                   date_time_num = missing_date_time$date_time_num,                              vegetable_type = missing_date_time$vegetable_type,
+                    vegetable = missing_date_time$vegetable)
+
+
+p <- enza_long %>%
+  group_by(vegetable_type, date_time_num) %>%
+  summarise(mean_wateruptake = mean(wateruptake)) %>%
+  ggplot(aes(x = date_time_num,
+             y = mean_wateruptake)) +
+  geom_point(aes(colour = vegetable_type), size = 4) +
+  geom_point(data = enza_long, aes(x = date_time_num, 
+                                   y = wateruptake, 
+                                   colour = vegetable_type), 
+             size = 0.2, alpha = 4/5)  +
+  geom_smooth(data = new_data, (aes(x = date_time_num,
+                                   y = wateruptake,
+                                   group = vegetable_type)),
+             colour = "purple")
+
+p
+
+## Generate full MLM model with interactions
+
+
+names(new_data)
+names(enza_long)
+
+
+replaced_data <- full_join(na.omit(enza_long), missing_date_time, by = "date_time")
+names(replaced_data)
+sum(is.na(replaced_data))
+missmap(replaced_data, main = "Missing values vs observed")
+names(new_data)
+
+p <- new_data %>%
+  dplyr::select(date_time, 
+                vegetable, 
+                vegetable_type,
+                wateruptake) %>%
+#  group_by(vegetable_type.x, date_time) %>%
+#  summarise(mean_wateruptake = mean(wateruptake.x)) %>%
+  ggplot(aes(x = date_time,
+             y = wateruptake)) +
+  geom_point(aes(colour = vegetable_type), 
+             size = 0.5,
+             shape = 4 ) +
+  geom_point(data = enza_long, aes(x = date_time, 
+                                   y = wateruptake, 
+                                   colour = vegetable_type), 
+             size = 0.2, 
+             alpha = 3/5,
+             shape = 1) 
+
+p
+
+
+
+## summary figure 
+
+
+```
+
+Now we can create a full model with interactions
+We fisrt have to set contrasts, in this case only for the vegetable_type variable
+```{r}
+
+
+
+new_data$vegetable_type %>% as.factor %>%
+  levels
+
+prei_tomaat <- c(1, 0, 0)
+prei_ui <- c(0, 1, 0)
+tomaat_ui <- c(0, 0, 1)
+
+contrasts(new_data$vegetable_type) <- cbind(prei_tomaat,
+                                            prei_ui,
+                                            tomaat_ui)
+
+contrasts(new_data$vegetable_type)
+names(new_data)
+
+
+
+
+
+veggies_baseline_new <-lme(wateruptake ~ 1, 
+                       random = ~1|vegetable/date_time, 
+                       data = new_data, method = "ML", 
+                       na.action = na.omit)
+
+summary(veggies_baseline_new)
+
+anova(veggies_baseline_new)
+
+
+## only fixed effects
+veggies_fixed_new <- lm(wateruptake ~ vegetable_type, 
+                        data = new_data)
+AIC(veggies_fixed_new)
+AIC(veggies_baseline_new) # select the model with lowest AIC (Akaike Information Criteria)
+
+
+## add vegetable_type as predictor
+veggies_veggie_type_new <-update(veggies_baseline_new, .~. + vegetable_type)
+
+AIC(veggies_veggie_type_new)
+anova(veggies_veggie_type_new)
+
+## add date_time as predictor
+veggies_type_time_new <-update(veggies_veggie_type_new, .~. + date_time)
+
+AIC(veggies_type_time_new)
+anova(veggies_type_time_new)
+
+## add interaction
+veggies_full <-update(veggies_type_time_new, .~. + vegetable_type:date_time)
+
+AIC(veggies_full)
+anova(veggies_full)
+
+
+# does not work due to numerical instability of the data:
+# Error in MEEM(object, conLin, control$niterEM) : 
+#  Singularity in backsolve at level 0, block 1
+# try transformations!!
+summary(veggies_full)
+
+
+
+```
+
+## A final plot of the new data
+```{r}
+
+names(replaced_data)
+replaced_data %>%
+  dplyr::select(date_time,
+         wateruptake.x,
+         vegetable_type.x,
+         vegetable.x) %>%
+  group_by(vegetable_type.x, date_time) %>%
+  summarise(mean_wateruptake = mean(wateruptake.x)) %>%
+  ggplot(aes(x = date_time, y = mean_wateruptake)) +
+    geom_point(aes(colour = vegetable_type.x))
+
+```

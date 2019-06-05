@@ -1,0 +1,570 @@
+---
+title: "Statistics; Checking Assumptions"
+author: "Marc A.T. Teunis"
+date: "January 26, 2018"
+output: html_document
+  
+---
+<style>
+
+.footer {
+    font-size: 16pt;
+    color: Black;
+    font-family: 'Helvetica'
+    content: attr(label);
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align:center;
+    bottom: 10px;
+    line-height: 1.9;
+    display: block;
+}
+
+</style>
+
+<div class="footer" style="margin-top;font-size:120%;"> 
+Intro to Statistics Using R - November 2017 </div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 5, fig.height = 3,
+                      warning = FALSE,
+                      error = FALSE,
+                      message = FALSE)
+```
+
+```{r, root_1, include=FALSE}
+## defines the root of the project for later use
+require("rprojroot") || utils::install.packages("rprojroot")
+library(rprojroot)
+root <- find_root_file(criterion = is_rstudio_project)
+```
+
+## References and sources
+
+This tutorial was inspired by the
+R Code for Chapter 5 of:
+
+Field, A. P., Miles, J. N. V., & Field, Z. C. (2012). 
+
+`Discovering Statistics Using R: and Sex and Drugs and Rock 'N' Roll. `
+
+London Sage
+(c) 2011 Andy P. Field, Jeremy N. V. Miles & Zoe C. Field
+
+## Assumptions
+
+ - Each statistical test implies assumptions for the design, the structure, the distribution and the variance in the data
+ - Selecting the wrong test for the wrong data will lead to over- or underestimation of statistical validity and probably to wrong conclusions  
+ - Assumptions can be checked by creating graphs and perfoming tests, there can be confusion!
+ - Before checking assumptions we do `Exploratory Data Analysis`
+ 
+## The data
+
+ - Data from the book "Discovering Statitics Using R" 
+ - Case: Dataset supplied by Sacha Kofman (Enzazaden NL)
+
+## Install and Load Packages
+```{r, packages}
+# install.packages("car")
+# install.packages("ggplot2")
+# install.packages("pastecs")
+# install.packages("psych")
+library(car)
+library(ggplot2)
+library(pastecs)
+library(psych)
+# library(Rcmdr)
+library(tidyverse)
+```
+
+## Read in the download data:
+```{r}
+dlf <- read_delim(file = file.path(root, 
+                                   "data", 
+                                   "DownloadFestival.dat"), 
+                                   delim =  "\t", na = c("", " "))
+dlf %>% head(3)
+```
+
+## Checking distribution and detecting outliers
+```{r}
+sum(is.na(dlf))
+x <- summary(dlf)
+min_maxs <- x[c(1, 6), c(3:5)] %>% unlist() %>% print()
+```
+
+## Detecting an outlier with a histogram
+```{r}
+hist.outlier <- ggplot(dlf, aes(day1)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="Hygiene score on day 1", y = "Density") +
+  theme(legend.position = "none")
+hist.outlier
+```
+
+## Transform data to a different format (convert to `long/stacked`)
+```{r}
+dlf_long <- dlf %>% 
+  tidyr::gather(day1:day3, key = "days", value = "hygiene_score")
+```
+
+## Boxplots with outlier
+```{r, echo=FALSE}
+hist.boxplot <- dlf_long %>%
+  ggplot(aes(x = days, y = hygiene_score)) + 
+  geom_boxplot(aes(group = days)) +
+  geom_point(data = dplyr::filter(dlf_long, hygiene_score > 19), 
+             colour = "darkred", size = 2.5) +
+  labs(x="Hygiene score on day 1", y = "Hygiene Score") +
+  theme(legend.position = "none") + 
+  facet_wrap(~ gender)
+hist.boxplot
+```
+
+## Remove outlier
+```{r}
+dlf <- dlf %>%
+  dplyr::filter(!day1 > 19)
+```
+
+## Boxplots without outlier
+```{r}
+hist.boxplot <- dlf %>%
+  tidyr::gather(day1:day3, key = "days", value = "hygiene_score") %>%
+  ggplot(aes(x = days, y = hygiene_score)) + 
+  geom_boxplot(aes(group = days)) + 
+  labs(x="Hygiene score on day 1", y = "Hygiene Score") +
+  theme(legend.position = "none") + 
+  facet_wrap(~ gender)
+hist.boxplot
+```
+
+# Histograms for hygiene scores on day 1, day 2 and day 3.
+
+## Histogram for day 1:
+```{r}
+hist.day1 <- ggplot(dlf, aes(day1)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="Hygiene score on day 1", y = "Density") +
+  theme(legend.position = "none")
+  
+hist.day1
+```
+
+## Histogram for day 2
+```{r}
+hist(dlf$day2)
+
+hist.day2 <- ggplot(dlf, aes(day2)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x="Hygiene score on day 2", y = "Density") +
+  theme(legend.position = "none")
+hist.day2
+```
+
+## Histogram for day 3
+```{r}
+hist.day3 <- ggplot(dlf, aes(day3)) + 
+  theme(legend.position = "none") + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", fill="white") + 
+  labs(x="Hygiene score on day 3", y = "Density")
+hist.day3
+```
+
+```{r, include=FALSE}
+## store to disk
+imageDirectory <- file.path(root, "images")
+p1 <- hist.day1 + 
+  stat_function(fun = dnorm, 
+                args = list(mean = mean(dlf$day1, na.rm = TRUE), 
+                sd = sd(dlf$day1, na.rm = TRUE)), 
+                colour = "black", size = 1)
+
+ggsave(file = paste(imageDirectory,"05 DLF Day 1 Hist.png",sep="/"))
+
+p2 <- hist.day2 + 
+  stat_function(fun = dnorm, 
+                args = list(mean = mean(dlf$day2, 
+                na.rm = TRUE), 
+                sd = sd(dlf$day2, na.rm = TRUE)), 
+                colour = "black", size = 1)
+
+ggsave(file = paste(imageDirectory,"05 DLF Day 2 Hist.png",sep="/"))
+
+p3 <- hist.day3 + 
+  stat_function(fun = dnorm, 
+                args = list(mean = mean(dlf$day3, 
+                na.rm = TRUE), 
+                sd = sd(dlf$day3, na.rm = TRUE)), 
+                colour = "black", size = 1) +
+  
+
+ggsave(file = paste(imageDirectory,"05 DLF Day 3 Hist.png",sep="/"))
+```
+
+## Panel of histograms + distribution density
+```{r, fig.width=6, fig.height=4}
+cowplot::plot_grid(p1, p2, p3, nrow = 1)
+```
+
+# Check for normality by graphs; qq-plot
+
+## Q-Q plot for day 1
+```{r}
+qqplot.day1 <- qplot(sample = dlf$day1, geom = "qq")
+qqplot.day1
+```
+
+## Or antoher way with a home brewed function in ggplot2
+```{r}
+source(file = file.path(root, "code", "ggqq.R"))
+gg_qq_1 <- gg_qq(dlf$day1)
+gg_qq_1
+```
+
+## Q-Q plot for day 2:
+```{r}
+qqplot.day2 <- qplot(sample = dlf$day2, geom = "qq")
+qqplot.day2
+```
+
+## Or via the other alternative way
+```{r}
+gg_qq_2 <- gg_qq(dlf$day2)
+gg_qq_2
+```
+
+## Q-Q plot of the hygiene scores on day 3
+```{r}
+qqplot.day3 <- qplot(sample = dlf$day3, geom = "qq")
+qqplot.day3
+```
+
+## Or
+```{r}
+gg_qq(dlf$day3)
+```
+
+## Skewness and kurtosis
+Skewness and kurtosis are parameters that display the deviation from normality looking at the shape of the distribution polynom. A distribution with an absolute `skew.2SE` > 1 is significantly skewed and not normal. A distribution with an absolute `kurt.2SE` > 1 has significant kurtosis and is not normally distributed
+
+`kurt.2SE` and `skew.2SE` are calculated from
+
+ - $kurt.2SE = kurt / 2*(standard.error)$ 
+ - $skew.2SE = skew / 2*(standard.error)$
+ 
+## `Shapiro-Wilk test` 
+To test for normality we can use the `Shapiro-Wilk test`. This test checks whether the deviation from normality is significant (H0) or not (H1), 
+
+ - p-value < 0.05 means that the distribution is significantly different from a normal distribution: assumption "the distribution is not normal"
+ - p-value > 0.05 means that the distribution is not significantly different from normal: assumption "the distribution is normal"
+ 
+## Quantifying normality with numbers
+```{r}
+library(psych)		
+describe(dlf$day1)
+```
+
+## Two alternative ways to describe multiple variables.
+```{r}
+describe(cbind(dlf$day1, dlf$day2, dlf$day3)) %>% knitr::kable()
+```
+
+## Second way
+```{r}
+knitr::kable(describe(dlf[,c("day1", "day2", "day3")]))
+```
+
+
+## `stat.desc()` to get descriptive statistics for a dataframe or a variable 
+```{r}
+library(pastecs)
+stat.desc(dlf$day1, basic = FALSE, norm = TRUE)
+stat.desc(cbind(dlf$day1, dlf$day2, dlf$day3), basic = FALSE, norm = TRUE)
+round(stat.desc(dlf[, c("day1", "day2", "day3")], basic = FALSE, norm = TRUE), digits = 3)
+```
+
+# R exam case
+
+The R exam data file `./data/RExam.dat` contains data on the performance of students on an R exam (data from Field et al., 2012).
+The variables:
+
+This data consists of 5 variables: 
+
+ - `exam` first-year exams scores as a percentage (numeric / continous)
+ - `computer` measure of computer literacy as a percentage (numeric / continuous)
+ - `lectures` percentage of lectures in the R class attended, as a percentage (numeric / continuous)
+ - `numerical` arbitrary score from 1-15 on the ability to cope with numbers ("statistical literacy") (integer / ordinal)
+ - `uni` the university where the student taking the R class attends (factor)
+
+## Read in R exam data.
+```{r}
+rexam <- read_delim(file = file.path(root, "data", "RExam.dat"), delim = "\t")
+rexam %>% head(3)
+```
+
+## Set the variable `uni` to be a factor
+```{r}
+library(forcats)
+rexam <- rexam %>%
+  mutate(uni = as.factor(uni)) %>%
+  mutate(uni = forcats::fct_recode(uni, duncetown_university = "0", sussex_university = "1")) 
+rexam %>% head(3)
+```
+
+## Long format
+```{r}
+rexam_long <- rexam %>%
+  gather(exam:numeracy, key = "measure", value = "value")
+rexam_long
+```
+
+## Normality test and skewness
+```{r}
+round(stat.desc(rexam[, c("exam", "computer", "lectures", "numeracy")], 
+                basic = FALSE, norm = TRUE), 
+                digits = 3)
+```
+
+# Histograms of all variables
+
+## Histogram for all data together
+```{r}
+all_data_hist <- rexam_long %>%
+  ggplot(aes(value)) + 
+  geom_histogram(aes(y=..density..), 
+                colour="black", fill="white")
+all_data_hist
+```
+
+## `exam` histogram
+```{r}
+hexam <- ggplot(rexam, aes(exam)) + 
+  geom_histogram(aes(y=..density..), 
+                colour="black", fill="white") + 
+  labs(x = "First Year Exam Score", 
+                y = "Density") + 
+  stat_function(fun = dnorm, 
+                args = list(mean = mean(rexam$exam, na.rm = TRUE), 
+                sd = sd(rexam$exam, na.rm = TRUE)), 
+                colour = "red", size = 1) + 
+  theme(legend.position = "none") 
+hexam
+```
+
+## `computer` histogram
+```{r, eval=FALSE}
+hcomputer <- ggplot(rexam, aes(computer))  + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", 
+                 fill="white") + 
+  labs(x = "Computer Literacy", 
+                 y = "Density") + 
+  stat_function(fun = dnorm, 
+                 args = list(mean = mean(rexam$computer, na.rm = TRUE), 
+                 sd = sd(rexam$computer, na.rm = TRUE)), 
+                 colour = "red", size = 1) + 
+  theme(legend.position = "none")
+hcomputer
+```
+
+## `lectures`
+```{r}
+hlectures <- ggplot(rexam, aes(lectures)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", fill="white") + 
+  labs(x = "Percentage of Lectures Attended", y = "Density") + 
+  stat_function(fun = dnorm, 
+                 args = list(mean = mean(rexam$lectures, na.rm = TRUE), 
+                 sd = sd(rexam$lectures, na.rm = TRUE)), 
+                 colour = "red", size = 1) + 
+  theme(legend.position = "none")
+hlectures
+```
+
+## `numeracy`
+```{r}
+hnumeracy <- ggplot(rexam, aes(numeracy)) + 
+  geom_histogram(aes(y=..density..), 
+                 colour="black", fill="white") + 
+  labs(x = "Numeracy", 
+                 y = "Density") + 
+  stat_function(fun = dnorm, 
+                 args = list(mean = mean(rexam$numeracy, na.rm = TRUE), 
+                 sd = sd(rexam$numeracy, na.rm = TRUE)), 
+                 colour = "red", size = 1) + 
+  theme(legend.position = "none")
+hnumeracy
+```
+
+# Using `{purrr}` to get statistics for many variables
+```{r}
+library(broom)
+library(purrr)
+```
+
+## `nest()` to get a list of dataframes
+```{r}
+names(rexam)
+rexam_by_var <- rexam %>%
+  as_tibble() %>%
+  gather(exam:numeracy, key = "measure", value = "value") %>%
+  group_by(uni, measure) %>%
+  nest()
+rexam_by_var
+```
+
+## Adding a column with descriptive statistics with `mutate()`
+```{r}  
+rexam_descr <- rexam_by_var %>%
+  mutate(descriptives = map(data, stat.desc, basic = TRUE, norm = TRUE))
+rexam_descr
+```
+
+## Shapiro: 
+
+## Getting the Shapiro-Wilk results: a function
+```{r}
+get_shapiro_wilk <- function(df){
+  p_value <- df[ , 1][20]
+  return(p_value)
+}
+```
+
+## Apply function to nested table and unnest
+```{r}
+rexam_descr <- rexam_descr %>%
+  mutate(shap_wilk = map(descriptives, get_shapiro_wilk))
+descriptives <- unnest(rexam_descr, shap_wilk)
+descriptives[ , c("uni", "measure", "shap_wilk")]
+```
+
+## Plot results Shapiro-Wilk test
+```{r}
+descriptives[ , c("uni", "measure", "shap_wilk")] %>%
+  ggplot(aes(x = measure, y = shap_wilk)) +
+  geom_point(aes(colour = uni), size = 2) +
+  geom_hline(yintercept= 0.05, linetype="dotted", size = 1.5)
+
+```
+
+## Plotting a histrogram for each `measure` and each university, using `facets`
+```{r}
+hist_measure <- rexam_long %>%
+    ggplot(aes(x = value)) +
+  geom_histogram(aes(y = ..density..), 
+                 fill = "white", 
+                 colour = "black", 
+                 binwidth = 1) + 
+  labs(x = "Arbitrary Units", y = "Density") +
+  facet_grid(uni ~ measure) 
+#hist_measure
+```
+
+## Plot `measure`
+```{r}
+hist_measure
+```
+
+## Plotting a histogram per `computer` using `dplyr::filter()`; `computer`
+```{r}
+ hist_computer <- rexam_long %>%
+  dplyr::filter(measure == "computer") %>%
+    ggplot(aes(x = value)) +
+  geom_histogram(aes(y = ..density..), 
+                 fill = "white", 
+                 colour = "black", 
+                 binwidth = 1) + 
+  labs(x = "Arbitrary Units", y = "Density") + 
+  ggtitle("Computer literacy") +
+  geom_line(aes(y = ..density..), colour=26, stat = 'density', size = 2, alpha = .6) +
+  facet_wrap(~ uni)
+```
+
+## Plot `computer`
+```{r}
+hist_computer
+```
+
+## Plotting a histogram per group using `dplyr::filter()`; `exam`
+```{r}
+plot_exam <- rexam_long %>%
+  dplyr::filter(measure == "exam") %>%
+    ggplot(aes(x = value)) +
+  geom_histogram(aes(y = ..density..), 
+                 fill = "white", 
+                 colour = "black", 
+                 binwidth = 1) + 
+  labs(x = "Arbitrary Units", y = "Density") + 
+  ggtitle("First year exam") +
+  geom_line(aes(y = ..density..), colour=25, stat = 'density', size = 2, alpha = .6) +
+  facet_wrap(~ uni)
+```
+
+## Plot `exam`
+```{r}
+plot_exam
+```
+
+## Plotting a histogram per group using `dplyr::filter()`; `numeracy`
+```{r}
+plot_numeracy <- rexam_long %>%
+  dplyr::filter(measure == "numeracy") %>%
+    ggplot(aes(x = value)) +
+  geom_histogram(aes(y = ..density..), 
+                 fill = "white", 
+                 colour = "black", 
+                 binwidth = 1) + 
+  labs(x = "Arbitrary Units", y = "Density") + 
+  ggtitle("Numerical literacy") +
+  geom_line(aes(y = ..density..), colour=26, stat = 'density', size = 2, alpha = .6) +
+  facet_wrap(~ uni)
+```
+
+## Plot `numeracy`
+```{r}
+plot_numeracy
+```
+
+## qqplots for the two variables
+```{r}
+qplot(sample = rexam$exam, stat="qq")
+qplot(sample = rexam$numeracy, stat="qq")
+```
+
+## Testing for equal variance (sample estimates)
+
+$s_2 = {\frac{1}{{N - 1}}\sum\limits_{i = 1}^N {\left( {x_i - \bar x} \right)^2 } }$
+
+$sd = {\sqrt\frac{1}{{N - 1}}\sum\limits_{i = 1}^N {\left( {x_i - \bar x} \right)^2 } }$
+
+## Levene's Test
+```{r, eval=FALSE}
+
+leveneTest(rexam$exam, rexam$uni)
+leveneTest(rexam$exam, rexam$uni, center = mean)
+leveneTest(rexam$numeracy, rexam$uni)
+```
+
+# Fixing data errors and data transformations
+
+## Transforming data
+
+ - To remove skewness or kurtosis
+ - Apply the __*same*__ transformation to __*all variables*__
+ - After transformation and analysis, sometimes you need to inverse-transform
+ - It can be a time comsuming process: 'trial-and-error'
+
+--> Exercise 
+
+
