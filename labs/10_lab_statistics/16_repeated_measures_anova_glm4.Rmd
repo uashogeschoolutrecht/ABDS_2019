@@ -163,7 +163,7 @@ enza_aov <- aov(wateruptake ~ date_time, data = enza_long)
 summary(enza_aov)
 ```
 
-## Adding an extra variable `vegatable_type`
+## Adding an extra variable `vegetable_type`
 ```{r}
 names(enza_long)
 

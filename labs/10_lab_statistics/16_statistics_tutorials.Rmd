@@ -81,11 +81,6 @@ Let's look at "Comparing two means"
 learnr::run_tutorial("adventr_15", package = "adventr")
 ```
 
-## Multilevel models
-```{r, eval=FALSE}
-learnr::run_tutorial("adventr_mlm", package = "adventr")
-```
-
 ## Logistic Regression
 ```{r, eval=FALSE}
 learnr::run_tutorial("adventr_log", package = "adventr")

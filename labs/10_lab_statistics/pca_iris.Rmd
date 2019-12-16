@@ -1,0 +1,142 @@
+---
+title: "Principal Component Analysis"
+author: "Marc A.T. Teunis"
+date: "6/3/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Packages
+```{r}
+library(tidyverse)
+```
+
+
+## Intro to PCA from https://www.r-bloggers.com/computing-and-visualizing-pca-in-r/
+
+```{r}
+# Load data
+data(iris)
+iris <- as_tibble(iris)
+head(iris, 3)
+
+# Exploratory Data Analysis
+sum(is.na(iris))
+
+# reshape and plot with ggplot2
+iris %>%
+  gather(Sepal.Length:Petal.Width, 
+         key = "morphology", value = "value") %>%
+  ggplot(aes(x = Species, y = value)) +
+  geom_point(aes(colour = morphology), position = "jitter")
+
+## We see some segragation of the morphological characteristics per species, maybe we can use the morphology to classify the species?
+
+## PCA uses an unsupervised algorithm to investigate segregation and clustering of data points
+
+## Let's look at the distributions first
+iris %>%
+  gather(Sepal.Length:Petal.Width, 
+         key = "morphology", value = "value") %>%
+  ggplot(aes(x = value)) +
+  geom_freqpoly() +
+  facet_grid(morphology ~ Species, scales = "free")
+
+
+
+# log transform 
+log_iris <- log(iris[, 1:4]) ## only numeric variables can be used for PCA
+iris_species <- iris[, 5] ## labels
+
+# see transformation effect
+iris %>%
+  gather(Sepal.Length:Petal.Width, 
+         key = "morphology", value = "value") %>%
+  ggplot(aes(x = log(value))) +
+  geom_freqpoly() +
+  facet_grid(morphology ~ Species, scales = "free")
+
+ 
+# apply PCA - scale. = TRUE is highly 
+# advisable, but default is FALSE. 
+iris_pca <- prcomp(log_iris,
+                 center = TRUE,
+                 scale = TRUE) 
+
+iris_pca
+# print method
+print(iris_pca)
+
+## access data-pca
+iris_pca$x
+
+# plot method
+plot(iris_pca, type = "l")
+
+# summary method
+summary(iris_pca)
+
+# Predict PCs (can be valuable to use PCs in supervised ML)
+predict(iris_pca, 
+        newdata=tail(log_iris, 2))
+
+# ggplot2 to visualize pca - PC1 vs PC2
+as_tibble(iris_pca$x) %>%
+  mutate(description = iris_species$Species) %>%
+#  separate(description, c('subject', 'time', 'protocol'), sep = '__') %>%
+#  mutate(subject = as.numeric(subject)) %>%
+#  mutate(subject = as.character(subject)) %>%
+
+ggplot(aes(x = PC1, y = PC2, color = description)) +
+  geom_point() +
+  theme_bw() 
+
+```
+
+# ggplot2 to visualize pca - PC1 vs PC3
+```{r}
+as_tibble(iris_pca$x) %>%
+  mutate(description = iris_species$Species) %>%
+#  separate(description, c('subject', 'time', 'protocol'), sep = '__') %>%
+#  mutate(subject = as.numeric(subject)) %>%
+#  mutate(subject = as.character(subject)) %>%
+
+ggplot(aes(x = PC1, y = PC3, color = description)) +
+  geom_point() +
+  theme_bw() 
+
+```
+
+# ggplot2 to visualize pca - PC2 vs PC3
+```{r}
+as_tibble(iris_pca$x) %>%
+  mutate(description = iris_species$Species) %>%
+#  separate(description, c('subject', 'time', 'protocol'), sep = '__') %>%
+#  mutate(subject = as.numeric(subject)) %>%
+#  mutate(subject = as.character(subject)) %>%
+
+ggplot(aes(x = PC1, y = PC3, color = description)) +
+  geom_point() +
+  theme_bw() 
+
+```
+
+
+## More info: 
+
+ - http://www.sthda.com/english/wiki/print.php?id=206
+ - https://blog.bioturing.com/2018/06/18/how-to-read-pca-biplots-and-scree-plots/
+ - https://www.benjaminbell.co.uk/2018/02/principal-components-analysis-pca-in-r.html#update-ellipse
+
+
+
+
+
+
+
+
+```
+
